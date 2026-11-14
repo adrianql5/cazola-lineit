@@ -10,7 +10,7 @@ public class TransferServiceTests
         var from = new Account("A", 100m);
         var to = new Account("B", 0m);
         new TransferService().Transfer(from, to, 40m);
-        Assert.Equal(60m, from.Balance);
+        Assert.Equal(59.4m, from.Balance); // 40 moved + 0.6 fee
         Assert.Equal(40m, to.Balance);
     }
 
