@@ -151,6 +151,7 @@ class GitHubActionTests(unittest.TestCase):
         self.assertIn("Earned-Trust review", fake.posted[0])
         self.assertTrue(fake.reviews and fake.reviews[0]["comments"])
         self.assertEqual(fake.checks[-1]["conclusion"], "action_required")
+        self.assertIn("never runs the PR's code", fake.posted[0])
 
 
 if __name__ == "__main__":

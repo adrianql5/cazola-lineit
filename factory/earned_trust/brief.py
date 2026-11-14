@@ -61,7 +61,8 @@ def summary(r: dict) -> list[str]:
     """The lines on top. Also used as the check run's summary."""
     ch, cl, rt, au, ab = r["change"], r["classifier"], r["router"], r["auditor"], r["abstentions"]
     rd = rt["read"]
-    out = [f"**What:** {ch['issue_title'].rstrip('.') or ch['subject']} (#{ch['issue']}) · {plural(ch['files'], 'file')}"]
+    issue = f" (#{ch['issue']})" if ch["issue"] else ""
+    out = [f"**What:** {ch['issue_title'].rstrip('.') or ch['subject']}{issue} · {plural(ch['files'], 'file')}"]
     if rt["tier"] == "T2":
         rules = sorted({t["rule"] for t in cl["triggers"]})
         why = ", ".join(WHY_FULL_READ.get(x, x) for x in rules[:2])

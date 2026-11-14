@@ -141,7 +141,11 @@ def ts(s: str) -> float:
     return time.mktime(time.strptime(s, "%Y-%m-%dT%H:%M:%SZ"))
 
 
-def evidence(change: sources.Change, run_dir: Path, target: Path | None, old_body: str) -> dict | None:
+NOT_RUN_HERE = "the PR's code is never run by this review (pull requests to the default branch, forks included)"
+
+
+def evidence(change: sources.Change, run_dir: Path, target: Path | None, old_body: str,
+             never_run: bool = False) -> dict | None:
     """Run the tests the change adds; on comment events, reuse the result
     stored (hidden) in the brief comment for the same commit."""
     if target is None:
@@ -150,6 +154,8 @@ def evidence(change: sources.Change, run_dir: Path, target: Path | None, old_bod
             ev = json.loads(m.group(1))
             if ev.get("sha") == change.sha:
                 return ev
+        if never_run:
+            return {"status": "NOT RUN", "sha": change.sha, "why": NOT_RUN_HERE}
         return None
     facts = json.loads((FACTORY / "knowledge" / "facts.json").read_text())["facts"]
     added = tracer.run(change, run_dir, facts)["tests_added"]
@@ -299,7 +305,8 @@ def main(target: str | None, reset_pr: int | None = None) -> int:
     reuse = trigger is not None or reset_pr is not None
     if reuse:
         restore_llm(mine["body"] if mine else "", sha, llm_cache)
-    ev = evidence(change, run_dir, Path(target).resolve() if target else None, mine["body"] if mine else "")
+    ev = evidence(change, run_dir, Path(target).resolve() if target else None, mine["body"] if mine else "",
+                  never_run=name == "pull_request_target")
     if ev:
         (run_dir / "tests.json").write_text(json.dumps(ev, indent=1))
 
