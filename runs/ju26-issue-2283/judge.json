@@ -1,0 +1,48 @@
+{
+ "stage": "judge",
+ "accepted": [
+  {
+   "id": "P-GLOBAL-WRAP",
+   "source": "rules (deterministic)",
+   "category": "prosecution",
+   "severity": "high",
+   "claim": "`reportDiagnostic` is wrapped by `ReportIfLocatedInCompilation` for every caller, so whatever `ReportIfLocatedInCompilation` filters out is dropped for all diagnostics, not only the ones the issue is about (e.g. a diagnostic of the compilation's own type whose location is null or Location.None)",
+   "file": "src/MessagePack.SourceGenerator/CodeAnalysis/TypeCollector.cs",
+   "line_start": 239,
+   "line_end": 239,
+   "symbol": "ReportIfLocatedInCompilation",
+   "phantom_test": "[Fact]\npublic async Task DiagnosticWithoutSourceLocationFromOwnCompilationIsStillReported()\n{\n    // A [MessagePackObject] declared in THIS compilation whose diagnostic has no syntax location\n    // must still be reported after `ReportIfLocatedInCompilation` was introduced.\n    // Arrange a type in the test source, trigger a diagnostic created with Location.None,\n    // and assert it appears in the analyzer results.\n}",
+   "also_at": [],
+   "verdict": "ACCEPTED",
+   "kind": "citation_verified",
+   "why": "`ReportIfLocatedInCompilation` is on a changed line of src/MessagePack.SourceGenerator/CodeAnalysis/TypeCollector.cs:239-239",
+   "evidence": [
+    {
+     "line": 239,
+     "kind": "+",
+     "text": "        this.reportDiagnostic = reportAnalyzerDiagnostic is null ? null : diagnostic => ReportIfLocatedInCompilation(reportAnalyzerDiagnostic, diagnostic);"
+    }
+   ]
+  }
+ ],
+ "rejected": [
+  {
+   "branch": "ju26-issue-2283",
+   "claim": "PipeReader with LZ4 decompression does not advance the reader on a partial frame",
+   "symbol": "PipeReader",
+   "file": null,
+   "line_start": null,
+   "line_end": null,
+   "id": "DRAFT-4",
+   "source": "replay: our LLM-written concept draft",
+   "category": "prosecution",
+   "severity": "high",
+   "phantom_test": null,
+   "verdict": "REJECTED",
+   "kind": "hallucination_rejected",
+   "why": "cites no file or line, and `PipeReader` appears nowhere in the diff"
+  }
+ ],
+ "total": 2,
+ "rejection_rate": 0.5
+}

@@ -1,0 +1,1 @@
+{"branch":"ju26-issue-2297","issue":2297,"sha":"a0aa5ab2de7f5a669d97e37184a89034c1de82b6","parent":"32258fdbee4bcd653c79f51b4376b5103c6f4d27","author":"Stelian Vultur","date":"2026-11-12T14:12:22+02:00","subject":"implement issue #2297 : Add ExcludeFromCodeCoverage attribute to generated code"}

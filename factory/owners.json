@@ -1,0 +1,5 @@
+{
+  "note": "Who may /sign offline. On GitHub the app checks CODEOWNERS or write permission instead. demo-* logins are used only by simulated sessions, which are labelled as such.",
+  "owners": ["adrianql5", "demo-owner"],
+  "second_reviewers": ["demo-second-reviewer"]
+}

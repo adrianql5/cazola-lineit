@@ -1,0 +1,50 @@
+{
+ "stage": "prosecutor",
+ "llm": {
+  "status": "NOT RUN",
+  "why": "offline and no cached answer for this input"
+ },
+ "accusations": [
+  {
+   "id": "P-TEST-EXCLUDED",
+   "source": "rules (deterministic)",
+   "category": "prosecution",
+   "severity": "high",
+   "claim": "New execution tests are excluded from MapModeExecutionTests, so the new formatters are never run in map mode: an evidence gap, not a pass",
+   "file": "tests/MessagePack.SourceGenerator.MapModeExecutionTests/MessagePack.SourceGenerator.MapModeExecutionTests.csproj",
+   "line_start": 14,
+   "line_end": 14,
+   "symbol": "Exclude",
+   "phantom_test": null,
+   "also_at": []
+  },
+  {
+   "id": "P-DOUBLE-RUN",
+   "source": "rules (deterministic)",
+   "category": "prosecution",
+   "severity": "low",
+   "claim": "`GeneratedFormatterCollector.Collect` runs twice per formatter (once for the model with diagnostics off, once for the diagnostics): double cost, and the two runs can disagree if one changes",
+   "file": "src/MessagePack.SourceGenerator/MessagePackGenerator.cs",
+   "line_start": 72,
+   "line_end": 72,
+   "symbol": "GeneratedFormatterCollector.Collect",
+   "phantom_test": null,
+   "also_at": [
+    125
+   ]
+  },
+  {
+   "branch": "ju26-issue-2129",
+   "claim": "DateTimeOffset is boxed and written as 0x92 followed by Ext 0x7f, changing the wire format",
+   "symbol": "0x7f",
+   "file": null,
+   "line_start": null,
+   "line_end": null,
+   "id": "DRAFT-3",
+   "source": "replay: our LLM-written concept draft",
+   "category": "prosecution",
+   "severity": "high",
+   "phantom_test": null
+  }
+ ]
+}

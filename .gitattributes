@@ -1,0 +1,3 @@
+# Replayed diffs are hashed into receipts: keep their bytes
+factory/cache/** -text
+* text=auto eol=lf

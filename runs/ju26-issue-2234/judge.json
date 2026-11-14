@@ -1,0 +1,77 @@
+{
+ "stage": "judge",
+ "accepted": [
+  {
+   "id": "P-FIRST-WINS",
+   "source": "rules (deterministic)",
+   "category": "prosecution",
+   "severity": "medium",
+   "claim": "With duplicate keys the first member wins and the later one is dropped from the serialization model silently; only the MsgPack005 error stops the build. This is the shared collection path, so it also changes types that do get a generated formatter",
+   "file": "src/MessagePack.SourceGenerator/CodeAnalysis/TypeCollector.cs",
+   "line_start": 1023,
+   "line_end": 1023,
+   "symbol": "ContainsKey",
+   "phantom_test": "[Fact]\npublic async Task DuplicateKeyMemberIsNotSilentlyDroppedWhenDiagnosticIsSuppressed()\n{\n    // With MsgPack005 suppressed via .editorconfig, a duplicate [Key(0)] must not produce\n    // a formatter that silently omits the second member.\n}",
+   "also_at": [
+    1039,
+    1163,
+    1179
+   ],
+   "verdict": "ACCEPTED",
+   "kind": "citation_verified",
+   "why": "`ContainsKey` is on a changed line of src/MessagePack.SourceGenerator/CodeAnalysis/TypeCollector.cs:1023-1023",
+   "evidence": [
+    {
+     "line": 1023,
+     "kind": "+",
+     "text": "                        if (!intMembers.ContainsKey(member.IntKey))"
+    }
+   ]
+  },
+  {
+   "id": "P-SILENT-SKIP",
+   "source": "rules (deterministic)",
+   "category": "prosecution",
+   "severity": "medium",
+   "claim": "After reporting, the member is skipped with `continue`, so it is missing from the model; if the diagnostic's severity is lowered by the user, the generated formatter silently leaves it out",
+   "file": "src/MessagePack.SourceGenerator/CodeAnalysis/TypeCollector.cs",
+   "line_start": 1008,
+   "line_end": 1008,
+   "symbol": "continue",
+   "phantom_test": null,
+   "also_at": [
+    1148
+   ],
+   "verdict": "ACCEPTED",
+   "kind": "citation_verified",
+   "why": "`continue` is on a changed line of src/MessagePack.SourceGenerator/CodeAnalysis/TypeCollector.cs:1008-1008",
+   "evidence": [
+    {
+     "line": 1008,
+     "kind": "+",
+     "text": "                            continue; // The key kind does not match the other members; the diagnostic is reported, so skip this member."
+    }
+   ]
+  }
+ ],
+ "rejected": [
+  {
+   "branch": "ju26-issue-2234",
+   "claim": "A [ThreadStatic] UTF-8 buffer is reused across calls and can leak data between threads",
+   "symbol": "[ThreadStatic]",
+   "file": null,
+   "line_start": null,
+   "line_end": null,
+   "id": "DRAFT-1",
+   "source": "replay: our LLM-written concept draft",
+   "category": "prosecution",
+   "severity": "high",
+   "phantom_test": null,
+   "verdict": "REJECTED",
+   "kind": "hallucination_rejected",
+   "why": "cites no file or line, and `[ThreadStatic]` appears nowhere in the diff"
+  }
+ ],
+ "total": 3,
+ "rejection_rate": 0.333
+}

@@ -1,0 +1,9 @@
+{
+  "source": "Our own concept draft (earned-trust-pr-factory.md), written with an LLM before anyone read the branches. The team quoted these example findings in the build prompt and flagged them as not existing in the real diffs.",
+  "accusations": [
+    {"branch": "ju26-issue-2234", "claim": "A [ThreadStatic] UTF-8 buffer is reused across calls and can leak data between threads", "symbol": "[ThreadStatic]", "file": null, "line_start": null, "line_end": null},
+    {"branch": "ju26-issue-2297", "claim": "`finally { reader.Depth--; }` can underflow the reader depth when an exception is thrown", "symbol": "reader.Depth--", "file": null, "line_start": null, "line_end": null},
+    {"branch": "ju26-issue-2129", "claim": "DateTimeOffset is boxed and written as 0x92 followed by Ext 0x7f, changing the wire format", "symbol": "0x7f", "file": null, "line_start": null, "line_end": null},
+    {"branch": "ju26-issue-2283", "claim": "PipeReader with LZ4 decompression does not advance the reader on a partial frame", "symbol": "PipeReader", "file": null, "line_start": null, "line_end": null}
+  ]
+}

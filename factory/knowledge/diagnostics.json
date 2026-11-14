@@ -1,0 +1,80 @@
+{
+ "source": "MessagePack-CSharp master: src/MessagePack.SourceGenerator/Analyzers/MsgPack00xMessagePackAnalyzer.cs",
+ "ids": {
+  "MsgPack003": [
+   "TypeMustBeMessagePackObject",
+   "UseMessagePackObjectAttributeId"
+  ],
+  "MsgPack006": [
+   "MessageFormatterMustBeMessagePackFormatter",
+   "MessagePackFormatterMustBeMessagePackFormatterId"
+  ],
+  "MsgPack004": [
+   "MemberNeedsKey",
+   "BaseTypeContainsUnattributedPublicMembers",
+   "AttributeMessagePackObjectMembersId"
+  ],
+  "MsgPack005": [
+   "InvalidMessagePackObject",
+   "BothStringAndIntKeyAreNull",
+   "DoNotMixStringAndIntKeys",
+   "KeysMustBeUnique",
+   "UnionAttributeRequired",
+   "KeyAnnotatedMemberInMapMode",
+   "InvalidMessagePackObjectId"
+  ],
+  "MsgPack007": [
+   "NoDeserializingConstructor",
+   "DeserializingConstructorParameterTypeMismatch",
+   "DeserializingConstructorParameterIndexMissing",
+   "DeserializingConstructorParameterNameMissing",
+   "DeserializingConstructorParameterNameDuplicate",
+   "DeserializingConstructorId"
+  ],
+  "MsgPack008": [
+   "AotUnionAttributeRequiresTypeArg",
+   "AotArrayRankTooHigh",
+   "AOTLimitationsId"
+  ],
+  "MsgPack016": [
+   "AOTDerivedKeyAttribute",
+   "AOTDerivedKeyId"
+  ],
+  "MsgPack017": [
+   "AOTInitProperty",
+   "AOTInitPropertyId"
+  ],
+  "MsgPack009": [
+   "CollidingFormatters",
+   "CollidingFormattersId"
+  ],
+  "MsgPack013": [
+   "InaccessibleFormatterInstance",
+   "InaccessibleFormatterInstanceId"
+  ],
+  "MsgPack010": [
+   "InaccessibleFormatterType",
+   "InaccessibleFormatterTypeId"
+  ],
+  "MsgPack011": [
+   "PartialTypeRequired",
+   "PartialTypeRequiredId"
+  ],
+  "MsgPack012": [
+   "InaccessibleDataType",
+   "InaccessibleDataTypeId"
+  ],
+  "MsgPack014": [
+   "NullableReferenceTypeFormatter",
+   "NullableReferenceTypeFormatterId"
+  ],
+  "MsgPack015": [
+   "MessagePackObjectAllowPrivateRequired",
+   "MessagePackObjectAllowPrivateId"
+  ],
+  "MsgPack018": [
+   "CollidingMemberNamesInForceMapMode",
+   "CollidingMemberNamesInForceMapModeId"
+  ]
+ }
+}

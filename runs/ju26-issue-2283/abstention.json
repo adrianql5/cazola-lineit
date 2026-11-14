@@ -1,0 +1,18 @@
+[
+ {
+  "id": "ABS-1",
+  "status": "ABSTAINED",
+  "kind": "diagnostic-policy",
+  "decision": "Is it acceptable that every diagnostic without a source location in this compilation is now dropped, not only those from referenced assemblies?",
+  "why_not_ai": "Which diagnostics users may lose is analyzer policy; the AI can point at the filter, not weigh the trade-off.",
+  "missing_evidence": [
+   "a test showing a diagnostic of the compilation's own type with a null location is still reported"
+  ],
+  "who_decides": "the analyzer maintainers",
+  "options": [
+   "accept-global-filter",
+   "narrow-to-metadata-types"
+  ],
+  "cite": "src/MessagePack.SourceGenerator/CodeAnalysis/TypeCollector.cs:239"
+ }
+]

@@ -1,0 +1,79 @@
+{
+  "issue": 2129,
+  "curated_by": "team (human), from the issue text",
+  "requirements": [
+    {
+      "id": "REQ-2129-1",
+      "kind": "stated",
+      "text": "[GeneratedMessagePackFormatter] on a partial class implementing IMessagePackFormatter<T> makes the generator write that formatter in the consuming project",
+      "quote": "Add a `[GeneratedMessagePackFormatter]` attribute that will work for partial classes implementing `IMessagePackFormatter<T>`.",
+      "implements": [
+        {
+          "path": "Attributes\\.cs$",
+          "added": "class GeneratedMessagePackFormatterAttribute"
+        }
+      ],
+      "tests": [
+        "RoundTrips",
+        "GeneratedFormattersAreRegistered"
+      ]
+    },
+    {
+      "id": "REQ-2129-2",
+      "kind": "stated",
+      "text": "The assembly that defines T does not reference MessagePack",
+      "quote": "the latter has no (and cannot have) reference to MessagePack nuget package",
+      "implements": [
+        {
+          "path": "ExternalTypes\\.csproj$",
+          "added": "does NOT reference MessagePack"
+        }
+      ],
+      "tests": [
+        "External"
+      ]
+    },
+    {
+      "id": "REQ-2129-3",
+      "kind": "open question in the issue",
+      "text": "How keys and settings (Key, Union...) are given for T: the issue lists three alternatives and picks none",
+      "quote": "As for the attribute-based property keys and other settings (such as Union), I can think of 3 alternatives",
+      "implements": [
+        {
+          "path": "^src/",
+          "added": "SurrogateType|contractless"
+        }
+      ],
+      "tests": [
+        "Surrogate",
+        "Contractless"
+      ]
+    }
+  ],
+  "alternatives": [
+    {
+      "name": "System.Runtime.Serialization DataMember attributes",
+      "added": "DataMember"
+    },
+    {
+      "name": "user-defined copies of the MessagePack attributes",
+      "added": "user-defined|ApproximatelyEqual\\(.*Key"
+    },
+    {
+      "name": "attributes source-generated with RegisterPostInitializationOutput",
+      "added": "RegisterPostInitializationOutput"
+    }
+  ],
+  "scope_terms": [
+    "GeneratedMessagePackFormatter",
+    "GeneratedFormatter",
+    "Surrogate",
+    "IsUserDeclaredFormatter",
+    "MsgPack019",
+    "MsgPack020",
+    "MsgPack021",
+    "MsgPack022",
+    "Contractless",
+    "contractless"
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "labelled_by": "Claude Code (the build engineer), after reading each cited hunk on 2026-11-14; a person on the team should re-label before the numbers are quoted",
+  "meaning": "real = what the finding says about the code is true; false_positive = it is not. Whether a true finding is worth fixing is the signer's call, in the note.",
+  "labels": {
+    "ju26-issue-2129": {
+      "P-TEST-EXCLUDED": {"label": "real", "note": "MapModeExecutionTests.csproj excludes GeneratedFormatterForExternalTypes*.cs: the new formatters never run in map mode"},
+      "P-DOUBLE-RUN": {"label": "real", "note": "GeneratedFormatterCollector.Collect is called in the model pipeline (reportDiagnostic: null) and again in the diagnostics pipeline; low severity"}
+    },
+    "ju26-issue-2234": {
+      "P-FIRST-WINS": {"label": "real", "note": "ContainsKey guard keeps the first member; MsgPack005 is still an error, so impact needs the user to suppress it"},
+      "P-SILENT-SKIP": {"label": "real", "note": "true as stated; before the change the same input crashed the analyzer, so this may be the better behaviour"}
+    },
+    "ju26-issue-2283": {
+      "P-GLOBAL-WRAP": {"label": "real", "note": "the constructor wraps every reportDiagnostic call in ReportIfLocatedInCompilation"}
+    },
+    "ju26-issue-2297": {
+      "SCOPE-1": {"label": "real", "note": "TransformUtilities.cs:58 only changes \"{\" to \"{\\r\\n\"; #2297 does not ask for it"},
+      "DRIFT-1": {"label": "real", "note": "the #if guard leaves netstandard2.0/.NET Framework consumers without the attribute"},
+      "DRIFT-2": {"label": "real", "note": "README says the attribute is unavailable there; Microsoft docs list netstandard-2.0 and netframework-4.0+"},
+      "DRIFT-3": {"label": "real", "note": "same false statement in the test's comment"}
+    }
+  }
+}

@@ -1,0 +1,1 @@
+{"branch":"ju26-issue-2234","issue":2234,"sha":"9007cee1163c4a274fd60c3cc20c21ae63622786","parent":"32258fdbee4bcd653c79f51b4376b5103c6f4d27","author":"Stelian Vultur","date":"2026-11-12T01:00:52+02:00","subject":"Implementation for #2234 The analyzer does not work if SuppressSourceGeneration = true"}

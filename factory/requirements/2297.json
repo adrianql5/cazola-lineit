@@ -1,0 +1,36 @@
+{
+  "issue": 2297,
+  "curated_by": "team (human), from the issue text",
+  "requirements": [
+    {
+      "id": "REQ-2297-1",
+      "kind": "stated",
+      "text": "All generated code is decorated with [ExcludeFromCodeCoverage]",
+      "quote": "I would like all generated code to be decorated with ExcludeFromCodeCoverage attribute.",
+      "implements": [
+        {
+          "path": "Transforms/.*\\.tt$",
+          "added": "ExcludeFromCodeCoverage"
+        }
+      ],
+      "tests": [
+        "ExcludeFromCodeCoverage",
+        "ExcludeAttribute"
+      ],
+      "contradicts": [
+        {
+          "path": "Transforms/.*\\.tt$",
+          "added": "#if !NETSTANDARD2_0 && !NETFRAMEWORK",
+          "why": "the attribute is compiled out for consumers that target netstandard2.0 or .NET Framework, so not all generated code carries it",
+          "fact": "FACT-ECC-AVAILABILITY"
+        }
+      ]
+    }
+  ],
+  "alternatives": [],
+  "scope_terms": [
+    "ExcludeFromCodeCoverage",
+    "NETSTANDARD2_0",
+    "NETFRAMEWORK"
+  ]
+}

@@ -1,0 +1,67 @@
+{
+ "stage": "router",
+ "tier": "T2",
+ "policy": "factory rules (earned_trust/gate.py + classifier.py)",
+ "reasons": [
+  "T2-ANALYZER-SEVERITY: new or changed analyzer rule severity: it can break users' builds",
+  "T2-PUBLIC-API: new public type or member in a published package (MessagePack, MessagePack.Annotations)",
+  "T2-SERIALIZATION-CONTRACT: changes how members map to the wire format by default",
+  "T2-TEST-EXCLUSION: tests excluded from a test project: evidence that silently stops running"
+ ],
+ "second_reviewer": false,
+ "module_states": {
+  ".": "REVOKED",
+  "doc": "REVOKED",
+  "src": "PROBATION",
+  "src/MessagePack.SourceGenerator": "EARNED",
+  "src/MessagePack.SourceGenerator/Analyzers": "PROBATION",
+  "src/MessagePack.SourceGenerator/CodeAnalysis": "PROBATION",
+  "src/MessagePack.SourceGenerator/Transforms": "PROBATION",
+  "src/MessagePack.SourceGenerator/Utils": "PROBATION",
+  "tests/MessagePack.SourceGenerator.ExecutionTests": "PROBATION",
+  "tests": "PROBATION",
+  "tests/MessagePack.SourceGenerator.MapModeExecutionTests": "PROBATION",
+  "tests/MessagePack.SourceGenerator.Tests": "PROBATION"
+ },
+ "read": {
+  "files_total": 28,
+  "files_must_read": 26,
+  "files_hidden": 2,
+  "lines_total": 1043,
+  "lines_must_read": 1035,
+  "lines_tests_summarized": 0,
+  "lines_hidden": 8
+ },
+ "must_read": [
+  "README.md",
+  "doc/analyzers/MsgPack019.md",
+  "doc/analyzers/MsgPack020.md",
+  "doc/analyzers/MsgPack021.md",
+  "doc/analyzers/MsgPack022.md",
+  "doc/analyzers/index.md",
+  "src/MessagePack.Annotations/Attributes.cs",
+  "src/MessagePack.SourceGenerator/AnalyzerReleases.Unshipped.md",
+  "src/MessagePack.SourceGenerator/Analyzers/MsgPack00xMessagePackAnalyzer.cs",
+  "src/MessagePack.SourceGenerator/CodeAnalysis/GeneratedFormatterCollector.cs",
+  "src/MessagePack.SourceGenerator/CodeAnalysis/GeneratedFormatterRequest.cs",
+  "src/MessagePack.SourceGenerator/CodeAnalysis/ObjectSerializationInfo.cs",
+  "src/MessagePack.SourceGenerator/GeneratorUtilities.cs",
+  "src/MessagePack.SourceGenerator/MessagePackGenerator.cs",
+  "src/MessagePack.SourceGenerator/Transforms/FormatterTemplate.tt",
+  "src/MessagePack.SourceGenerator/Transforms/StringKey/StringKeyFormatterTemplate.tt",
+  "src/MessagePack.SourceGenerator/Utils/Constants.cs",
+  "tests/MessagePack.SourceGenerator.ExecutionTests/GeneratedFormatterForExternalTypes.cs",
+  "tests/MessagePack.SourceGenerator.ExecutionTests/GeneratedFormatterForExternalTypesTests.cs",
+  "tests/MessagePack.SourceGenerator.ExecutionTests/MessagePack.SourceGenerator.ExecutionTests.csproj",
+  "tests/MessagePack.SourceGenerator.ExternalTypes/ExternalPerson.cs",
+  "tests/MessagePack.SourceGenerator.ExternalTypes/ExternalPoint.cs",
+  "tests/MessagePack.SourceGenerator.ExternalTypes/ExternalWidget.cs",
+  "tests/MessagePack.SourceGenerator.ExternalTypes/MessagePack.SourceGenerator.ExternalTypes.csproj",
+  "tests/MessagePack.SourceGenerator.MapModeExecutionTests/MessagePack.SourceGenerator.MapModeExecutionTests.csproj",
+  "tests/MessagePack.SourceGenerator.Tests/GeneratedMessagePackFormatterTests.cs"
+ ],
+ "hidden": [
+  "src/MessagePack.SourceGenerator/Transforms/FormatterTemplate.cs",
+  "src/MessagePack.SourceGenerator/Transforms/StringKey/StringKeyFormatterTemplate.cs"
+ ]
+}

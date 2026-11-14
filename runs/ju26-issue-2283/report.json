@@ -1,0 +1,431 @@
+{
+ "classifier": {
+  "stage": "classifier",
+  "engine": "heuristic: diff shape + text within each shape + regex rules (Roslyn classifier not used)",
+  "files": [
+   {
+    "path": "README.md",
+    "category": "docs",
+    "reason": "documentation",
+    "added": 5,
+    "deleted": 0,
+    "status": "modified"
+   },
+   {
+    "path": "doc/analyzers/MsgPack004.md",
+    "category": "docs",
+    "reason": "documentation",
+    "added": 5,
+    "deleted": 0,
+    "status": "modified"
+   },
+   {
+    "path": "src/MessagePack.SourceGenerator/CodeAnalysis/TypeCollector.cs",
+    "category": "semantic",
+    "reason": "source code",
+    "added": 26,
+    "deleted": 3,
+    "status": "modified"
+   },
+   {
+    "path": "tests/MessagePack.SourceGenerator.Tests/GenericsFormatterTests.cs",
+    "category": "test",
+    "reason": "test code",
+    "added": 189,
+    "deleted": 0,
+    "status": "modified"
+   }
+  ],
+  "counts": {
+   "docs": 2,
+   "semantic": 1,
+   "test": 1
+  },
+  "snapshots": 0,
+  "groups": [],
+  "outlier_threshold": 2,
+  "content_check": true,
+  "outliers": [],
+  "triggers": []
+ },
+ "tracer": {
+  "stage": "tracer",
+  "requirements_source": "requirements/2283.json",
+  "curated_by": "team (human), from the issue text; online, an LLM can propose these and a human confirms them",
+  "execution": {
+   "status": "PASS",
+   "sha": "9df83c38409c8bfad0517aebffe48211eda4a5b4",
+   "how": "docker mcr.microsoft.com/dotnet/sdk:8.0",
+   "command": "dotnet test \"tests/MessagePack.SourceGenerator.Tests/MessagePack.SourceGenerator.Tests.csproj\" -c Release --filter \"FullyQualifiedName~ClosedGenericRecordStruct_FromMetadataReference|FullyQualifiedName~ClosedGenericStruct_FromMetadataReference|FullyQualifiedName~ClosedGenericStruct_FromMetadataReference_UnkeyedMember\" --nologo",
+   "projects": [
+    "tests/MessagePack.SourceGenerator.Tests/MessagePack.SourceGenerator.Tests.csproj"
+   ],
+   "passed": 3,
+   "failed": 0,
+   "seconds": 19,
+   "ran_at": "2026-11-14T05:30:00Z",
+   "why": "3 passed, 0 failed (docker mcr.microsoft.com/dotnet/sdk:8.0)",
+   "log_tail": "\n  Determining projects to restore...\n  Restored /src/src/MessagePack.Annotations/MessagePack.Annotations.csproj (in 1.52 sec).\n  Restored /src/src/MessagePack/MessagePack.csproj (in 2.45 sec).\n  Restored /src/src/MessagePack.SourceGenerator/MessagePack.SourceGenerator.csproj (in 3.06 sec).\n  Restored /src/src/MessagePack.Analyzers.CodeFixes/MessagePack.Analyzers.CodeFixes.csproj (in 3.07 sec).\n  Restored /src/src/MessagePack.Analyzers/MessagePack.Analyzers.csproj (in 3.07 sec).\n/src/tests/MessagePack.SourceGenerator.Tests/MessagePack.SourceGenerator.Tests.csproj : warning NU1901: Package 'NuGet.Protocol' 6.8.0 has a known low severity vulnerability, https://github.com/advisories/GHSA-g4vj-cjjj-v7hg\n  Restored /src/tests/MessagePack.SourceGenerator.Tests/MessagePack.SourceGenerator.Tests.csproj (in 10.91 sec).\n/src/tests/MessagePack.SourceGenerator.Tests/MessagePack.SourceGenerator.Tests.csproj : warning NU1901: Package 'NuGet.Protocol' 6.8.0 has a known low severity vulnerability, https://github.com/advisories/GHSA-g4vj-cjjj-v7hg\n  MessagePack.SourceGenerator -> /src/bin/MessagePack.SourceGenerator/Release/netstandard2.0/MessagePack.SourceGenerator.dll\n  MessagePack.Analyzers.CodeFixes -> /src/bin/MessagePack.Analyzers.CodeFixes/Release/netstandard2.0/MessagePack.Analyzers.CodeFixes.dll\n  MessagePack.Analyzers -> /src/bin/MessagePack.Analyzers/Release/netstandard2.0/MessagePack.Analyzers.dll\n  MessagePack.Annotations -> /src/bin/MessagePack.Annotations/Release/netstandard2.0/MessagePack.Annotations.dll\n  MessagePack -> /src/bin/MessagePack/Release/net8.0/MessagePack.dll\n  MessagePack.SourceGenerator.Tests -> /src/bin/MessagePack.SourceGenerator.Tests/Release/net8.0/MessagePack.SourceGenerator.Tests.dll\nTest run for /src/bin/MessagePack.SourceGenerator.Tests/Release/net8.0/MessagePack.SourceGenerator.Tests.dll (.NETCoreApp,Version=v8.0)\nA total of 1 test files matched the specified pattern.\n\nPassed!  - Failed:     0, Passed:     3, Skipped:     0, Total:     3, Duration: 68 ms - MessagePack.SourceGenerator.Tests.dll (net8.0)\n\nBuild succeeded.\n\n/src/tests/MessagePack.SourceGenerator.Tests/MessagePack.SourceGenerator.Tests.csproj : warning NU1901: Package 'NuGet.Protocol' 6.8.0 has a known low severity vulnerability, https://github.com/advisories/GHSA-g4vj-cjjj-v7hg\n/src/tests/MessagePack.SourceGenerator.Tests/MessagePack.SourceGenerator.Tests.csproj : warning NU1901: Package 'NuGet.Protocol' 6.8.0 has a known low severity vulnerability, https://github.com/advisories/GHSA-g4vj-cjjj-v7hg\n    2 Warning(s)\n    0 Error(s)\n\nTime Elapsed 00:00:18.16\n"
+  },
+  "tests_added": [
+   {
+    "name": "ClosedGenericStruct_FromMetadataReference",
+    "file": "tests/MessagePack.SourceGenerator.Tests/GenericsFormatterTests.cs",
+    "line": 507
+   },
+   {
+    "name": "ClosedGenericRecordStruct_FromMetadataReference",
+    "file": "tests/MessagePack.SourceGenerator.Tests/GenericsFormatterTests.cs",
+    "line": 551
+   },
+   {
+    "name": "ClosedGenericStruct_FromMetadataReference_UnkeyedMember",
+    "file": "tests/MessagePack.SourceGenerator.Tests/GenericsFormatterTests.cs",
+    "line": 590
+   }
+  ],
+  "claims": [
+   {
+    "id": "REQ-2283-1",
+    "kind": "stated",
+    "claim": "The generator and the analyzer do not crash (IndexOutOfRangeException) when a [MessagePackObject] member's type is a closed generic value type from a referenced assembly",
+    "quote": "Both `MessagePackGenerator` (CS8785) and `MsgPack00xMessagePackAnalyzer` (AD0001) throw `IndexOutOfRangeException` ...",
+    "implementation": [
+     {
+      "file": "src/MessagePack.SourceGenerator/CodeAnalysis/TypeCollector.cs",
+      "line": 985,
+      "text": "this.reportDiagnostic?.Invoke(Diagnostic.Create(MsgPack00xMessagePackAnalyzer.BothStringAndIntKeyAreNull, GetPropertyIdentifierLocation(item"
+     }
+    ],
+    "tests": [
+     {
+      "test": "ClosedGenericStruct_FromMetadataReference",
+      "file": "tests/MessagePack.SourceGenerator.Tests/GenericsFormatterTests.cs",
+      "line": 507,
+      "matched": [
+       "FromMetadataReference"
+      ]
+     },
+     {
+      "test": "ClosedGenericRecordStruct_FromMetadataReference",
+      "file": "tests/MessagePack.SourceGenerator.Tests/GenericsFormatterTests.cs",
+      "line": 551,
+      "matched": [
+       "FromMetadataReference"
+      ]
+     },
+     {
+      "test": "ClosedGenericStruct_FromMetadataReference_UnkeyedMember",
+      "file": "tests/MessagePack.SourceGenerator.Tests/GenericsFormatterTests.cs",
+      "line": 590,
+      "matched": [
+       "FromMetadataReference"
+      ]
+     }
+    ],
+    "execution": "PASS",
+    "contradictions": [],
+    "status": "VERIFIED",
+    "why": "implemented, covered by 3 test(s) that ran and passed"
+   },
+   {
+    "id": "REQ-2283-2",
+    "kind": "stated",
+    "claim": "The consuming assembly gets a generated resolver",
+    "quote": "A clean build, with a generated resolver in `app`.",
+    "implementation": [
+     {
+      "file": "src/MessagePack.SourceGenerator/CodeAnalysis/TypeCollector.cs",
+      "line": 239,
+      "text": "this.reportDiagnostic = reportAnalyzerDiagnostic is null ? null : diagnostic => ReportIfLocatedInCompilation(reportAnalyzerDiagnostic, diagn"
+     }
+    ],
+    "tests": [
+     {
+      "test": "ClosedGenericStruct_FromMetadataReference",
+      "file": "tests/MessagePack.SourceGenerator.Tests/GenericsFormatterTests.cs",
+      "line": 507,
+      "matched": [
+       "Resolver.g.cs"
+      ]
+     },
+     {
+      "test": "ClosedGenericRecordStruct_FromMetadataReference",
+      "file": "tests/MessagePack.SourceGenerator.Tests/GenericsFormatterTests.cs",
+      "line": 551,
+      "matched": [
+       "Resolver.g.cs"
+      ]
+     },
+     {
+      "test": "ClosedGenericStruct_FromMetadataReference_UnkeyedMember",
+      "file": "tests/MessagePack.SourceGenerator.Tests/GenericsFormatterTests.cs",
+      "line": 590,
+      "matched": [
+       "Resolver.g.cs"
+      ]
+     }
+    ],
+    "execution": "PASS",
+    "contradictions": [],
+    "status": "VERIFIED",
+    "why": "implemented, covered by 3 test(s) that ran and passed"
+   },
+   {
+    "id": "REQ-2283-3",
+    "kind": "implicit constraint (reviewers' reading of the issue, not stated in it)",
+    "claim": "Diagnostics about types declared in the consuming compilation are still reported, even when their location is null",
+    "quote": "(implicit) the fix must not hide the consumer's own problems",
+    "implementation": [],
+    "tests": [],
+    "execution": "PASS",
+    "contradictions": [],
+    "status": "UNVERIFIED",
+    "why": "no implementing line and no test found"
+   },
+   {
+    "id": "DOC-2283-1",
+    "kind": "claim the change makes in its docs",
+    "claim": "Closed generic types defined in a referenced assembly (for example, `Item<int>` where `Item<T>` is defined in another project or NuGet package) can be used as members of your `[MessagePackObject]` types, including generic value types and record structs.",
+    "quote": "README.md:1641",
+    "implementation": [
+     {
+      "file": "README.md",
+      "line": 1641,
+      "text": "(the change's own documentation)"
+     }
+    ],
+    "tests": [
+     {
+      "test": "ClosedGenericStruct_FromMetadataReference",
+      "file": "tests/MessagePack.SourceGenerator.Tests/GenericsFormatterTests.cs",
+      "line": 507,
+      "matched": [
+       "MessagePackObject"
+      ]
+     },
+     {
+      "test": "ClosedGenericRecordStruct_FromMetadataReference",
+      "file": "tests/MessagePack.SourceGenerator.Tests/GenericsFormatterTests.cs",
+      "line": 551,
+      "matched": [
+       "Item<int>",
+       "Item<T>",
+       "MessagePackObject"
+      ]
+     },
+     {
+      "test": "ClosedGenericStruct_FromMetadataReference_UnkeyedMember",
+      "file": "tests/MessagePack.SourceGenerator.Tests/GenericsFormatterTests.cs",
+      "line": 590,
+      "matched": [
+       "MessagePackObject"
+      ]
+     }
+    ],
+    "execution": "PASS",
+    "contradictions": [],
+    "status": "VERIFIED",
+    "why": "implemented, covered by 3 test(s) that ran and passed"
+   }
+  ],
+  "alternatives": [],
+  "counts": {
+   "VERIFIED": 3,
+   "UNVERIFIED": 1
+  }
+ },
+ "auditor": {
+  "stage": "auditor",
+  "engine": "deterministic (scope terms + facts); LLM drift review is optional",
+  "scope_terms": [
+   "ReportIfLocatedInCompilation",
+   "DeclaringSyntaxReferences",
+   "GetPropertyIdentifierLocation",
+   "Location"
+  ],
+  "out_of_scope": [],
+  "outlier_links": [],
+  "findings": []
+ },
+ "prosecutor": {
+  "stage": "prosecutor",
+  "llm": {
+   "status": "NOT RUN",
+   "why": "offline and no cached answer for this input"
+  },
+  "accusations": [
+   {
+    "id": "P-GLOBAL-WRAP",
+    "source": "rules (deterministic)",
+    "category": "prosecution",
+    "severity": "high",
+    "claim": "`reportDiagnostic` is wrapped by `ReportIfLocatedInCompilation` for every caller, so whatever `ReportIfLocatedInCompilation` filters out is dropped for all diagnostics, not only the ones the issue is about (e.g. a diagnostic of the compilation's own type whose location is null or Location.None)",
+    "file": "src/MessagePack.SourceGenerator/CodeAnalysis/TypeCollector.cs",
+    "line_start": 239,
+    "line_end": 239,
+    "symbol": "ReportIfLocatedInCompilation",
+    "phantom_test": "[Fact]\npublic async Task DiagnosticWithoutSourceLocationFromOwnCompilationIsStillReported()\n{\n    // A [MessagePackObject] declared in THIS compilation whose diagnostic has no syntax location\n    // must still be reported after `ReportIfLocatedInCompilation` was introduced.\n    // Arrange a type in the test source, trigger a diagnostic created with Location.None,\n    // and assert it appears in the analyzer results.\n}",
+    "also_at": []
+   },
+   {
+    "branch": "ju26-issue-2283",
+    "claim": "PipeReader with LZ4 decompression does not advance the reader on a partial frame",
+    "symbol": "PipeReader",
+    "file": null,
+    "line_start": null,
+    "line_end": null,
+    "id": "DRAFT-4",
+    "source": "replay: our LLM-written concept draft",
+    "category": "prosecution",
+    "severity": "high",
+    "phantom_test": null
+   }
+  ]
+ },
+ "judge": {
+  "stage": "judge",
+  "accepted": [
+   {
+    "id": "P-GLOBAL-WRAP",
+    "source": "rules (deterministic)",
+    "category": "prosecution",
+    "severity": "high",
+    "claim": "`reportDiagnostic` is wrapped by `ReportIfLocatedInCompilation` for every caller, so whatever `ReportIfLocatedInCompilation` filters out is dropped for all diagnostics, not only the ones the issue is about (e.g. a diagnostic of the compilation's own type whose location is null or Location.None)",
+    "file": "src/MessagePack.SourceGenerator/CodeAnalysis/TypeCollector.cs",
+    "line_start": 239,
+    "line_end": 239,
+    "symbol": "ReportIfLocatedInCompilation",
+    "phantom_test": "[Fact]\npublic async Task DiagnosticWithoutSourceLocationFromOwnCompilationIsStillReported()\n{\n    // A [MessagePackObject] declared in THIS compilation whose diagnostic has no syntax location\n    // must still be reported after `ReportIfLocatedInCompilation` was introduced.\n    // Arrange a type in the test source, trigger a diagnostic created with Location.None,\n    // and assert it appears in the analyzer results.\n}",
+    "also_at": [],
+    "verdict": "ACCEPTED",
+    "kind": "citation_verified",
+    "why": "`ReportIfLocatedInCompilation` is on a changed line of src/MessagePack.SourceGenerator/CodeAnalysis/TypeCollector.cs:239-239",
+    "evidence": [
+     {
+      "line": 239,
+      "kind": "+",
+      "text": "        this.reportDiagnostic = reportAnalyzerDiagnostic is null ? null : diagnostic => ReportIfLocatedInCompilation(reportAnalyzerDiagnostic, diagnostic);"
+     }
+    ]
+   }
+  ],
+  "rejected": [
+   {
+    "branch": "ju26-issue-2283",
+    "claim": "PipeReader with LZ4 decompression does not advance the reader on a partial frame",
+    "symbol": "PipeReader",
+    "file": null,
+    "line_start": null,
+    "line_end": null,
+    "id": "DRAFT-4",
+    "source": "replay: our LLM-written concept draft",
+    "category": "prosecution",
+    "severity": "high",
+    "phantom_test": null,
+    "verdict": "REJECTED",
+    "kind": "hallucination_rejected",
+    "why": "cites no file or line, and `PipeReader` appears nowhere in the diff"
+   }
+  ],
+  "total": 2,
+  "rejection_rate": 0.5
+ },
+ "router": {
+  "stage": "router",
+  "tier": "T1",
+  "policy": "factory rules (earned_trust/gate.py + classifier.py)",
+  "reasons": [
+   "1 semantic file to read",
+   "1 decision(s) the AI abstained from"
+  ],
+  "second_reviewer": false,
+  "module_states": {
+   ".": "REVOKED",
+   "doc": "REVOKED",
+   "src/MessagePack.SourceGenerator/CodeAnalysis": "PROBATION",
+   "tests/MessagePack.SourceGenerator.Tests": "PROBATION"
+  },
+  "read": {
+   "files_total": 4,
+   "files_must_read": 3,
+   "files_hidden": 0,
+   "lines_total": 228,
+   "lines_must_read": 39,
+   "lines_tests_summarized": 189,
+   "lines_hidden": 0
+  },
+  "must_read": [
+   "README.md",
+   "doc/analyzers/MsgPack004.md",
+   "src/MessagePack.SourceGenerator/CodeAnalysis/TypeCollector.cs"
+  ],
+  "hidden": []
+ },
+ "sampler": {
+  "stage": "sampler",
+  "population": 0,
+  "sample": [],
+  "seed": null,
+  "method": "nothing hidden, nothing to sample"
+ },
+ "abstentions": [
+  {
+   "id": "ABS-1",
+   "status": "ABSTAINED",
+   "kind": "diagnostic-policy",
+   "decision": "Is it acceptable that every diagnostic without a source location in this compilation is now dropped, not only those from referenced assemblies?",
+   "why_not_ai": "Which diagnostics users may lose is analyzer policy; the AI can point at the filter, not weigh the trade-off.",
+   "missing_evidence": [
+    "a test showing a diagnostic of the compilation's own type with a null location is still reported"
+   ],
+   "who_decides": "the analyzer maintainers",
+   "options": [
+    "accept-global-filter",
+    "narrow-to-metadata-types"
+   ],
+   "cite": "src/MessagePack.SourceGenerator/CodeAnalysis/TypeCollector.cs:239"
+  }
+ ],
+ "change": {
+  "branch": "ju26-issue-2283",
+  "issue": 2283,
+  "sha": "9df83c38409c8bfad0517aebffe48211eda4a5b4",
+  "subject": "implementation for #2283",
+  "author": "Stelian Vultur",
+  "issue_title": "Generator and analyzer crash with IndexOutOfRangeException on a closed generic struct from a referenced assembly",
+  "issue_url": "https://github.com/MessagePack-CSharp/MessagePack-CSharp/issues/2283",
+  "files": 4,
+  "added": 225,
+  "deleted": 3,
+  "diff_sha": "5225b3964527bd0850d5d7cf9ca25cc110d4aaf2dd7d5b4095f66f8ebde9e938",
+  "source": "replay cache (factory/cache)"
+ },
+ "provenance": {
+  "llm": "NOT RUN: offline and no cached answer for this input",
+  "policy_sha": "cf2ba253bd60f8e6e0b8bd49f652835916756c38a7b72475e83c7c5c76579ddf",
+  "trust": "git log origin/master -n 2000 --no-merges (te-industry-tech-office/junction26-messagepack-csharp, a mirror of MessagePack-CSharp), 730 days up to 2026-10-23"
+ },
+ "not_checked": [
+  {
+   "item": "The rest of the test suite",
+   "why": "only the 3 tests this change adds were run (docker mcr.microsoft.com/dotnet/sdk:8.0, 2026-11-14T05:30:00Z)"
+  },
+  {
+   "item": "Semantic analysis with Roslyn",
+   "why": "classification is diff heuristics + regex (Roslyn classifier is P2)"
+  },
+  {
+   "item": "LLM prosecution",
+   "why": "NOT RUN: offline and no cached answer for this input \u2014 deterministic only for this run"
+  },
+  {
+   "item": "Claims REQ-2283-3",
+   "why": "no test in this change covers them"
+  },
+  {
+   "item": "Whether each finding's argument is right",
+   "why": "the judge checks citations only; a human accepts or refutes"
+  }
+ ]
+}

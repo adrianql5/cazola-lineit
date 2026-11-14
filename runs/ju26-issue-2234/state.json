@@ -1,0 +1,49 @@
+{
+ "published_at": "2026-11-14T06:06:35Z",
+ "events": [
+  {
+   "at": "2026-11-14T06:06:35Z",
+   "actor": "demo-owner",
+   "command": "/accept P-FIRST-WINS",
+   "simulated": true
+  },
+  {
+   "at": "2026-11-14T06:06:35Z",
+   "actor": "demo-owner",
+   "command": "/refute P-SILENT-SKIP \"Before the change the same input crashed the analyzer (AD0001); skipping after reporting MsgPack005 is the intended behaviour\"",
+   "simulated": true
+  },
+  {
+   "at": "2026-11-14T06:06:35Z",
+   "actor": "demo-owner",
+   "command": "/sign \"Demo Owner\"",
+   "simulated": true
+  }
+ ],
+ "spotcheck": null,
+ "summary_disabled": false,
+ "decisions": {},
+ "findings": {
+  "P-FIRST-WINS": {
+   "verdict": "accepted",
+   "by": "demo-owner",
+   "at": "2026-11-14T06:06:35Z"
+  },
+  "P-SILENT-SKIP": {
+   "verdict": "refuted",
+   "evidence": "Before the change the same input crashed the analyzer (AD0001); skipping after reporting MsgPack005 is the intended behaviour",
+   "by": "demo-owner",
+   "at": "2026-11-14T06:06:35Z"
+  }
+ },
+ "verify": null,
+ "signatures": [
+  {
+   "name": "Demo Owner",
+   "by": "demo-owner",
+   "at": "2026-11-14T06:06:35Z"
+  }
+ ],
+ "signed_complete": true,
+ "receipt_hash": "63ac18eb87c80f20e3a24714079d0cbd416797c6e45515c7cc04bb778b5ab650"
+}

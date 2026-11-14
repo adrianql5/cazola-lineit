@@ -1,0 +1,37 @@
+{
+ "stage": "prosecutor",
+ "llm": {
+  "status": "NOT RUN",
+  "why": "offline and no cached answer for this input"
+ },
+ "accusations": [
+  {
+   "id": "P-TFM-GUARD",
+   "source": "rules (deterministic)",
+   "category": "prosecution",
+   "severity": "high",
+   "claim": "The guard compiles the attribute out for consumers targeting netstandard2.0 or .NET Framework, although the attribute exists there (FACT-ECC-AVAILABILITY): those users keep the coverage skew the issue asks to remove",
+   "file": "src/MessagePack.SourceGenerator/Transforms/CompositeResolverTemplate.tt",
+   "line_start": 7,
+   "line_end": 7,
+   "symbol": "NETSTANDARD2_0",
+   "phantom_test": null,
+   "also_at": [
+    35
+   ]
+  },
+  {
+   "branch": "ju26-issue-2297",
+   "claim": "`finally { reader.Depth--; }` can underflow the reader depth when an exception is thrown",
+   "symbol": "reader.Depth--",
+   "file": null,
+   "line_start": null,
+   "line_end": null,
+   "id": "DRAFT-2",
+   "source": "replay: our LLM-written concept draft",
+   "category": "prosecution",
+   "severity": "high",
+   "phantom_test": null
+  }
+ ]
+}

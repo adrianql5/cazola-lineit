@@ -1,0 +1,1353 @@
+{
+ "classifier": {
+  "stage": "classifier",
+  "engine": "heuristic: diff shape + text within each shape + regex rules (Roslyn classifier not used)",
+  "files": [
+   {
+    "path": "README.md",
+    "category": "docs",
+    "reason": "documentation",
+    "added": 52,
+    "deleted": 0,
+    "status": "modified"
+   },
+   {
+    "path": "doc/analyzers/MsgPack019.md",
+    "category": "docs",
+    "reason": "documentation",
+    "added": 26,
+    "deleted": 0,
+    "status": "added"
+   },
+   {
+    "path": "doc/analyzers/MsgPack020.md",
+    "category": "docs",
+    "reason": "documentation",
+    "added": 23,
+    "deleted": 0,
+    "status": "added"
+   },
+   {
+    "path": "doc/analyzers/MsgPack021.md",
+    "category": "docs",
+    "reason": "documentation",
+    "added": 23,
+    "deleted": 0,
+    "status": "added"
+   },
+   {
+    "path": "doc/analyzers/MsgPack022.md",
+    "category": "docs",
+    "reason": "documentation",
+    "added": 31,
+    "deleted": 0,
+    "status": "added"
+   },
+   {
+    "path": "doc/analyzers/index.md",
+    "category": "docs",
+    "reason": "documentation",
+    "added": 4,
+    "deleted": 0,
+    "status": "modified"
+   },
+   {
+    "path": "src/MessagePack.Annotations/Attributes.cs",
+    "category": "public-contract",
+    "reason": "new public type or member in a published package (MessagePack, MessagePack.Annotations)",
+    "added": 36,
+    "deleted": 0,
+    "status": "modified"
+   },
+   {
+    "path": "src/MessagePack.SourceGenerator/AnalyzerReleases.Unshipped.md",
+    "category": "public-contract",
+    "reason": "analyzer release notes: the shipped rule list and severities",
+    "added": 4,
+    "deleted": 0,
+    "status": "modified"
+   },
+   {
+    "path": "src/MessagePack.SourceGenerator/Analyzers/MsgPack00xMessagePackAnalyzer.cs",
+    "category": "semantic",
+    "reason": "source code",
+    "added": 45,
+    "deleted": 1,
+    "status": "modified"
+   },
+   {
+    "path": "src/MessagePack.SourceGenerator/CodeAnalysis/GeneratedFormatterCollector.cs",
+    "category": "semantic",
+    "reason": "source code",
+    "added": 300,
+    "deleted": 0,
+    "status": "added"
+   },
+   {
+    "path": "src/MessagePack.SourceGenerator/CodeAnalysis/GeneratedFormatterRequest.cs",
+    "category": "semantic",
+    "reason": "source code",
+    "added": 13,
+    "deleted": 0,
+    "status": "added"
+   },
+   {
+    "path": "src/MessagePack.SourceGenerator/CodeAnalysis/ObjectSerializationInfo.cs",
+    "category": "semantic",
+    "reason": "source code",
+    "added": 7,
+    "deleted": 0,
+    "status": "modified"
+   },
+   {
+    "path": "src/MessagePack.SourceGenerator/GeneratorUtilities.cs",
+    "category": "semantic",
+    "reason": "source code",
+    "added": 3,
+    "deleted": 0,
+    "status": "modified"
+   },
+   {
+    "path": "src/MessagePack.SourceGenerator/MessagePackGenerator.cs",
+    "category": "semantic",
+    "reason": "source code",
+    "added": 36,
+    "deleted": 3,
+    "status": "modified"
+   },
+   {
+    "path": "src/MessagePack.SourceGenerator/Transforms/FormatterTemplate.cs",
+    "category": "mechanical",
+    "reason": "T4 output of src/MessagePack.SourceGenerator/Transforms/FormatterTemplate.tt (in this diff, read by a human); every added identifier comes from it",
+    "added": 3,
+    "deleted": 1,
+    "status": "modified"
+   },
+   {
+    "path": "src/MessagePack.SourceGenerator/Transforms/FormatterTemplate.tt",
+    "category": "semantic",
+    "reason": "source code",
+    "added": 1,
+    "deleted": 1,
+    "status": "modified"
+   },
+   {
+    "path": "src/MessagePack.SourceGenerator/Transforms/StringKey/StringKeyFormatterTemplate.cs",
+    "category": "mechanical",
+    "reason": "T4 output of src/MessagePack.SourceGenerator/Transforms/StringKey/StringKeyFormatterTemplate.tt (in this diff, read by a human); every added identifier comes from it",
+    "added": 3,
+    "deleted": 1,
+    "status": "modified"
+   },
+   {
+    "path": "src/MessagePack.SourceGenerator/Transforms/StringKey/StringKeyFormatterTemplate.tt",
+    "category": "semantic",
+    "reason": "source code",
+    "added": 1,
+    "deleted": 1,
+    "status": "modified"
+   },
+   {
+    "path": "src/MessagePack.SourceGenerator/Utils/Constants.cs",
+    "category": "semantic",
+    "reason": "source code",
+    "added": 2,
+    "deleted": 0,
+    "status": "modified"
+   },
+   {
+    "path": "tests/MessagePack.SourceGenerator.ExecutionTests/GeneratedFormatterForExternalTypes.cs",
+    "category": "test",
+    "reason": "test code",
+    "added": 50,
+    "deleted": 0,
+    "status": "added"
+   },
+   {
+    "path": "tests/MessagePack.SourceGenerator.ExecutionTests/GeneratedFormatterForExternalTypesTests.cs",
+    "category": "test",
+    "reason": "test code",
+    "added": 95,
+    "deleted": 0,
+    "status": "added"
+   },
+   {
+    "path": "tests/MessagePack.SourceGenerator.ExecutionTests/MessagePack.SourceGenerator.ExecutionTests.csproj",
+    "category": "test",
+    "reason": "test project file",
+    "added": 5,
+    "deleted": 0,
+    "status": "modified"
+   },
+   {
+    "path": "tests/MessagePack.SourceGenerator.ExternalTypes/ExternalPerson.cs",
+    "category": "test",
+    "reason": "test code",
+    "added": 15,
+    "deleted": 0,
+    "status": "added"
+   },
+   {
+    "path": "tests/MessagePack.SourceGenerator.ExternalTypes/ExternalPoint.cs",
+    "category": "test",
+    "reason": "test code",
+    "added": 12,
+    "deleted": 0,
+    "status": "added"
+   },
+   {
+    "path": "tests/MessagePack.SourceGenerator.ExternalTypes/ExternalWidget.cs",
+    "category": "test",
+    "reason": "test code",
+    "added": 15,
+    "deleted": 0,
+    "status": "added"
+   },
+   {
+    "path": "tests/MessagePack.SourceGenerator.ExternalTypes/MessagePack.SourceGenerator.ExternalTypes.csproj",
+    "category": "test",
+    "reason": "test project file",
+    "added": 17,
+    "deleted": 0,
+    "status": "added"
+   },
+   {
+    "path": "tests/MessagePack.SourceGenerator.MapModeExecutionTests/MessagePack.SourceGenerator.MapModeExecutionTests.csproj",
+    "category": "test",
+    "reason": "test project file",
+    "added": 2,
+    "deleted": 1,
+    "status": "modified"
+   },
+   {
+    "path": "tests/MessagePack.SourceGenerator.Tests/GeneratedMessagePackFormatterTests.cs",
+    "category": "test",
+    "reason": "test code",
+    "added": 210,
+    "deleted": 0,
+    "status": "added"
+   }
+  ],
+  "counts": {
+   "docs": 6,
+   "public-contract": 2,
+   "semantic": 9,
+   "mechanical": 2,
+   "test": 9
+  },
+  "snapshots": 0,
+  "groups": [],
+  "outlier_threshold": 2,
+  "content_check": true,
+  "outliers": [],
+  "triggers": [
+   {
+    "rule": "T2-PUBLIC-API",
+    "why": "new public type or member in a published package (MessagePack, MessagePack.Annotations)",
+    "file": "src/MessagePack.Annotations/Attributes.cs",
+    "line": 166,
+    "text": "public class GeneratedMessagePackFormatterAttribute : Attribute"
+   },
+   {
+    "rule": "T2-SERIALIZATION-CONTRACT",
+    "why": "changes how members map to the wire format by default",
+    "file": "src/MessagePack.Annotations/Attributes.cs",
+    "line": 149,
+    "text": "/// The formatted type <c>T</c> is serialized in contractless mode: every public, non-static, read-write instance property and field"
+   },
+   {
+    "rule": "T2-ANALYZER-SEVERITY",
+    "why": "new or changed analyzer rule severity: it can break users' builds",
+    "file": "src/MessagePack.SourceGenerator/AnalyzerReleases.Unshipped.md",
+    "line": 26,
+    "text": "MsgPack019 | Usage | Error | Generated formatter must be partial"
+   },
+   {
+    "rule": "T2-ANALYZER-SEVERITY",
+    "why": "new or changed analyzer rule severity: it can break users' builds",
+    "file": "src/MessagePack.SourceGenerator/Analyzers/MsgPack00xMessagePackAnalyzer.cs",
+    "line": 323,
+    "text": "defaultSeverity: DiagnosticSeverity.Error,"
+   },
+   {
+    "rule": "T2-SERIALIZATION-CONTRACT",
+    "why": "changes how members map to the wire format by default",
+    "file": "src/MessagePack.SourceGenerator/CodeAnalysis/GeneratedFormatterCollector.cs",
+    "line": 15,
+    "text": "/// in contractless mode, or through the keys declared on an optional surrogate type."
+   },
+   {
+    "rule": "T2-SERIALIZATION-CONTRACT",
+    "why": "changes how members map to the wire format by default",
+    "file": "src/MessagePack.SourceGenerator/CodeAnalysis/GeneratedFormatterRequest.cs",
+    "line": 12,
+    "text": "/// <param name=\"Surrogate\">The surrogate type named by <c>SurrogateType</c>, or <see langword=\"null\"/> for contractless mode.</param>"
+   },
+   {
+    "rule": "T2-TEST-EXCLUSION",
+    "why": "tests excluded from a test project: evidence that silently stops running",
+    "file": "tests/MessagePack.SourceGenerator.MapModeExecutionTests/MessagePack.SourceGenerator.MapModeExecutionTests.csproj",
+    "line": 14,
+    "text": "<Compile Include=\"..\\MessagePack.SourceGenerator.ExecutionTests\\**\\*.cs\" Exclude=\"..\\MessagePack.SourceGenerator.ExecutionTests\\**\\GeneratedMessagePackResolver."
+   }
+  ]
+ },
+ "tracer": {
+  "stage": "tracer",
+  "requirements_source": "requirements/2129.json",
+  "curated_by": "team (human), from the issue text",
+  "execution": {
+   "status": "PASS",
+   "sha": "083afd994c1c9a994cb2cd5aa0b6ad805a621457",
+   "how": "docker mcr.microsoft.com/dotnet/sdk:9.0",
+   "command": "echo \"=== tests/MessagePack.SourceGenerator.ExecutionTests/MessagePack.SourceGenerator.ExecutionTests.csproj\"; dotnet test \"tests/MessagePack.SourceGenerator.ExecutionTests/MessagePack.SourceGenerator.ExecutionTests.csproj\" -c Release --filter \"FullyQualifiedName~ContractlessClassNullRoundTrips|FullyQualifiedName~ContractlessClassRoundTrips|FullyQualifiedName~ContractlessClassUsesStringKeysForPublicReadWriteMembers|FullyQualifiedName~ContractlessStructRoundTrips|FullyQualifiedName~FormattedTypeMustNotBeAbstract|FullyQualifiedName~FormatterMustBePartial|FullyQualifiedName~FormatterMustImplementFormatterOfT|FullyQualifiedName~GeneratedFormattersAreRegisteredInGeneratedResolver|FullyQualifiedName~MessagePackObjectCanContainExternalTypes|FullyQualifiedName~SurrogateControlsKeysAndMembership|FullyQualifiedName~SurrogateKeysMustNotMixStringAndInt|FullyQualifiedName~SurrogateMemberMustHaveMatchingType|FullyQualifiedName~SurrogateMemberMustMatchFormattedType\" --nologo; echo \"=== exit $?\"; echo \"=== tests/MessagePack.SourceGenerator.Tests/MessagePack.SourceGenerator.Tests.csproj\"; dotnet test \"tests/MessagePack.SourceGenerator.Tests/MessagePack.SourceGenerator.Tests.csproj\" -c Release --filter \"FullyQualifiedName~ContractlessClassNullRoundTrips|FullyQualifiedName~ContractlessClassRoundTrips|FullyQualifiedName~ContractlessClassUsesStringKeysForPublicReadWriteMembers|FullyQualifiedName~ContractlessStructRoundTrips|FullyQualifiedName~FormattedTypeMustNotBeAbstract|FullyQualifiedName~FormatterMustBePartial|FullyQualifiedName~FormatterMustImplementFormatterOfT|FullyQualifiedName~GeneratedFormattersAreRegisteredInGeneratedResolver|FullyQualifiedName~MessagePackObjectCanContainExternalTypes|FullyQualifiedName~SurrogateControlsKeysAndMembership|FullyQualifiedName~SurrogateKeysMustNotMixStringAndInt|FullyQualifiedName~SurrogateMemberMustHaveMatchingType|FullyQualifiedName~SurrogateMemberMustMatchFormattedType\" --nologo; echo \"=== exit $?\"",
+   "projects": [
+    "tests/MessagePack.SourceGenerator.ExecutionTests/MessagePack.SourceGenerator.ExecutionTests.csproj",
+    "tests/MessagePack.SourceGenerator.Tests/MessagePack.SourceGenerator.Tests.csproj"
+   ],
+   "per_project": [
+    {
+     "project": "tests/MessagePack.SourceGenerator.ExecutionTests/MessagePack.SourceGenerator.ExecutionTests.csproj",
+     "status": "PASS",
+     "passed": 7,
+     "failed": 0,
+     "errors": []
+    },
+    {
+     "project": "tests/MessagePack.SourceGenerator.Tests/MessagePack.SourceGenerator.Tests.csproj",
+     "status": "PASS",
+     "passed": 6,
+     "failed": 0,
+     "errors": []
+    }
+   ],
+   "deviations": [
+    "global.json (SDK 8.0.402) removed in the worktree to build with mcr.microsoft.com/dotnet/sdk:9.0",
+    "DOTNET_ROLL_FORWARD=Major: the net8.0 test host runs on the image's newer runtime"
+   ],
+   "passed": 13,
+   "failed": 0,
+   "seconds": 18,
+   "ran_at": "2026-11-14T05:33:06Z",
+   "why": "13 passed, 0 failed (docker mcr.microsoft.com/dotnet/sdk:9.0) \u2014 deviation: global.json (SDK 8.0.402) removed in the worktree to build with mcr.microsoft.com/dotnet/sdk:9.0; DOTNET_ROLL_FORWARD=Major: the net8.0 test host runs on the image's newer runtime",
+   "log_tail": "required' modifier or declaring the property as nullable. [/src/tests/MessagePack.SourceGenerator.ExecutionTests/MessagePack.SourceGenerator.ExecutionTests.csproj]\n/src/tests/MessagePack.SourceGenerator.ExecutionTests/GeneratedFormatterForExternalTypes.cs(49,27): warning CS8618: Non-nullable property 'Widget' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [/src/tests/MessagePack.SourceGenerator.ExecutionTests/MessagePack.SourceGenerator.ExecutionTests.csproj]\n  MessagePack.SourceGenerator.ExecutionTests -> /src/bin/MessagePack.SourceGenerator.ExecutionTests/Release/net8.0/MessagePack.SourceGenerator.ExecutionTests.dll\nTest run for /src/bin/MessagePack.SourceGenerator.ExecutionTests/Release/net8.0/MessagePack.SourceGenerator.ExecutionTests.dll (.NETCoreApp,Version=v8.0)\nA total of 1 test files matched the specified pattern.\n\nPassed!  - Failed:     0, Passed:     7, Skipped:     0, Total:     7, Duration: 13 ms - MessagePack.SourceGenerator.ExecutionTests.dll (net8.0)\n\nBuild succeeded.\n\n/src/tests/MessagePack.SourceGenerator.ExecutionTests/GeneratedFormatterForExternalTypes.cs(46,27): warning CS8618: Non-nullable property 'Person' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [/src/tests/MessagePack.SourceGenerator.ExecutionTests/MessagePack.SourceGenerator.ExecutionTests.csproj]\n/src/tests/MessagePack.SourceGenerator.ExecutionTests/GeneratedFormatterForExternalTypes.cs(49,27): warning CS8618: Non-nullable property 'Widget' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [/src/tests/MessagePack.SourceGenerator.ExecutionTests/MessagePack.SourceGenerator.ExecutionTests.csproj]\n    2 Warning(s)\n    0 Error(s)\n\nTime Elapsed 00:00:10.42\n=== exit 0\n=== tests/MessagePack.SourceGenerator.Tests/MessagePack.SourceGenerator.Tests.csproj\n\n  Determining projects to restore...\n  Restored /src/tests/MessagePack.SourceGenerator.Tests/MessagePack.SourceGenerator.Tests.csproj (in 2.41 sec).\n  5 of 6 projects are up-to-date for restore.\n  MessagePack.SourceGenerator -> /src/bin/MessagePack.SourceGenerator/Release/netstandard2.0/MessagePack.SourceGenerator.dll\n  MessagePack.Analyzers.CodeFixes -> /src/bin/MessagePack.Analyzers.CodeFixes/Release/netstandard2.0/MessagePack.Analyzers.CodeFixes.dll\n  MessagePack.Analyzers -> /src/bin/MessagePack.Analyzers/Release/netstandard2.0/MessagePack.Analyzers.dll\n  MessagePack.Annotations -> /src/bin/MessagePack.Annotations/Release/netstandard2.0/MessagePack.Annotations.dll\n  MessagePack -> /src/bin/MessagePack/Release/net8.0/MessagePack.dll\n/src/tests/MessagePack.SourceGenerator.Tests/GeneratedMessagePackFormatterTests.cs(22,26): warning SA1203: Constant fields should appear before non-constant fields (https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1203.md) [/src/tests/MessagePack.SourceGenerator.Tests/MessagePack.SourceGenerator.Tests.csproj]\n  MessagePack.SourceGenerator.Tests -> /src/bin/MessagePack.SourceGenerator.Tests/Release/net8.0/MessagePack.SourceGenerator.Tests.dll\nTest run for /src/bin/MessagePack.SourceGenerator.Tests/Release/net8.0/MessagePack.SourceGenerator.Tests.dll (.NETCoreApp,Version=v8.0)\nA total of 1 test files matched the specified pattern.\n\nPassed!  - Failed:     0, Passed:     6, Skipped:     0, Total:     6, Duration: 1 s - MessagePack.SourceGenerator.Tests.dll (net8.0)\n\nBuild succeeded.\n\n/src/tests/MessagePack.SourceGenerator.Tests/GeneratedMessagePackFormatterTests.cs(22,26): warning SA1203: Constant fields should appear before non-constant fields (https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1203.md) [/src/tests/MessagePack.SourceGenerator.Tests/MessagePack.SourceGenerator.Tests.csproj]\n    1 Warning(s)\n    0 Error(s)\n\nTime Elapsed 00:00:06.89\n=== exit 0\n"
+  },
+  "tests_added": [
+   {
+    "name": "ContractlessClassRoundTrips",
+    "file": "tests/MessagePack.SourceGenerator.ExecutionTests/GeneratedFormatterForExternalTypesTests.cs",
+    "line": 12
+   },
+   {
+    "name": "ContractlessClassUsesStringKeysForPublicReadWriteMembers",
+    "file": "tests/MessagePack.SourceGenerator.ExecutionTests/GeneratedFormatterForExternalTypesTests.cs",
+    "line": 24
+   },
+   {
+    "name": "ContractlessClassNullRoundTrips",
+    "file": "tests/MessagePack.SourceGenerator.ExecutionTests/GeneratedFormatterForExternalTypesTests.cs",
+    "line": 37
+   },
+   {
+    "name": "ContractlessStructRoundTrips",
+    "file": "tests/MessagePack.SourceGenerator.ExecutionTests/GeneratedFormatterForExternalTypesTests.cs",
+    "line": 44
+   },
+   {
+    "name": "SurrogateControlsKeysAndMembership",
+    "file": "tests/MessagePack.SourceGenerator.ExecutionTests/GeneratedFormatterForExternalTypesTests.cs",
+    "line": 55
+   },
+   {
+    "name": "MessagePackObjectCanContainExternalTypes",
+    "file": "tests/MessagePack.SourceGenerator.ExecutionTests/GeneratedFormatterForExternalTypesTests.cs",
+    "line": 72
+   },
+   {
+    "name": "GeneratedFormattersAreRegisteredInGeneratedResolver",
+    "file": "tests/MessagePack.SourceGenerator.ExecutionTests/GeneratedFormatterForExternalTypesTests.cs",
+    "line": 89
+   },
+   {
+    "name": "FormatterMustBePartial",
+    "file": "tests/MessagePack.SourceGenerator.Tests/GeneratedMessagePackFormatterTests.cs",
+    "line": 29
+   },
+   {
+    "name": "FormatterMustImplementFormatterOfT",
+    "file": "tests/MessagePack.SourceGenerator.Tests/GeneratedMessagePackFormatterTests.cs",
+    "line": 57
+   },
+   {
+    "name": "FormattedTypeMustNotBeAbstract",
+    "file": "tests/MessagePack.SourceGenerator.Tests/GeneratedMessagePackFormatterTests.cs",
+    "line": 78
+   },
+   {
+    "name": "SurrogateMemberMustMatchFormattedType",
+    "file": "tests/MessagePack.SourceGenerator.Tests/GeneratedMessagePackFormatterTests.cs",
+    "line": 105
+   },
+   {
+    "name": "SurrogateMemberMustHaveMatchingType",
+    "file": "tests/MessagePack.SourceGenerator.Tests/GeneratedMessagePackFormatterTests.cs",
+    "line": 139
+   },
+   {
+    "name": "SurrogateKeysMustNotMixStringAndInt",
+    "file": "tests/MessagePack.SourceGenerator.Tests/GeneratedMessagePackFormatterTests.cs",
+    "line": 173
+   }
+  ],
+  "claims": [
+   {
+    "id": "REQ-2129-1",
+    "kind": "stated",
+    "claim": "[GeneratedMessagePackFormatter] on a partial class implementing IMessagePackFormatter<T> makes the generator write that formatter in the consuming project",
+    "quote": "Add a `[GeneratedMessagePackFormatter]` attribute that will work for partial classes implementing `IMessagePackFormatter<T>`.",
+    "implementation": [
+     {
+      "file": "src/MessagePack.Annotations/Attributes.cs",
+      "line": 166,
+      "text": "public class GeneratedMessagePackFormatterAttribute : Attribute"
+     }
+    ],
+    "tests": [
+     {
+      "test": "ContractlessClassRoundTrips",
+      "file": "tests/MessagePack.SourceGenerator.ExecutionTests/GeneratedFormatterForExternalTypesTests.cs",
+      "line": 12,
+      "matched": [
+       "RoundTrips"
+      ]
+     },
+     {
+      "test": "ContractlessClassNullRoundTrips",
+      "file": "tests/MessagePack.SourceGenerator.ExecutionTests/GeneratedFormatterForExternalTypesTests.cs",
+      "line": 37,
+      "matched": [
+       "RoundTrips"
+      ]
+     },
+     {
+      "test": "ContractlessStructRoundTrips",
+      "file": "tests/MessagePack.SourceGenerator.ExecutionTests/GeneratedFormatterForExternalTypesTests.cs",
+      "line": 44,
+      "matched": [
+       "RoundTrips"
+      ]
+     },
+     {
+      "test": "GeneratedFormattersAreRegisteredInGeneratedResolver",
+      "file": "tests/MessagePack.SourceGenerator.ExecutionTests/GeneratedFormatterForExternalTypesTests.cs",
+      "line": 89,
+      "matched": [
+       "GeneratedFormattersAreRegistered"
+      ]
+     }
+    ],
+    "execution": "PASS",
+    "contradictions": [],
+    "status": "VERIFIED",
+    "why": "implemented, covered by 4 test(s) that ran and passed (environment deviation: global.json (SDK 8.0.402) removed in the worktree to build with mcr.microsoft.com/dotnet/sdk:9.0; DOTNET_ROLL_FORWARD=Major: the net8.0 test host runs on the image's newer runtime)"
+   },
+   {
+    "id": "REQ-2129-2",
+    "kind": "stated",
+    "claim": "The assembly that defines T does not reference MessagePack",
+    "quote": "the latter has no (and cannot have) reference to MessagePack nuget package",
+    "implementation": [
+     {
+      "file": "tests/MessagePack.SourceGenerator.ExternalTypes/MessagePack.SourceGenerator.ExternalTypes.csproj",
+      "line": 4,
+      "text": "This assembly deliberately does NOT reference MessagePack."
+     }
+    ],
+    "tests": [
+     {
+      "test": "ContractlessClassRoundTrips",
+      "file": "tests/MessagePack.SourceGenerator.ExecutionTests/GeneratedFormatterForExternalTypesTests.cs",
+      "line": 12,
+      "matched": [
+       "External"
+      ]
+     },
+     {
+      "test": "ContractlessClassUsesStringKeysForPublicReadWriteMembers",
+      "file": "tests/MessagePack.SourceGenerator.ExecutionTests/GeneratedFormatterForExternalTypesTests.cs",
+      "line": 24,
+      "matched": [
+       "External"
+      ]
+     },
+     {
+      "test": "ContractlessClassNullRoundTrips",
+      "file": "tests/MessagePack.SourceGenerator.ExecutionTests/GeneratedFormatterForExternalTypesTests.cs",
+      "line": 37,
+      "matched": [
+       "External"
+      ]
+     },
+     {
+      "test": "ContractlessStructRoundTrips",
+      "file": "tests/MessagePack.SourceGenerator.ExecutionTests/GeneratedFormatterForExternalTypesTests.cs",
+      "line": 44,
+      "matched": [
+       "External"
+      ]
+     },
+     {
+      "test": "SurrogateControlsKeysAndMembership",
+      "file": "tests/MessagePack.SourceGenerator.ExecutionTests/GeneratedFormatterForExternalTypesTests.cs",
+      "line": 55,
+      "matched": [
+       "External"
+      ]
+     },
+     {
+      "test": "MessagePackObjectCanContainExternalTypes",
+      "file": "tests/MessagePack.SourceGenerator.ExecutionTests/GeneratedFormatterForExternalTypesTests.cs",
+      "line": 72,
+      "matched": [
+       "External"
+      ]
+     },
+     {
+      "test": "GeneratedFormattersAreRegisteredInGeneratedResolver",
+      "file": "tests/MessagePack.SourceGenerator.ExecutionTests/GeneratedFormatterForExternalTypesTests.cs",
+      "line": 89,
+      "matched": [
+       "External"
+      ]
+     }
+    ],
+    "execution": "PASS",
+    "contradictions": [],
+    "status": "VERIFIED",
+    "why": "implemented, covered by 7 test(s) that ran and passed (environment deviation: global.json (SDK 8.0.402) removed in the worktree to build with mcr.microsoft.com/dotnet/sdk:9.0; DOTNET_ROLL_FORWARD=Major: the net8.0 test host runs on the image's newer runtime)"
+   },
+   {
+    "id": "REQ-2129-3",
+    "kind": "open question in the issue",
+    "claim": "How keys and settings (Key, Union...) are given for T: the issue lists three alternatives and picks none",
+    "quote": "As for the attribute-based property keys and other settings (such as Union), I can think of 3 alternatives",
+    "implementation": [
+     {
+      "file": "src/MessagePack.Annotations/Attributes.cs",
+      "line": 149,
+      "text": "/// The formatted type <c>T</c> is serialized in contractless mode: every public, non-static, read-write instance property and field"
+     },
+     {
+      "file": "src/MessagePack.SourceGenerator/CodeAnalysis/GeneratedFormatterCollector.cs",
+      "line": 15,
+      "text": "/// in contractless mode, or through the keys declared on an optional surrogate type."
+     },
+     {
+      "file": "src/MessagePack.SourceGenerator/CodeAnalysis/GeneratedFormatterRequest.cs",
+      "line": 12,
+      "text": "/// <param name=\"Surrogate\">The surrogate type named by <c>SurrogateType</c>, or <see langword=\"null\"/> for contractless mode.</param>"
+     },
+     {
+      "file": "src/MessagePack.SourceGenerator/Utils/Constants.cs",
+      "line": 18,
+      "text": "internal const string GeneratedMessagePackFormatterSurrogatePropertyName = \"SurrogateType\";"
+     }
+    ],
+    "tests": [
+     {
+      "test": "ContractlessClassRoundTrips",
+      "file": "tests/MessagePack.SourceGenerator.ExecutionTests/GeneratedFormatterForExternalTypesTests.cs",
+      "line": 12,
+      "matched": [
+       "Contractless"
+      ]
+     },
+     {
+      "test": "ContractlessClassUsesStringKeysForPublicReadWriteMembers",
+      "file": "tests/MessagePack.SourceGenerator.ExecutionTests/GeneratedFormatterForExternalTypesTests.cs",
+      "line": 24,
+      "matched": [
+       "Contractless"
+      ]
+     },
+     {
+      "test": "ContractlessClassNullRoundTrips",
+      "file": "tests/MessagePack.SourceGenerator.ExecutionTests/GeneratedFormatterForExternalTypesTests.cs",
+      "line": 37,
+      "matched": [
+       "Contractless"
+      ]
+     },
+     {
+      "test": "ContractlessStructRoundTrips",
+      "file": "tests/MessagePack.SourceGenerator.ExecutionTests/GeneratedFormatterForExternalTypesTests.cs",
+      "line": 44,
+      "matched": [
+       "Contractless"
+      ]
+     },
+     {
+      "test": "SurrogateControlsKeysAndMembership",
+      "file": "tests/MessagePack.SourceGenerator.ExecutionTests/GeneratedFormatterForExternalTypesTests.cs",
+      "line": 55,
+      "matched": [
+       "Surrogate"
+      ]
+     },
+     {
+      "test": "SurrogateMemberMustMatchFormattedType",
+      "file": "tests/MessagePack.SourceGenerator.Tests/GeneratedMessagePackFormatterTests.cs",
+      "line": 105,
+      "matched": [
+       "Surrogate"
+      ]
+     },
+     {
+      "test": "SurrogateMemberMustHaveMatchingType",
+      "file": "tests/MessagePack.SourceGenerator.Tests/GeneratedMessagePackFormatterTests.cs",
+      "line": 139,
+      "matched": [
+       "Surrogate"
+      ]
+     },
+     {
+      "test": "SurrogateKeysMustNotMixStringAndInt",
+      "file": "tests/MessagePack.SourceGenerator.Tests/GeneratedMessagePackFormatterTests.cs",
+      "line": 173,
+      "matched": [
+       "Surrogate"
+      ]
+     }
+    ],
+    "execution": "PASS",
+    "contradictions": [],
+    "status": "VERIFIED",
+    "why": "implemented, covered by 8 test(s) that ran and passed (environment deviation: global.json (SDK 8.0.402) removed in the worktree to build with mcr.microsoft.com/dotnet/sdk:9.0; DOTNET_ROLL_FORWARD=Major: the net8.0 test host runs on the image's newer runtime)"
+   },
+   {
+    "id": "DOC-2129-1",
+    "kind": "claim the change makes in its docs",
+    "claim": "You can still get a source-generated formatter for it by declaring a `partial` formatter class in your own project and marking it with `[GeneratedMessagePackFormatter]`:",
+    "quote": "README.md:1642",
+    "implementation": [
+     {
+      "file": "README.md",
+      "line": 1642,
+      "text": "(the change's own documentation)"
+     }
+    ],
+    "tests": [
+     {
+      "test": "FormatterMustBePartial",
+      "file": "tests/MessagePack.SourceGenerator.Tests/GeneratedMessagePackFormatterTests.cs",
+      "line": 29,
+      "matched": [
+       "GeneratedMessagePackFormatter"
+      ]
+     },
+     {
+      "test": "FormatterMustImplementFormatterOfT",
+      "file": "tests/MessagePack.SourceGenerator.Tests/GeneratedMessagePackFormatterTests.cs",
+      "line": 57,
+      "matched": [
+       "GeneratedMessagePackFormatter"
+      ]
+     },
+     {
+      "test": "FormattedTypeMustNotBeAbstract",
+      "file": "tests/MessagePack.SourceGenerator.Tests/GeneratedMessagePackFormatterTests.cs",
+      "line": 78,
+      "matched": [
+       "GeneratedMessagePackFormatter"
+      ]
+     },
+     {
+      "test": "SurrogateMemberMustMatchFormattedType",
+      "file": "tests/MessagePack.SourceGenerator.Tests/GeneratedMessagePackFormatterTests.cs",
+      "line": 105,
+      "matched": [
+       "GeneratedMessagePackFormatter"
+      ]
+     },
+     {
+      "test": "SurrogateMemberMustHaveMatchingType",
+      "file": "tests/MessagePack.SourceGenerator.Tests/GeneratedMessagePackFormatterTests.cs",
+      "line": 139,
+      "matched": [
+       "GeneratedMessagePackFormatter"
+      ]
+     },
+     {
+      "test": "SurrogateKeysMustNotMixStringAndInt",
+      "file": "tests/MessagePack.SourceGenerator.Tests/GeneratedMessagePackFormatterTests.cs",
+      "line": 173,
+      "matched": [
+       "GeneratedMessagePackFormatter"
+      ]
+     }
+    ],
+    "execution": "PASS",
+    "contradictions": [],
+    "status": "VERIFIED",
+    "why": "implemented, covered by 6 test(s) that ran and passed (environment deviation: global.json (SDK 8.0.402) removed in the worktree to build with mcr.microsoft.com/dotnet/sdk:9.0; DOTNET_ROLL_FORWARD=Major: the net8.0 test host runs on the image's newer runtime)"
+   },
+   {
+    "id": "DOC-2129-2",
+    "kind": "claim the change makes in its docs",
+    "claim": "The source generator writes the body of `MyObjectFormatter`, and the generated `GeneratedMessagePackResolver` registers it automatically.",
+    "quote": "README.md:1652",
+    "implementation": [
+     {
+      "file": "README.md",
+      "line": 1652,
+      "text": "(the change's own documentation)"
+     }
+    ],
+    "tests": [
+     {
+      "test": "GeneratedFormattersAreRegisteredInGeneratedResolver",
+      "file": "tests/MessagePack.SourceGenerator.ExecutionTests/GeneratedFormatterForExternalTypesTests.cs",
+      "line": 89,
+      "matched": [
+       "GeneratedMessagePackResolver"
+      ]
+     }
+    ],
+    "execution": "PASS",
+    "contradictions": [],
+    "status": "VERIFIED",
+    "why": "implemented, covered by 1 test(s) that ran and passed (environment deviation: global.json (SDK 8.0.402) removed in the worktree to build with mcr.microsoft.com/dotnet/sdk:9.0; DOTNET_ROLL_FORWARD=Major: the net8.0 test host runs on the image's newer runtime)"
+   },
+   {
+    "id": "DOC-2129-3",
+    "kind": "claim the change makes in its docs",
+    "claim": "Nothing needs to be added to `ProjectA`.",
+    "quote": "README.md:1653",
+    "implementation": [
+     {
+      "file": "README.md",
+      "line": 1653,
+      "text": "(the change's own documentation)"
+     }
+    ],
+    "tests": [],
+    "execution": "PASS",
+    "contradictions": [],
+    "status": "UNVERIFIED",
+    "why": "documented, but no test in this change mentions `ProjectA`"
+   },
+   {
+    "id": "DOC-2129-4",
+    "kind": "claim the change makes in its docs",
+    "claim": "The surrogate's `[Key]` and `[IgnoreMember]` attributes describe the wire contract, and its members are matched to members of the formatted type by name and type.",
+    "quote": "README.md:1659",
+    "implementation": [
+     {
+      "file": "README.md",
+      "line": 1659,
+      "text": "(the change's own documentation)"
+     }
+    ],
+    "tests": [],
+    "execution": "PASS",
+    "contradictions": [],
+    "status": "UNVERIFIED",
+    "why": "documented, but no test in this change mentions `IgnoreMember`"
+   },
+   {
+    "id": "DOC-2129-5",
+    "kind": "claim the change makes in its docs",
+    "claim": "Formatter diagnostics are reported as `MsgPack019` through `MsgPack022`, listed in the [analyzers](doc/analyzers/index.md).",
+    "quote": "README.md:1688",
+    "implementation": [
+     {
+      "file": "README.md",
+      "line": 1688,
+      "text": "(the change's own documentation)"
+     }
+    ],
+    "tests": [
+     {
+      "test": "FormatterMustBePartial",
+      "file": "tests/MessagePack.SourceGenerator.Tests/GeneratedMessagePackFormatterTests.cs",
+      "line": 29,
+      "matched": [
+       "MsgPack019"
+      ]
+     },
+     {
+      "test": "SurrogateMemberMustMatchFormattedType",
+      "file": "tests/MessagePack.SourceGenerator.Tests/GeneratedMessagePackFormatterTests.cs",
+      "line": 105,
+      "matched": [
+       "MsgPack022"
+      ]
+     },
+     {
+      "test": "SurrogateMemberMustHaveMatchingType",
+      "file": "tests/MessagePack.SourceGenerator.Tests/GeneratedMessagePackFormatterTests.cs",
+      "line": 139,
+      "matched": [
+       "MsgPack022"
+      ]
+     }
+    ],
+    "execution": "PASS",
+    "contradictions": [],
+    "status": "VERIFIED",
+    "why": "implemented, covered by 3 test(s) that ran and passed (environment deviation: global.json (SDK 8.0.402) removed in the worktree to build with mcr.microsoft.com/dotnet/sdk:9.0; DOTNET_ROLL_FORWARD=Major: the net8.0 test host runs on the image's newer runtime)"
+   },
+   {
+    "id": "DOC-2129-6",
+    "kind": "claim the change makes in its docs",
+    "claim": "A class marked with `[GeneratedMessagePackFormatter]` is the target of source generation. The generator writes the body of the formatter into the class, so the class must be declared `partial`.",
+    "quote": "doc/analyzers/MsgPack019.md:3",
+    "implementation": [
+     {
+      "file": "doc/analyzers/MsgPack019.md",
+      "line": 3,
+      "text": "(the change's own documentation)"
+     }
+    ],
+    "tests": [
+     {
+      "test": "FormatterMustBePartial",
+      "file": "tests/MessagePack.SourceGenerator.Tests/GeneratedMessagePackFormatterTests.cs",
+      "line": 29,
+      "matched": [
+       "GeneratedMessagePackFormatter"
+      ]
+     },
+     {
+      "test": "FormatterMustImplementFormatterOfT",
+      "file": "tests/MessagePack.SourceGenerator.Tests/GeneratedMessagePackFormatterTests.cs",
+      "line": 57,
+      "matched": [
+       "GeneratedMessagePackFormatter"
+      ]
+     },
+     {
+      "test": "FormattedTypeMustNotBeAbstract",
+      "file": "tests/MessagePack.SourceGenerator.Tests/GeneratedMessagePackFormatterTests.cs",
+      "line": 78,
+      "matched": [
+       "GeneratedMessagePackFormatter"
+      ]
+     },
+     {
+      "test": "SurrogateMemberMustMatchFormattedType",
+      "file": "tests/MessagePack.SourceGenerator.Tests/GeneratedMessagePackFormatterTests.cs",
+      "line": 105,
+      "matched": [
+       "GeneratedMessagePackFormatter"
+      ]
+     },
+     {
+      "test": "SurrogateMemberMustHaveMatchingType",
+      "file": "tests/MessagePack.SourceGenerator.Tests/GeneratedMessagePackFormatterTests.cs",
+      "line": 139,
+      "matched": [
+       "GeneratedMessagePackFormatter"
+      ]
+     },
+     {
+      "test": "SurrogateKeysMustNotMixStringAndInt",
+      "file": "tests/MessagePack.SourceGenerator.Tests/GeneratedMessagePackFormatterTests.cs",
+      "line": 173,
+      "matched": [
+       "GeneratedMessagePackFormatter"
+      ]
+     }
+    ],
+    "execution": "PASS",
+    "contradictions": [],
+    "status": "VERIFIED",
+    "why": "implemented, covered by 6 test(s) that ran and passed (environment deviation: global.json (SDK 8.0.402) removed in the worktree to build with mcr.microsoft.com/dotnet/sdk:9.0; DOTNET_ROLL_FORWARD=Major: the net8.0 test host runs on the image's newer runtime)"
+   },
+   {
+    "id": "DOC-2129-7",
+    "kind": "claim the change makes in its docs",
+    "claim": "A class marked with `[GeneratedMessagePackFormatter]` identifies the data type to serialize by its `IMessagePackFormatter<T>` interface. The class must implement exactly one such interface.",
+    "quote": "doc/analyzers/MsgPack020.md:3",
+    "implementation": [
+     {
+      "file": "doc/analyzers/MsgPack020.md",
+      "line": 3,
+      "text": "(the change's own documentation)"
+     }
+    ],
+    "tests": [
+     {
+      "test": "FormatterMustBePartial",
+      "file": "tests/MessagePack.SourceGenerator.Tests/GeneratedMessagePackFormatterTests.cs",
+      "line": 29,
+      "matched": [
+       "GeneratedMessagePackFormatter"
+      ]
+     },
+     {
+      "test": "FormatterMustImplementFormatterOfT",
+      "file": "tests/MessagePack.SourceGenerator.Tests/GeneratedMessagePackFormatterTests.cs",
+      "line": 57,
+      "matched": [
+       "GeneratedMessagePackFormatter"
+      ]
+     },
+     {
+      "test": "FormattedTypeMustNotBeAbstract",
+      "file": "tests/MessagePack.SourceGenerator.Tests/GeneratedMessagePackFormatterTests.cs",
+      "line": 78,
+      "matched": [
+       "GeneratedMessagePackFormatter"
+      ]
+     },
+     {
+      "test": "SurrogateMemberMustMatchFormattedType",
+      "file": "tests/MessagePack.SourceGenerator.Tests/GeneratedMessagePackFormatterTests.cs",
+      "line": 105,
+      "matched": [
+       "GeneratedMessagePackFormatter"
+      ]
+     },
+     {
+      "test": "SurrogateMemberMustHaveMatchingType",
+      "file": "tests/MessagePack.SourceGenerator.Tests/GeneratedMessagePackFormatterTests.cs",
+      "line": 139,
+      "matched": [
+       "GeneratedMessagePackFormatter"
+      ]
+     },
+     {
+      "test": "SurrogateKeysMustNotMixStringAndInt",
+      "file": "tests/MessagePack.SourceGenerator.Tests/GeneratedMessagePackFormatterTests.cs",
+      "line": 173,
+      "matched": [
+       "GeneratedMessagePackFormatter"
+      ]
+     }
+    ],
+    "execution": "PASS",
+    "contradictions": [],
+    "status": "VERIFIED",
+    "why": "implemented, covered by 6 test(s) that ran and passed (environment deviation: global.json (SDK 8.0.402) removed in the worktree to build with mcr.microsoft.com/dotnet/sdk:9.0; DOTNET_ROLL_FORWARD=Major: the net8.0 test host runs on the image's newer runtime)"
+   },
+   {
+    "id": "DOC-2129-8",
+    "kind": "claim the change makes in its docs",
+    "claim": "Implement `IMessagePackFormatter<T>` for the type to be serialized:",
+    "quote": "doc/analyzers/MsgPack020.md:16",
+    "implementation": [
+     {
+      "file": "doc/analyzers/MsgPack020.md",
+      "line": 16,
+      "text": "(the change's own documentation)"
+     }
+    ],
+    "tests": [],
+    "execution": "PASS",
+    "contradictions": [],
+    "status": "UNVERIFIED",
+    "why": "documented, but no test in this change mentions `IMessagePackFormatter<T>`"
+   },
+   {
+    "id": "DOC-2129-9",
+    "kind": "claim the change makes in its docs",
+    "claim": "The source generator writes formatters for non-generic, non-abstract classes and structs that the formatter can access. The data type named by the formatter's `IMessagePackFormatter<T>` interface must meet these requirements.",
+    "quote": "doc/analyzers/MsgPack021.md:3",
+    "implementation": [
+     {
+      "file": "doc/analyzers/MsgPack021.md",
+      "line": 3,
+      "text": "(the change's own documentation)"
+     }
+    ],
+    "tests": [],
+    "execution": "PASS",
+    "contradictions": [],
+    "status": "UNVERIFIED",
+    "why": "documented, but no test in this change mentions `IMessagePackFormatter<T>`"
+   },
+   {
+    "id": "DOC-2129-10",
+    "kind": "claim the change makes in its docs",
+    "claim": "When `[GeneratedMessagePackFormatter(SurrogateType = typeof(...))]` is used, each keyed member of the surrogate must match a public, read-write instance member of the formatted type, with the same name and type.",
+    "quote": "doc/analyzers/MsgPack022.md:3",
+    "implementation": [
+     {
+      "file": "doc/analyzers/MsgPack022.md",
+      "line": 3,
+      "text": "(the change's own documentation)"
+     }
+    ],
+    "tests": [],
+    "execution": "PASS",
+    "contradictions": [],
+    "status": "UNVERIFIED",
+    "why": "documented, but no test in this change mentions `GeneratedMessagePackFormatter(SurrogateType = typeof(...))`"
+   }
+  ],
+  "alternatives": [
+   {
+    "name": "System.Runtime.Serialization DataMember attributes",
+    "chosen": false,
+    "evidence": []
+   },
+   {
+    "name": "user-defined copies of the MessagePack attributes",
+    "chosen": false,
+    "evidence": []
+   },
+   {
+    "name": "attributes source-generated with RegisterPostInitializationOutput",
+    "chosen": false,
+    "evidence": []
+   }
+  ],
+  "counts": {
+   "VERIFIED": 8,
+   "UNVERIFIED": 5
+  }
+ },
+ "auditor": {
+  "stage": "auditor",
+  "engine": "deterministic (scope terms + facts); LLM drift review is optional",
+  "scope_terms": [
+   "GeneratedMessagePackFormatter",
+   "GeneratedFormatter",
+   "Surrogate",
+   "IsUserDeclaredFormatter",
+   "MsgPack019",
+   "MsgPack020",
+   "MsgPack021",
+   "MsgPack022",
+   "Contractless",
+   "contractless"
+  ],
+  "out_of_scope": [],
+  "outlier_links": [],
+  "findings": []
+ },
+ "prosecutor": {
+  "stage": "prosecutor",
+  "llm": {
+   "status": "NOT RUN",
+   "why": "offline and no cached answer for this input"
+  },
+  "accusations": [
+   {
+    "id": "P-TEST-EXCLUDED",
+    "source": "rules (deterministic)",
+    "category": "prosecution",
+    "severity": "high",
+    "claim": "New execution tests are excluded from MapModeExecutionTests, so the new formatters are never run in map mode: an evidence gap, not a pass",
+    "file": "tests/MessagePack.SourceGenerator.MapModeExecutionTests/MessagePack.SourceGenerator.MapModeExecutionTests.csproj",
+    "line_start": 14,
+    "line_end": 14,
+    "symbol": "Exclude",
+    "phantom_test": null,
+    "also_at": []
+   },
+   {
+    "id": "P-DOUBLE-RUN",
+    "source": "rules (deterministic)",
+    "category": "prosecution",
+    "severity": "low",
+    "claim": "`GeneratedFormatterCollector.Collect` runs twice per formatter (once for the model with diagnostics off, once for the diagnostics): double cost, and the two runs can disagree if one changes",
+    "file": "src/MessagePack.SourceGenerator/MessagePackGenerator.cs",
+    "line_start": 72,
+    "line_end": 72,
+    "symbol": "GeneratedFormatterCollector.Collect",
+    "phantom_test": null,
+    "also_at": [
+     125
+    ]
+   },
+   {
+    "branch": "ju26-issue-2129",
+    "claim": "DateTimeOffset is boxed and written as 0x92 followed by Ext 0x7f, changing the wire format",
+    "symbol": "0x7f",
+    "file": null,
+    "line_start": null,
+    "line_end": null,
+    "id": "DRAFT-3",
+    "source": "replay: our LLM-written concept draft",
+    "category": "prosecution",
+    "severity": "high",
+    "phantom_test": null
+   }
+  ]
+ },
+ "judge": {
+  "stage": "judge",
+  "accepted": [
+   {
+    "id": "P-TEST-EXCLUDED",
+    "source": "rules (deterministic)",
+    "category": "prosecution",
+    "severity": "high",
+    "claim": "New execution tests are excluded from MapModeExecutionTests, so the new formatters are never run in map mode: an evidence gap, not a pass",
+    "file": "tests/MessagePack.SourceGenerator.MapModeExecutionTests/MessagePack.SourceGenerator.MapModeExecutionTests.csproj",
+    "line_start": 14,
+    "line_end": 14,
+    "symbol": "Exclude",
+    "phantom_test": null,
+    "also_at": [],
+    "verdict": "ACCEPTED",
+    "kind": "citation_verified",
+    "why": "`Exclude` is on a changed line of tests/MessagePack.SourceGenerator.MapModeExecutionTests/MessagePack.SourceGenerator.MapModeExecutionTests.csproj:14-14",
+    "evidence": [
+     {
+      "line": 14,
+      "kind": "+",
+      "text": "    <Compile Include=\"..\\MessagePack.SourceGenerator.ExecutionTests\\**\\*.cs\" Exclude=\"..\\MessagePack.SourceGenerator.ExecutionTests\\**\\GeneratedMessagePackResolver.cs;..\\MessagePack.SourceGenerator.ExecutionTests\\**\\GeneratedFormatterForExternalTypes*.cs\" />"
+     }
+    ]
+   },
+   {
+    "id": "P-DOUBLE-RUN",
+    "source": "rules (deterministic)",
+    "category": "prosecution",
+    "severity": "low",
+    "claim": "`GeneratedFormatterCollector.Collect` runs twice per formatter (once for the model with diagnostics off, once for the diagnostics): double cost, and the two runs can disagree if one changes",
+    "file": "src/MessagePack.SourceGenerator/MessagePackGenerator.cs",
+    "line_start": 72,
+    "line_end": 72,
+    "symbol": "GeneratedFormatterCollector.Collect",
+    "phantom_test": null,
+    "also_at": [
+     125
+    ],
+    "verdict": "ACCEPTED",
+    "kind": "citation_verified",
+    "why": "`GeneratedFormatterCollector.Collect` is on a changed line of src/MessagePack.SourceGenerator/MessagePackGenerator.cs:72-72",
+    "evidence": [
+     {
+      "line": 72,
+      "kind": "+",
+      "text": "                    if (GeneratedFormatterCollector.Collect(s.Left.Right, options, referenceSymbols, reportDiagnostic: null, request.Formatter, request.Surrogate, ct) is FullModel generatedModel)"
+     }
+    ]
+   }
+  ],
+  "rejected": [
+   {
+    "branch": "ju26-issue-2129",
+    "claim": "DateTimeOffset is boxed and written as 0x92 followed by Ext 0x7f, changing the wire format",
+    "symbol": "0x7f",
+    "file": null,
+    "line_start": null,
+    "line_end": null,
+    "id": "DRAFT-3",
+    "source": "replay: our LLM-written concept draft",
+    "category": "prosecution",
+    "severity": "high",
+    "phantom_test": null,
+    "verdict": "REJECTED",
+    "kind": "hallucination_rejected",
+    "why": "cites no file or line, and `0x7f` appears nowhere in the diff"
+   }
+  ],
+  "total": 3,
+  "rejection_rate": 0.333
+ },
+ "router": {
+  "stage": "router",
+  "tier": "T2",
+  "policy": "factory rules (earned_trust/gate.py + classifier.py)",
+  "reasons": [
+   "T2-ANALYZER-SEVERITY: new or changed analyzer rule severity: it can break users' builds",
+   "T2-PUBLIC-API: new public type or member in a published package (MessagePack, MessagePack.Annotations)",
+   "T2-SERIALIZATION-CONTRACT: changes how members map to the wire format by default",
+   "T2-TEST-EXCLUSION: tests excluded from a test project: evidence that silently stops running"
+  ],
+  "second_reviewer": false,
+  "module_states": {
+   ".": "REVOKED",
+   "doc": "REVOKED",
+   "src": "PROBATION",
+   "src/MessagePack.SourceGenerator": "EARNED",
+   "src/MessagePack.SourceGenerator/Analyzers": "PROBATION",
+   "src/MessagePack.SourceGenerator/CodeAnalysis": "PROBATION",
+   "src/MessagePack.SourceGenerator/Transforms": "PROBATION",
+   "src/MessagePack.SourceGenerator/Utils": "PROBATION",
+   "tests/MessagePack.SourceGenerator.ExecutionTests": "PROBATION",
+   "tests": "PROBATION",
+   "tests/MessagePack.SourceGenerator.MapModeExecutionTests": "PROBATION",
+   "tests/MessagePack.SourceGenerator.Tests": "PROBATION"
+  },
+  "read": {
+   "files_total": 28,
+   "files_must_read": 26,
+   "files_hidden": 2,
+   "lines_total": 1043,
+   "lines_must_read": 1035,
+   "lines_tests_summarized": 0,
+   "lines_hidden": 8
+  },
+  "must_read": [
+   "README.md",
+   "doc/analyzers/MsgPack019.md",
+   "doc/analyzers/MsgPack020.md",
+   "doc/analyzers/MsgPack021.md",
+   "doc/analyzers/MsgPack022.md",
+   "doc/analyzers/index.md",
+   "src/MessagePack.Annotations/Attributes.cs",
+   "src/MessagePack.SourceGenerator/AnalyzerReleases.Unshipped.md",
+   "src/MessagePack.SourceGenerator/Analyzers/MsgPack00xMessagePackAnalyzer.cs",
+   "src/MessagePack.SourceGenerator/CodeAnalysis/GeneratedFormatterCollector.cs",
+   "src/MessagePack.SourceGenerator/CodeAnalysis/GeneratedFormatterRequest.cs",
+   "src/MessagePack.SourceGenerator/CodeAnalysis/ObjectSerializationInfo.cs",
+   "src/MessagePack.SourceGenerator/GeneratorUtilities.cs",
+   "src/MessagePack.SourceGenerator/MessagePackGenerator.cs",
+   "src/MessagePack.SourceGenerator/Transforms/FormatterTemplate.tt",
+   "src/MessagePack.SourceGenerator/Transforms/StringKey/StringKeyFormatterTemplate.tt",
+   "src/MessagePack.SourceGenerator/Utils/Constants.cs",
+   "tests/MessagePack.SourceGenerator.ExecutionTests/GeneratedFormatterForExternalTypes.cs",
+   "tests/MessagePack.SourceGenerator.ExecutionTests/GeneratedFormatterForExternalTypesTests.cs",
+   "tests/MessagePack.SourceGenerator.ExecutionTests/MessagePack.SourceGenerator.ExecutionTests.csproj",
+   "tests/MessagePack.SourceGenerator.ExternalTypes/ExternalPerson.cs",
+   "tests/MessagePack.SourceGenerator.ExternalTypes/ExternalPoint.cs",
+   "tests/MessagePack.SourceGenerator.ExternalTypes/ExternalWidget.cs",
+   "tests/MessagePack.SourceGenerator.ExternalTypes/MessagePack.SourceGenerator.ExternalTypes.csproj",
+   "tests/MessagePack.SourceGenerator.MapModeExecutionTests/MessagePack.SourceGenerator.MapModeExecutionTests.csproj",
+   "tests/MessagePack.SourceGenerator.Tests/GeneratedMessagePackFormatterTests.cs"
+  ],
+  "hidden": [
+   "src/MessagePack.SourceGenerator/Transforms/FormatterTemplate.cs",
+   "src/MessagePack.SourceGenerator/Transforms/StringKey/StringKeyFormatterTemplate.cs"
+  ]
+ },
+ "sampler": {
+  "stage": "sampler",
+  "population": 2,
+  "rate": 0.05,
+  "n": 1,
+  "seed": "083afd994c1c9a99",
+  "method": "random.Random(int(commit_sha[:16], 16)).sample(sorted(hidden files), max(1, ceil(0.05 x N)))",
+  "sample": [
+   "src/MessagePack.SourceGenerator/Transforms/FormatterTemplate.cs"
+  ]
+ },
+ "abstentions": [
+  {
+   "id": "ABS-1",
+   "status": "ABSTAINED",
+   "kind": "public-api",
+   "decision": "Is `class GeneratedMessagePackFormatterAttribute` the public API the package wants to support forever?",
+   "why_not_ai": "Public API in a published package is a product commitment; tests can show it works, not that it is the right shape.",
+   "missing_evidence": [
+    "API review by a maintainer",
+    "a PublicAPI.Unshipped.txt entry (none in this diff)"
+   ],
+   "who_decides": "the package maintainers (API owners of MessagePack.Annotations)",
+   "options": [
+    "approve-shape",
+    "request-changes"
+   ],
+   "cite": "src/MessagePack.Annotations/Attributes.cs:166"
+  },
+  {
+   "id": "ABS-2",
+   "status": "ABSTAINED",
+   "kind": "serialization-contract",
+   "decision": "Should the default for these types be contractless (every public read-write member, keyed by its name)?",
+   "why_not_ai": "The default wire contract decides compatibility of every message ever written with it; that is a product decision.",
+   "missing_evidence": [
+    "the maintainers' position on contractless as a default",
+    "round-trip tests against data written by an older version"
+   ],
+   "who_decides": "the package maintainers: the wire format is a promise to every user",
+   "options": [
+    "accept-contractless-default",
+    "require-explicit-surrogate"
+   ],
+   "cite": "src/MessagePack.Annotations/Attributes.cs:149"
+  },
+  {
+   "id": "ABS-3",
+   "status": "ABSTAINED",
+   "kind": "analyzer-severity",
+   "decision": "Should the new diagnostics ship as Error (build-breaking) rather than Warning?",
+   "why_not_ai": "Severity is policy about users' builds, not a property of the code.",
+   "missing_evidence": [
+    "maintainers' severity policy for new rules"
+   ],
+   "who_decides": "the analyzer maintainers: a new Error breaks users' builds on upgrade",
+   "options": [
+    "keep-error",
+    "downgrade-to-warning"
+   ],
+   "cite": "src/MessagePack.SourceGenerator/AnalyzerReleases.Unshipped.md:26"
+  },
+  {
+   "id": "ABS-4",
+   "status": "ABSTAINED",
+   "kind": "ambiguous-requirement",
+   "decision": "The issue lists 3 ways to give keys for T and picks none; the change invents another (SurrogateType + contractless). Which one?",
+   "why_not_ai": "Choosing between designs the issue left open is the requirement owner's call.",
+   "missing_evidence": [
+    "the issue author's choice",
+    "maintainers' preference"
+   ],
+   "who_decides": "the issue author and the maintainers",
+   "options": [
+    "accept-surrogate-design",
+    "ask-issue-author"
+   ],
+   "cite": "requirements/2129.json"
+  }
+ ],
+ "change": {
+  "branch": "ju26-issue-2129",
+  "issue": 2129,
+  "sha": "083afd994c1c9a994cb2cd5aa0b6ad805a621457",
+  "subject": "Agentic implementation of #2129 Feature Request: Allow generation of Formatter for a type in a referenced assembly",
+  "author": "Stelian Vultur",
+  "issue_title": "Feature Request: Allow generation of Formatter for a type in a referenced assembly",
+  "issue_url": "https://github.com/MessagePack-CSharp/MessagePack-CSharp/issues/2129",
+  "files": 28,
+  "added": 1034,
+  "deleted": 9,
+  "diff_sha": "063e4d41a1ccf6e4b80fe1576a9070bd9c4d076b6ceb2dbaf2f6ad57e9696645",
+  "source": "replay cache (factory/cache)"
+ },
+ "provenance": {
+  "llm": "NOT RUN: offline and no cached answer for this input",
+  "policy_sha": "cf2ba253bd60f8e6e0b8bd49f652835916756c38a7b72475e83c7c5c76579ddf",
+  "trust": "git log origin/master -n 2000 --no-merges (te-industry-tech-office/junction26-messagepack-csharp, a mirror of MessagePack-CSharp), 730 days up to 2026-10-23"
+ },
+ "not_checked": [
+  {
+   "item": "The rest of the test suite",
+   "why": "only the 13 tests this change adds were run (docker mcr.microsoft.com/dotnet/sdk:9.0, 2026-11-14T05:33:06Z)"
+  },
+  {
+   "item": "The pinned build environment",
+   "why": "global.json (SDK 8.0.402) removed in the worktree to build with mcr.microsoft.com/dotnet/sdk:9.0; DOTNET_ROLL_FORWARD=Major: the net8.0 test host runs on the image's newer runtime"
+  },
+  {
+   "item": "Tests excluded from another test project",
+   "why": "excluded tests were not run there (see the T2-TEST-EXCLUSION trigger)"
+  },
+  {
+   "item": "Semantic analysis with Roslyn",
+   "why": "classification is diff heuristics + regex (Roslyn classifier is P2)"
+  },
+  {
+   "item": "LLM prosecution",
+   "why": "NOT RUN: offline and no cached answer for this input \u2014 deterministic only for this run"
+  },
+  {
+   "item": "Claims DOC-2129-3, DOC-2129-4, DOC-2129-8, DOC-2129-9, DOC-2129-10",
+   "why": "no test in this change covers them"
+  },
+  {
+   "item": "1 of 2 hidden mechanical files",
+   "why": "not sampled; covered by the pattern check only"
+  },
+  {
+   "item": "Whether each finding's argument is right",
+   "why": "the judge checks citations only; a human accepts or refutes"
+  }
+ ]
+}

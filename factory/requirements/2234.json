@@ -1,0 +1,44 @@
+{
+  "issue": 2234,
+  "curated_by": "team (human), from the issue text",
+  "requirements": [
+    {
+      "id": "REQ-2234-1",
+      "kind": "stated",
+      "text": "The analyzer reports diagnostics for types with [MessagePackObject(SuppressSourceGeneration = true)], as it did in 3.1.0",
+      "quote": "The analyzer does not work if SuppressSourceGeneration = true. This has happened since version 3.1.1. It still worked in 3.1.0.",
+      "implements": [
+        {
+          "path": "TypeCollector\\.cs$",
+          "added": "ContainsKey|continue;"
+        }
+      ],
+      "tests": [
+        "SuppressSourceGeneration",
+        "Suppressed"
+      ]
+    },
+    {
+      "id": "REQ-2234-2",
+      "kind": "implicit constraint (reviewers' reading of the issue, not stated in it)",
+      "text": "Types that do get a generated formatter keep their behaviour: the change is on the shared collection path, so they must be covered too",
+      "quote": "(implicit) fixing suppressed types must not change generated ones",
+      "implements": [
+        {
+          "path": "TypeCollector\\.cs$",
+          "added": "ContainsKey"
+        }
+      ],
+      "tests": [
+        "ForGeneratedTypes"
+      ]
+    }
+  ],
+  "alternatives": [],
+  "scope_terms": [
+    "ContainsKey",
+    "continue;",
+    "SuppressSourceGeneration",
+    "DoNotMixStringAndIntKeys"
+  ]
+}

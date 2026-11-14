@@ -1,0 +1,29 @@
+{
+ "stage": "router",
+ "tier": "T1",
+ "policy": "factory rules (earned_trust/gate.py + classifier.py)",
+ "reasons": [
+  "1 semantic file to read"
+ ],
+ "second_reviewer": false,
+ "module_states": {
+  ".": "REVOKED",
+  "src/MessagePack.SourceGenerator/CodeAnalysis": "PROBATION",
+  "tests/MessagePack.SourceGenerator.ExecutionTests": "PROBATION",
+  "tests/MessagePack.SourceGenerator.Tests": "PROBATION"
+ },
+ "read": {
+  "files_total": 4,
+  "files_must_read": 2,
+  "files_hidden": 0,
+  "lines_total": 266,
+  "lines_must_read": 36,
+  "lines_tests_summarized": 230,
+  "lines_hidden": 0
+ },
+ "must_read": [
+  "README.md",
+  "src/MessagePack.SourceGenerator/CodeAnalysis/TypeCollector.cs"
+ ],
+ "hidden": []
+}

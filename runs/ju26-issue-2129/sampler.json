@@ -1,0 +1,11 @@
+{
+ "stage": "sampler",
+ "population": 2,
+ "rate": 0.05,
+ "n": 1,
+ "seed": "083afd994c1c9a99",
+ "method": "random.Random(int(commit_sha[:16], 16)).sample(sorted(hidden files), max(1, ceil(0.05 x N)))",
+ "sample": [
+  "src/MessagePack.SourceGenerator/Transforms/FormatterTemplate.cs"
+ ]
+}

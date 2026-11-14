@@ -1,0 +1,109 @@
+{
+ "published_at": "2026-11-14T06:06:35Z",
+ "events": [
+  {
+   "at": "2026-11-14T06:06:35Z",
+   "actor": "demo-owner",
+   "command": "/spotcheck clean",
+   "simulated": true
+  },
+  {
+   "at": "2026-11-14T06:06:35Z",
+   "actor": "demo-owner",
+   "command": "/decide ABS-1 remove-guard \"Microsoft docs list ExcludeFromCodeCoverageAttribute for netstandard2.0 and .NET Framework 4.0+; the guard only drops the feature for those users\"",
+   "simulated": true
+  },
+  {
+   "at": "2026-11-14T06:06:35Z",
+   "actor": "demo-owner",
+   "command": "/accept SCOPE-1",
+   "simulated": true
+  },
+  {
+   "at": "2026-11-14T06:06:35Z",
+   "actor": "demo-owner",
+   "command": "/accept DRIFT-1",
+   "simulated": true
+  },
+  {
+   "at": "2026-11-14T06:06:35Z",
+   "actor": "demo-owner",
+   "command": "/accept DRIFT-2",
+   "simulated": true
+  },
+  {
+   "at": "2026-11-14T06:06:35Z",
+   "actor": "demo-owner",
+   "command": "/accept DRIFT-3",
+   "simulated": true
+  },
+  {
+   "at": "2026-11-14T06:06:35Z",
+   "actor": "demo-owner",
+   "command": "/sign \"Demo Owner\"",
+   "simulated": true
+  }
+ ],
+ "spotcheck": {
+  "result": "clean",
+  "by": "demo-owner",
+  "at": "2026-11-14T06:06:35Z",
+  "sample": [
+   "tests/MessagePack.SourceGenerator.Tests/Resources/CustomFormatterViaAttributeOnField(True)/Formatters.MessagePack.GeneratedMessagePackResolver.HasFieldWithCustomFormatterAttributeFormatter.g.cs",
+   "tests/MessagePack.SourceGenerator.Tests/Resources/EnumFormatter_CollidingTypeNames/Formatters.MessagePack.GeneratedMessagePackResolver.NS1.MyEnumFormatter.g.cs",
+   "tests/MessagePack.SourceGenerator.Tests/Resources/GenericType/Formatters.MessagePack.GeneratedMessagePackResolver.MyGenericTypeFormatter`1.g.cs",
+   "tests/MessagePack.SourceGenerator.Tests/Resources/GenericsOfT1T2Formatter/Formatters.MessagePack.GeneratedMessagePackResolver.TempProject.MyGenericObjectFormatter`2.g.cs",
+   "tests/MessagePack.SourceGenerator.Tests/Resources/GenericsOfT1T2Formatter/Formatters.MessagePack.GeneratedMessagePackResolver.TempProject.MyObjectFormatter.g.cs",
+   "tests/MessagePack.SourceGenerator.Tests/Resources/GenericsOfT1T2Formatter/MessagePack.GeneratedMessagePackResolver.g.cs",
+   "tests/MessagePack.SourceGenerator.Tests/Resources/GenericsUnionFormatter_Nested/Formatters.MessagePack.GeneratedMessagePackResolver.TempProject.MyGenericObjectFormatter`1.g.cs",
+   "tests/MessagePack.SourceGenerator.Tests/Resources/NonDefaultDeserializingConstructor_Private/Formatters.A.AFormatter.g.cs",
+   "tests/MessagePack.SourceGenerator.Tests/Resources/NullableFormatter/Formatters.MessagePack.GeneratedMessagePackResolver.TempProject.MyObjectFormatter.g.cs",
+   "tests/MessagePack.SourceGenerator.Tests/Resources/RecordWithPrimaryConstructor/MessagePack.GeneratedMessagePackResolver.g.cs",
+   "tests/MessagePack.SourceGenerator.Tests/Resources/RecordWithWithInitOnlyProps/Formatters.MessagePack.GeneratedMessagePackResolver.TempProject.MyMessagePackObjectFormatter.g.cs",
+   "tests/MessagePack.SourceGenerator.Tests/Resources/UnionFormatter(NestingClass)/MessagePack.GeneratedMessagePackResolver.g.cs"
+  ]
+ },
+ "summary_disabled": false,
+ "decisions": {
+  "ABS-1": {
+   "option": "remove-guard",
+   "reason": "Microsoft docs list ExcludeFromCodeCoverageAttribute for netstandard2.0 and .NET Framework 4.0+; the guard only drops the feature for those users",
+   "by": "demo-owner",
+   "at": "2026-11-14T06:06:35Z",
+   "decision": "REQ-2297-1 asks for \"All generated code is decorated with [ExcludeFromCodeCoverage]\" but the change leaves some targets out. Intended?",
+   "kind": "compatibility"
+  }
+ },
+ "findings": {
+  "SCOPE-1": {
+   "verdict": "accepted",
+   "by": "demo-owner",
+   "at": "2026-11-14T06:06:35Z"
+  },
+  "DRIFT-1": {
+   "verdict": "accepted",
+   "by": "demo-owner",
+   "at": "2026-11-14T06:06:35Z"
+  },
+  "DRIFT-2": {
+   "verdict": "accepted",
+   "by": "demo-owner",
+   "at": "2026-11-14T06:06:35Z"
+  },
+  "DRIFT-3": {
+   "verdict": "accepted",
+   "by": "demo-owner",
+   "at": "2026-11-14T06:06:35Z"
+  }
+ },
+ "verify": null,
+ "signatures": [
+  {
+   "name": "Demo Owner",
+   "by": "demo-owner",
+   "at": "2026-11-14T06:06:35Z"
+  }
+ ],
+ "signed_complete": true,
+ "receipt_hash": "13a0368bbd47aeb529fc5a55700ba65ac520d8d03d224f4932edb8f35ab8c432"
+}

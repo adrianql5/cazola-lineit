@@ -1,0 +1,19 @@
+[
+ {
+  "id": "ABS-1",
+  "status": "ABSTAINED",
+  "kind": "compatibility",
+  "decision": "REQ-2297-1 asks for \"All generated code is decorated with [ExcludeFromCodeCoverage]\" but the change leaves some targets out. Intended?",
+  "why_not_ai": "Which target frameworks get a feature is a compatibility promise; the AI can show the gap (and the API docs), not decide it.",
+  "missing_evidence": [
+   "the PR author's reason for the guard",
+   "a test compiled for netstandard2.0 / net472 consumers"
+  ],
+  "who_decides": "the PR owner, with the maintainers for supported target frameworks",
+  "options": [
+   "keep-guard",
+   "remove-guard"
+  ],
+  "cite": "src/MessagePack.SourceGenerator/Transforms/CompositeResolverTemplate.tt:7"
+ }
+]

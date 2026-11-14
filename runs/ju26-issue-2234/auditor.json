@@ -1,0 +1,13 @@
+{
+ "stage": "auditor",
+ "engine": "deterministic (scope terms + facts); LLM drift review is optional",
+ "scope_terms": [
+  "ContainsKey",
+  "continue;",
+  "SuppressSourceGeneration",
+  "DoNotMixStringAndIntKeys"
+ ],
+ "out_of_scope": [],
+ "outlier_links": [],
+ "findings": []
+}

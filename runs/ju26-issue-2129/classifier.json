@@ -1,0 +1,293 @@
+{
+ "stage": "classifier",
+ "engine": "heuristic: diff shape + text within each shape + regex rules (Roslyn classifier not used)",
+ "files": [
+  {
+   "path": "README.md",
+   "category": "docs",
+   "reason": "documentation",
+   "added": 52,
+   "deleted": 0,
+   "status": "modified"
+  },
+  {
+   "path": "doc/analyzers/MsgPack019.md",
+   "category": "docs",
+   "reason": "documentation",
+   "added": 26,
+   "deleted": 0,
+   "status": "added"
+  },
+  {
+   "path": "doc/analyzers/MsgPack020.md",
+   "category": "docs",
+   "reason": "documentation",
+   "added": 23,
+   "deleted": 0,
+   "status": "added"
+  },
+  {
+   "path": "doc/analyzers/MsgPack021.md",
+   "category": "docs",
+   "reason": "documentation",
+   "added": 23,
+   "deleted": 0,
+   "status": "added"
+  },
+  {
+   "path": "doc/analyzers/MsgPack022.md",
+   "category": "docs",
+   "reason": "documentation",
+   "added": 31,
+   "deleted": 0,
+   "status": "added"
+  },
+  {
+   "path": "doc/analyzers/index.md",
+   "category": "docs",
+   "reason": "documentation",
+   "added": 4,
+   "deleted": 0,
+   "status": "modified"
+  },
+  {
+   "path": "src/MessagePack.Annotations/Attributes.cs",
+   "category": "public-contract",
+   "reason": "new public type or member in a published package (MessagePack, MessagePack.Annotations)",
+   "added": 36,
+   "deleted": 0,
+   "status": "modified"
+  },
+  {
+   "path": "src/MessagePack.SourceGenerator/AnalyzerReleases.Unshipped.md",
+   "category": "public-contract",
+   "reason": "analyzer release notes: the shipped rule list and severities",
+   "added": 4,
+   "deleted": 0,
+   "status": "modified"
+  },
+  {
+   "path": "src/MessagePack.SourceGenerator/Analyzers/MsgPack00xMessagePackAnalyzer.cs",
+   "category": "semantic",
+   "reason": "source code",
+   "added": 45,
+   "deleted": 1,
+   "status": "modified"
+  },
+  {
+   "path": "src/MessagePack.SourceGenerator/CodeAnalysis/GeneratedFormatterCollector.cs",
+   "category": "semantic",
+   "reason": "source code",
+   "added": 300,
+   "deleted": 0,
+   "status": "added"
+  },
+  {
+   "path": "src/MessagePack.SourceGenerator/CodeAnalysis/GeneratedFormatterRequest.cs",
+   "category": "semantic",
+   "reason": "source code",
+   "added": 13,
+   "deleted": 0,
+   "status": "added"
+  },
+  {
+   "path": "src/MessagePack.SourceGenerator/CodeAnalysis/ObjectSerializationInfo.cs",
+   "category": "semantic",
+   "reason": "source code",
+   "added": 7,
+   "deleted": 0,
+   "status": "modified"
+  },
+  {
+   "path": "src/MessagePack.SourceGenerator/GeneratorUtilities.cs",
+   "category": "semantic",
+   "reason": "source code",
+   "added": 3,
+   "deleted": 0,
+   "status": "modified"
+  },
+  {
+   "path": "src/MessagePack.SourceGenerator/MessagePackGenerator.cs",
+   "category": "semantic",
+   "reason": "source code",
+   "added": 36,
+   "deleted": 3,
+   "status": "modified"
+  },
+  {
+   "path": "src/MessagePack.SourceGenerator/Transforms/FormatterTemplate.cs",
+   "category": "mechanical",
+   "reason": "T4 output of src/MessagePack.SourceGenerator/Transforms/FormatterTemplate.tt (in this diff, read by a human); every added identifier comes from it",
+   "added": 3,
+   "deleted": 1,
+   "status": "modified"
+  },
+  {
+   "path": "src/MessagePack.SourceGenerator/Transforms/FormatterTemplate.tt",
+   "category": "semantic",
+   "reason": "source code",
+   "added": 1,
+   "deleted": 1,
+   "status": "modified"
+  },
+  {
+   "path": "src/MessagePack.SourceGenerator/Transforms/StringKey/StringKeyFormatterTemplate.cs",
+   "category": "mechanical",
+   "reason": "T4 output of src/MessagePack.SourceGenerator/Transforms/StringKey/StringKeyFormatterTemplate.tt (in this diff, read by a human); every added identifier comes from it",
+   "added": 3,
+   "deleted": 1,
+   "status": "modified"
+  },
+  {
+   "path": "src/MessagePack.SourceGenerator/Transforms/StringKey/StringKeyFormatterTemplate.tt",
+   "category": "semantic",
+   "reason": "source code",
+   "added": 1,
+   "deleted": 1,
+   "status": "modified"
+  },
+  {
+   "path": "src/MessagePack.SourceGenerator/Utils/Constants.cs",
+   "category": "semantic",
+   "reason": "source code",
+   "added": 2,
+   "deleted": 0,
+   "status": "modified"
+  },
+  {
+   "path": "tests/MessagePack.SourceGenerator.ExecutionTests/GeneratedFormatterForExternalTypes.cs",
+   "category": "test",
+   "reason": "test code",
+   "added": 50,
+   "deleted": 0,
+   "status": "added"
+  },
+  {
+   "path": "tests/MessagePack.SourceGenerator.ExecutionTests/GeneratedFormatterForExternalTypesTests.cs",
+   "category": "test",
+   "reason": "test code",
+   "added": 95,
+   "deleted": 0,
+   "status": "added"
+  },
+  {
+   "path": "tests/MessagePack.SourceGenerator.ExecutionTests/MessagePack.SourceGenerator.ExecutionTests.csproj",
+   "category": "test",
+   "reason": "test project file",
+   "added": 5,
+   "deleted": 0,
+   "status": "modified"
+  },
+  {
+   "path": "tests/MessagePack.SourceGenerator.ExternalTypes/ExternalPerson.cs",
+   "category": "test",
+   "reason": "test code",
+   "added": 15,
+   "deleted": 0,
+   "status": "added"
+  },
+  {
+   "path": "tests/MessagePack.SourceGenerator.ExternalTypes/ExternalPoint.cs",
+   "category": "test",
+   "reason": "test code",
+   "added": 12,
+   "deleted": 0,
+   "status": "added"
+  },
+  {
+   "path": "tests/MessagePack.SourceGenerator.ExternalTypes/ExternalWidget.cs",
+   "category": "test",
+   "reason": "test code",
+   "added": 15,
+   "deleted": 0,
+   "status": "added"
+  },
+  {
+   "path": "tests/MessagePack.SourceGenerator.ExternalTypes/MessagePack.SourceGenerator.ExternalTypes.csproj",
+   "category": "test",
+   "reason": "test project file",
+   "added": 17,
+   "deleted": 0,
+   "status": "added"
+  },
+  {
+   "path": "tests/MessagePack.SourceGenerator.MapModeExecutionTests/MessagePack.SourceGenerator.MapModeExecutionTests.csproj",
+   "category": "test",
+   "reason": "test project file",
+   "added": 2,
+   "deleted": 1,
+   "status": "modified"
+  },
+  {
+   "path": "tests/MessagePack.SourceGenerator.Tests/GeneratedMessagePackFormatterTests.cs",
+   "category": "test",
+   "reason": "test code",
+   "added": 210,
+   "deleted": 0,
+   "status": "added"
+  }
+ ],
+ "counts": {
+  "docs": 6,
+  "public-contract": 2,
+  "semantic": 9,
+  "mechanical": 2,
+  "test": 9
+ },
+ "snapshots": 0,
+ "groups": [],
+ "outlier_threshold": 2,
+ "content_check": true,
+ "outliers": [],
+ "triggers": [
+  {
+   "rule": "T2-PUBLIC-API",
+   "why": "new public type or member in a published package (MessagePack, MessagePack.Annotations)",
+   "file": "src/MessagePack.Annotations/Attributes.cs",
+   "line": 166,
+   "text": "public class GeneratedMessagePackFormatterAttribute : Attribute"
+  },
+  {
+   "rule": "T2-SERIALIZATION-CONTRACT",
+   "why": "changes how members map to the wire format by default",
+   "file": "src/MessagePack.Annotations/Attributes.cs",
+   "line": 149,
+   "text": "/// The formatted type <c>T</c> is serialized in contractless mode: every public, non-static, read-write instance property and field"
+  },
+  {
+   "rule": "T2-ANALYZER-SEVERITY",
+   "why": "new or changed analyzer rule severity: it can break users' builds",
+   "file": "src/MessagePack.SourceGenerator/AnalyzerReleases.Unshipped.md",
+   "line": 26,
+   "text": "MsgPack019 | Usage | Error | Generated formatter must be partial"
+  },
+  {
+   "rule": "T2-ANALYZER-SEVERITY",
+   "why": "new or changed analyzer rule severity: it can break users' builds",
+   "file": "src/MessagePack.SourceGenerator/Analyzers/MsgPack00xMessagePackAnalyzer.cs",
+   "line": 323,
+   "text": "defaultSeverity: DiagnosticSeverity.Error,"
+  },
+  {
+   "rule": "T2-SERIALIZATION-CONTRACT",
+   "why": "changes how members map to the wire format by default",
+   "file": "src/MessagePack.SourceGenerator/CodeAnalysis/GeneratedFormatterCollector.cs",
+   "line": 15,
+   "text": "/// in contractless mode, or through the keys declared on an optional surrogate type."
+  },
+  {
+   "rule": "T2-SERIALIZATION-CONTRACT",
+   "why": "changes how members map to the wire format by default",
+   "file": "src/MessagePack.SourceGenerator/CodeAnalysis/GeneratedFormatterRequest.cs",
+   "line": 12,
+   "text": "/// <param name=\"Surrogate\">The surrogate type named by <c>SurrogateType</c>, or <see langword=\"null\"/> for contractless mode.</param>"
+  },
+  {
+   "rule": "T2-TEST-EXCLUSION",
+   "why": "tests excluded from a test project: evidence that silently stops running",
+   "file": "tests/MessagePack.SourceGenerator.MapModeExecutionTests/MessagePack.SourceGenerator.MapModeExecutionTests.csproj",
+   "line": 14,
+   "text": "<Compile Include=\"..\\MessagePack.SourceGenerator.ExecutionTests\\**\\*.cs\" Exclude=\"..\\MessagePack.SourceGenerator.ExecutionTests\\**\\GeneratedMessagePackResolver."
+  }
+ ]
+}

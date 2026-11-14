@@ -1,0 +1,55 @@
+{
+  "issue": 2283,
+  "curated_by": "team (human), from the issue text; online, an LLM can propose these and a human confirms them",
+  "requirements": [
+    {
+      "id": "REQ-2283-1",
+      "kind": "stated",
+      "text": "The generator and the analyzer do not crash (IndexOutOfRangeException) when a [MessagePackObject] member's type is a closed generic value type from a referenced assembly",
+      "quote": "Both `MessagePackGenerator` (CS8785) and `MsgPack00xMessagePackAnalyzer` (AD0001) throw `IndexOutOfRangeException` ...",
+      "implements": [
+        {
+          "path": "TypeCollector\\.cs$",
+          "added": "DeclaringSyntaxReferences\\.FirstOrDefault\\(\\)|GetPropertyIdentifierLocation"
+        }
+      ],
+      "tests": [
+        "FromMetadataReference"
+      ]
+    },
+    {
+      "id": "REQ-2283-2",
+      "kind": "stated",
+      "text": "The consuming assembly gets a generated resolver",
+      "quote": "A clean build, with a generated resolver in `app`.",
+      "implements": [
+        {
+          "path": "TypeCollector\\.cs$",
+          "added": "ReportIfLocatedInCompilation"
+        }
+      ],
+      "tests": [
+        "Resolver.g.cs"
+      ]
+    },
+    {
+      "id": "REQ-2283-3",
+      "kind": "implicit constraint (reviewers' reading of the issue, not stated in it)",
+      "text": "Diagnostics about types declared in the consuming compilation are still reported, even when their location is null",
+      "quote": "(implicit) the fix must not hide the consumer's own problems",
+      "implements": [],
+      "tests": [
+        "Location.None",
+        "NullLocation",
+        "LocationIsNull"
+      ]
+    }
+  ],
+  "alternatives": [],
+  "scope_terms": [
+    "ReportIfLocatedInCompilation",
+    "DeclaringSyntaxReferences",
+    "GetPropertyIdentifierLocation",
+    "Location"
+  ]
+}

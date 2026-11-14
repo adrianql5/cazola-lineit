@@ -1,0 +1,12 @@
+{
+  "note": "Facts the factory checks AI-written code and docs against. Each one was read by a human from its source on the date given; none comes from an LLM.",
+  "facts": [
+    {
+      "id": "FACT-ECC-AVAILABILITY",
+      "statement": "System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute exists in .NET Standard 2.0 and in .NET Framework 4.0 and later (the oldest version the current docs list), and it can be put on classes and structs.",
+      "source": "https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.codeanalysis.excludefromcodecoverageattribute (Applies to: netstandard-2.0, netframework-4.0 ... 4.8.1)",
+      "retrieved": "2026-11-14",
+      "contradicted_by": "(?i)(not available|unavailable|where it (is|exists)|only (emitted|available) for targets).{0,80}(netstandard2\\.0|NETSTANDARD2_0|NETFRAMEWORK|\\.NET Framework)|(netstandard2\\.0|\\.NET Framework).{0,40}(not available|unavailable|does not exist)"
+    }
+  ]
+}

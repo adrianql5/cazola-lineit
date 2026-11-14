@@ -1,0 +1,128 @@
+{
+ "published_at": "2026-11-14T06:06:35Z",
+ "events": [
+  {
+   "at": "2026-11-14T06:06:35Z",
+   "actor": "demo-owner",
+   "command": "/spotcheck clean",
+   "simulated": true
+  },
+  {
+   "at": "2026-11-14T06:06:35Z",
+   "actor": "demo-owner",
+   "command": "/decide ABS-1 request-changes \"New public API needs a PublicAPI entry and maintainer review\"",
+   "simulated": true
+  },
+  {
+   "at": "2026-11-14T06:06:35Z",
+   "actor": "demo-owner",
+   "command": "/decide ABS-2 require-explicit-surrogate \"A contractless default fixes a wire contract nobody chose\"",
+   "simulated": true
+  },
+  {
+   "at": "2026-11-14T06:06:35Z",
+   "actor": "demo-owner",
+   "command": "/decide ABS-3 keep-error \"Misdeclared formatters cannot work; failing the build is right\"",
+   "simulated": true
+  },
+  {
+   "at": "2026-11-14T06:06:35Z",
+   "actor": "demo-owner",
+   "command": "/decide ABS-4 ask-issue-author \"The issue left the design open\"",
+   "simulated": true
+  },
+  {
+   "at": "2026-11-14T06:06:35Z",
+   "actor": "demo-owner",
+   "command": "/accept P-TEST-EXCLUDED",
+   "simulated": true
+  },
+  {
+   "at": "2026-11-14T06:06:35Z",
+   "actor": "demo-owner",
+   "command": "/accept P-DOUBLE-RUN",
+   "simulated": true
+  },
+  {
+   "at": "2026-11-14T06:06:35Z",
+   "actor": "demo-owner",
+   "command": "/verify \"Types from a referenced assembly get a formatter written in the consuming project, contractless unless a surrogate gives keys\"",
+   "simulated": true
+  },
+  {
+   "at": "2026-11-14T06:06:35Z",
+   "actor": "demo-owner",
+   "command": "/sign \"Demo Owner\"",
+   "simulated": true
+  }
+ ],
+ "spotcheck": {
+  "result": "clean",
+  "by": "demo-owner",
+  "at": "2026-11-14T06:06:35Z",
+  "sample": [
+   "src/MessagePack.SourceGenerator/Transforms/FormatterTemplate.cs"
+  ]
+ },
+ "summary_disabled": false,
+ "decisions": {
+  "ABS-1": {
+   "option": "request-changes",
+   "reason": "New public API needs a PublicAPI entry and maintainer review",
+   "by": "demo-owner",
+   "at": "2026-11-14T06:06:35Z",
+   "decision": "Is `class GeneratedMessagePackFormatterAttribute` the public API the package wants to support forever?",
+   "kind": "public-api"
+  },
+  "ABS-2": {
+   "option": "require-explicit-surrogate",
+   "reason": "A contractless default fixes a wire contract nobody chose",
+   "by": "demo-owner",
+   "at": "2026-11-14T06:06:35Z",
+   "decision": "Should the default for these types be contractless (every public read-write member, keyed by its name)?",
+   "kind": "serialization-contract"
+  },
+  "ABS-3": {
+   "option": "keep-error",
+   "reason": "Misdeclared formatters cannot work; failing the build is right",
+   "by": "demo-owner",
+   "at": "2026-11-14T06:06:35Z",
+   "decision": "Should the new diagnostics ship as Error (build-breaking) rather than Warning?",
+   "kind": "analyzer-severity"
+  },
+  "ABS-4": {
+   "option": "ask-issue-author",
+   "reason": "The issue left the design open",
+   "by": "demo-owner",
+   "at": "2026-11-14T06:06:35Z",
+   "decision": "The issue lists 3 ways to give keys for T and picks none; the change invents another (SurrogateType + contractless). Which one?",
+   "kind": "ambiguous-requirement"
+  }
+ },
+ "findings": {
+  "P-TEST-EXCLUDED": {
+   "verdict": "accepted",
+   "by": "demo-owner",
+   "at": "2026-11-14T06:06:35Z"
+  },
+  "P-DOUBLE-RUN": {
+   "verdict": "accepted",
+   "by": "demo-owner",
+   "at": "2026-11-14T06:06:35Z"
+  }
+ },
+ "verify": {
+  "answer": "Types from a referenced assembly get a formatter written in the consuming project, contractless unless a surrogate gives keys",
+  "by": "demo-owner",
+  "at": "2026-11-14T06:06:35Z"
+ },
+ "signatures": [
+  {
+   "name": "Demo Owner",
+   "by": "demo-owner",
+   "at": "2026-11-14T06:06:35Z"
+  }
+ ],
+ "signed_complete": true,
+ "receipt_hash": "77907ba8d7498d465350189ccdb5af4bfd75c10959bf0d21fb6eb9956bdf8b8a"
+}

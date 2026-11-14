@@ -1,0 +1,49 @@
+{
+ "stage": "classifier",
+ "engine": "heuristic: diff shape + text within each shape + regex rules (Roslyn classifier not used)",
+ "files": [
+  {
+   "path": "README.md",
+   "category": "docs",
+   "reason": "documentation",
+   "added": 14,
+   "deleted": 0,
+   "status": "modified"
+  },
+  {
+   "path": "src/MessagePack.SourceGenerator/CodeAnalysis/TypeCollector.cs",
+   "category": "semantic",
+   "reason": "source code",
+   "added": 18,
+   "deleted": 4,
+   "status": "modified"
+  },
+  {
+   "path": "tests/MessagePack.SourceGenerator.ExecutionTests/SuppressedSourceGenerationTests.cs",
+   "category": "test",
+   "reason": "test code",
+   "added": 37,
+   "deleted": 0,
+   "status": "added"
+  },
+  {
+   "path": "tests/MessagePack.SourceGenerator.Tests/SuppressSourceGenerationAnalyzerTests.cs",
+   "category": "test",
+   "reason": "test code",
+   "added": 193,
+   "deleted": 0,
+   "status": "added"
+  }
+ ],
+ "counts": {
+  "docs": 1,
+  "semantic": 1,
+  "test": 2
+ },
+ "snapshots": 0,
+ "groups": [],
+ "outlier_threshold": 2,
+ "content_check": true,
+ "outliers": [],
+ "triggers": []
+}

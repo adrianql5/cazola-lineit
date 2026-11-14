@@ -1,0 +1,774 @@
+{
+ "classifier": {
+  "stage": "classifier",
+  "engine": "heuristic: diff shape + text within each shape + regex rules (Roslyn classifier not used)",
+  "files": [
+   {
+    "path": "README.md",
+    "category": "docs",
+    "reason": "documentation",
+    "added": 14,
+    "deleted": 0,
+    "status": "modified"
+   },
+   {
+    "path": "src/MessagePack.SourceGenerator/CodeAnalysis/TypeCollector.cs",
+    "category": "semantic",
+    "reason": "source code",
+    "added": 18,
+    "deleted": 4,
+    "status": "modified"
+   },
+   {
+    "path": "tests/MessagePack.SourceGenerator.ExecutionTests/SuppressedSourceGenerationTests.cs",
+    "category": "test",
+    "reason": "test code",
+    "added": 37,
+    "deleted": 0,
+    "status": "added"
+   },
+   {
+    "path": "tests/MessagePack.SourceGenerator.Tests/SuppressSourceGenerationAnalyzerTests.cs",
+    "category": "test",
+    "reason": "test code",
+    "added": 193,
+    "deleted": 0,
+    "status": "added"
+   }
+  ],
+  "counts": {
+   "docs": 1,
+   "semantic": 1,
+   "test": 2
+  },
+  "snapshots": 0,
+  "groups": [],
+  "outlier_threshold": 2,
+  "content_check": true,
+  "outliers": [],
+  "triggers": []
+ },
+ "tracer": {
+  "stage": "tracer",
+  "requirements_source": "requirements/2234.json",
+  "curated_by": "team (human), from the issue text",
+  "execution": {
+   "status": "PASS",
+   "sha": "9007cee1163c4a274fd60c3cc20c21ae63622786",
+   "how": "docker mcr.microsoft.com/dotnet/sdk:9.0",
+   "command": "echo \"=== tests/MessagePack.SourceGenerator.ExecutionTests/MessagePack.SourceGenerator.ExecutionTests.csproj\"; dotnet test \"tests/MessagePack.SourceGenerator.ExecutionTests/MessagePack.SourceGenerator.ExecutionTests.csproj\" -c Release --filter \"FullyQualifiedName~AllowPrivateRequiredIsReported|FullyQualifiedName~DuplicateIntKeysAreReportedWithoutAnalyzerFailure|FullyQualifiedName~DuplicateKeysAreReportedWithoutAnalyzerFailureForGeneratedTypes|FullyQualifiedName~DuplicateStringKeysAreReportedWithoutAnalyzerFailure|FullyQualifiedName~MemberTypeMustBeMessagePackObjectIsReported|FullyQualifiedName~MemberWithoutKeyIsReported|FullyQualifiedName~MixedKeyKindsAreReportedWithoutAnalyzerFailure|FullyQualifiedName~NoFormatterIsGeneratedForSuppressedType|FullyQualifiedName~SourceGenerationOnlyDiagnosticsAreNotReportedWhenSuppressed|FullyQualifiedName~SuppressedTypeRoundTripsThroughDynamicResolver\" --nologo; echo \"=== exit $?\"; echo \"=== tests/MessagePack.SourceGenerator.Tests/MessagePack.SourceGenerator.Tests.csproj\"; dotnet test \"tests/MessagePack.SourceGenerator.Tests/MessagePack.SourceGenerator.Tests.csproj\" -c Release --filter \"FullyQualifiedName~AllowPrivateRequiredIsReported|FullyQualifiedName~DuplicateIntKeysAreReportedWithoutAnalyzerFailure|FullyQualifiedName~DuplicateKeysAreReportedWithoutAnalyzerFailureForGeneratedTypes|FullyQualifiedName~DuplicateStringKeysAreReportedWithoutAnalyzerFailure|FullyQualifiedName~MemberTypeMustBeMessagePackObjectIsReported|FullyQualifiedName~MemberWithoutKeyIsReported|FullyQualifiedName~MixedKeyKindsAreReportedWithoutAnalyzerFailure|FullyQualifiedName~NoFormatterIsGeneratedForSuppressedType|FullyQualifiedName~SourceGenerationOnlyDiagnosticsAreNotReportedWhenSuppressed|FullyQualifiedName~SuppressedTypeRoundTripsThroughDynamicResolver\" --nologo; echo \"=== exit $?\"",
+   "projects": [
+    "tests/MessagePack.SourceGenerator.ExecutionTests/MessagePack.SourceGenerator.ExecutionTests.csproj",
+    "tests/MessagePack.SourceGenerator.Tests/MessagePack.SourceGenerator.Tests.csproj"
+   ],
+   "per_project": [
+    {
+     "project": "tests/MessagePack.SourceGenerator.ExecutionTests/MessagePack.SourceGenerator.ExecutionTests.csproj",
+     "status": "PASS",
+     "passed": 2,
+     "failed": 0,
+     "errors": []
+    },
+    {
+     "project": "tests/MessagePack.SourceGenerator.Tests/MessagePack.SourceGenerator.Tests.csproj",
+     "status": "PASS",
+     "passed": 8,
+     "failed": 0,
+     "errors": []
+    }
+   ],
+   "deviations": [
+    "global.json (SDK 8.0.402) removed in the worktree to build with mcr.microsoft.com/dotnet/sdk:9.0",
+    "DOTNET_ROLL_FORWARD=Major: the net8.0 test host runs on the image's newer runtime"
+   ],
+   "passed": 10,
+   "failed": 0,
+   "seconds": 17,
+   "ran_at": "2026-11-14T05:32:48Z",
+   "why": "10 passed, 0 failed (docker mcr.microsoft.com/dotnet/sdk:9.0) \u2014 deviation: global.json (SDK 8.0.402) removed in the worktree to build with mcr.microsoft.com/dotnet/sdk:9.0; DOTNET_ROLL_FORWARD=Major: the net8.0 test host runs on the image's newer runtime",
+   "log_tail": "=== tests/MessagePack.SourceGenerator.ExecutionTests/MessagePack.SourceGenerator.ExecutionTests.csproj\n\n  Determining projects to restore...\n  Restored /src/src/MessagePack.Annotations/MessagePack.Annotations.csproj (in 2.34 sec).\n  Restored /src/src/MessagePack.SourceGenerator/MessagePack.SourceGenerator.csproj (in 2.34 sec).\n  Restored /src/src/MessagePack.Analyzers.CodeFixes/MessagePack.Analyzers.CodeFixes.csproj (in 2.85 sec).\n  Restored /src/src/MessagePack.Analyzers/MessagePack.Analyzers.csproj (in 2.85 sec).\n  Restored /src/tests/MessagePack.SourceGenerator.ExecutionTests/MessagePack.SourceGenerator.ExecutionTests.csproj (in 3.43 sec).\n  Restored /src/src/MessagePack/MessagePack.csproj (in 3.44 sec).\n  MessagePack.SourceGenerator -> /src/bin/MessagePack.SourceGenerator/Release/netstandard2.0/MessagePack.SourceGenerator.dll\n  MessagePack.Analyzers.CodeFixes -> /src/bin/MessagePack.Analyzers.CodeFixes/Release/netstandard2.0/MessagePack.Analyzers.CodeFixes.dll\n  MessagePack.Analyzers -> /src/bin/MessagePack.Analyzers/Release/netstandard2.0/MessagePack.Analyzers.dll\n  MessagePack.Annotations -> /src/bin/MessagePack.Annotations/Release/netstandard2.0/MessagePack.Annotations.dll\n  MessagePack -> /src/bin/MessagePack/Release/net8.0/MessagePack.dll\n/src/tests/MessagePack.SourceGenerator.ExecutionTests/SuppressedSourceGenerationTests.cs(9,14): warning SA1649: File name should match first type name (https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1649.md) [/src/tests/MessagePack.SourceGenerator.ExecutionTests/MessagePack.SourceGenerator.ExecutionTests.csproj]\n  MessagePack.SourceGenerator.ExecutionTests -> /src/bin/MessagePack.SourceGenerator.ExecutionTests/Release/net8.0/MessagePack.SourceGenerator.ExecutionTests.dll\nTest run for /src/bin/MessagePack.SourceGenerator.ExecutionTests/Release/net8.0/MessagePack.SourceGenerator.ExecutionTests.dll (.NETCoreApp,Version=v8.0)\nA total of 1 test files matched the specified pattern.\n\nPassed!  - Failed:     0, Passed:     2, Skipped:     0, Total:     2, Duration: 24 ms - MessagePack.SourceGenerator.ExecutionTests.dll (net8.0)\n\nBuild succeeded.\n\n/src/tests/MessagePack.SourceGenerator.ExecutionTests/SuppressedSourceGenerationTests.cs(9,14): warning SA1649: File name should match first type name (https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1649.md) [/src/tests/MessagePack.SourceGenerator.ExecutionTests/MessagePack.SourceGenerator.ExecutionTests.csproj]\n    1 Warning(s)\n    0 Error(s)\n\nTime Elapsed 00:00:09.00\n=== exit 0\n=== tests/MessagePack.SourceGenerator.Tests/MessagePack.SourceGenerator.Tests.csproj\n\n  Determining projects to restore...\n  Restored /src/tests/MessagePack.SourceGenerator.Tests/MessagePack.SourceGenerator.Tests.csproj (in 2.9 sec).\n  5 of 6 projects are up-to-date for restore.\n  MessagePack.SourceGenerator -> /src/bin/MessagePack.SourceGenerator/Release/netstandard2.0/MessagePack.SourceGenerator.dll\n  MessagePack.Analyzers.CodeFixes -> /src/bin/MessagePack.Analyzers.CodeFixes/Release/netstandard2.0/MessagePack.Analyzers.CodeFixes.dll\n  MessagePack.Analyzers -> /src/bin/MessagePack.Analyzers/Release/netstandard2.0/MessagePack.Analyzers.dll\n  MessagePack.Annotations -> /src/bin/MessagePack.Annotations/Release/netstandard2.0/MessagePack.Annotations.dll\n  MessagePack -> /src/bin/MessagePack/Release/net8.0/MessagePack.dll\n  MessagePack.SourceGenerator.Tests -> /src/bin/MessagePack.SourceGenerator.Tests/Release/net8.0/MessagePack.SourceGenerator.Tests.dll\nTest run for /src/bin/MessagePack.SourceGenerator.Tests/Release/net8.0/MessagePack.SourceGenerator.Tests.dll (.NETCoreApp,Version=v8.0)\nA total of 1 test files matched the specified pattern.\n\nPassed!  - Failed:     0, Passed:     8, Skipped:     0, Total:     8, Duration: 1 s - MessagePack.SourceGenerator.Tests.dll (net8.0)\n\nBuild succeeded.\n    0 Warning(s)\n    0 Error(s)\n\nTime Elapsed 00:00:07.08\n=== exit 0\n"
+  },
+  "tests_added": [
+   {
+    "name": "NoFormatterIsGeneratedForSuppressedType",
+    "file": "tests/MessagePack.SourceGenerator.ExecutionTests/SuppressedSourceGenerationTests.cs",
+    "line": 21
+   },
+   {
+    "name": "SuppressedTypeRoundTripsThroughDynamicResolver",
+    "file": "tests/MessagePack.SourceGenerator.ExecutionTests/SuppressedSourceGenerationTests.cs",
+    "line": 27
+   },
+   {
+    "name": "MemberWithoutKeyIsReported",
+    "file": "tests/MessagePack.SourceGenerator.Tests/SuppressSourceGenerationAnalyzerTests.cs",
+    "line": 21
+   },
+   {
+    "name": "AllowPrivateRequiredIsReported",
+    "file": "tests/MessagePack.SourceGenerator.Tests/SuppressSourceGenerationAnalyzerTests.cs",
+    "line": 39
+   },
+   {
+    "name": "MemberTypeMustBeMessagePackObjectIsReported",
+    "file": "tests/MessagePack.SourceGenerator.Tests/SuppressSourceGenerationAnalyzerTests.cs",
+    "line": 58
+   },
+   {
+    "name": "DuplicateIntKeysAreReportedWithoutAnalyzerFailure",
+    "file": "tests/MessagePack.SourceGenerator.Tests/SuppressSourceGenerationAnalyzerTests.cs",
+    "line": 81
+   },
+   {
+    "name": "DuplicateStringKeysAreReportedWithoutAnalyzerFailure",
+    "file": "tests/MessagePack.SourceGenerator.Tests/SuppressSourceGenerationAnalyzerTests.cs",
+    "line": 103
+   },
+   {
+    "name": "MixedKeyKindsAreReportedWithoutAnalyzerFailure",
+    "file": "tests/MessagePack.SourceGenerator.Tests/SuppressSourceGenerationAnalyzerTests.cs",
+    "line": 125
+   },
+   {
+    "name": "DuplicateKeysAreReportedWithoutAnalyzerFailureForGeneratedTypes",
+    "file": "tests/MessagePack.SourceGenerator.Tests/SuppressSourceGenerationAnalyzerTests.cs",
+    "line": 147
+   },
+   {
+    "name": "SourceGenerationOnlyDiagnosticsAreNotReportedWhenSuppressed",
+    "file": "tests/MessagePack.SourceGenerator.Tests/SuppressSourceGenerationAnalyzerTests.cs",
+    "line": 169
+   }
+  ],
+  "claims": [
+   {
+    "id": "REQ-2234-1",
+    "kind": "stated",
+    "claim": "The analyzer reports diagnostics for types with [MessagePackObject(SuppressSourceGeneration = true)], as it did in 3.1.0",
+    "quote": "The analyzer does not work if SuppressSourceGeneration = true. This has happened since version 3.1.1. It still worked in 3.1.0.",
+    "implementation": [
+     {
+      "file": "src/MessagePack.SourceGenerator/CodeAnalysis/TypeCollector.cs",
+      "line": 1008,
+      "text": "continue; // The key kind does not match the other members; the diagnostic is reported, so skip this member."
+     }
+    ],
+    "tests": [
+     {
+      "test": "NoFormatterIsGeneratedForSuppressedType",
+      "file": "tests/MessagePack.SourceGenerator.ExecutionTests/SuppressedSourceGenerationTests.cs",
+      "line": 21,
+      "matched": [
+       "Suppressed"
+      ]
+     },
+     {
+      "test": "SuppressedTypeRoundTripsThroughDynamicResolver",
+      "file": "tests/MessagePack.SourceGenerator.ExecutionTests/SuppressedSourceGenerationTests.cs",
+      "line": 27,
+      "matched": [
+       "Suppressed"
+      ]
+     },
+     {
+      "test": "MemberWithoutKeyIsReported",
+      "file": "tests/MessagePack.SourceGenerator.Tests/SuppressSourceGenerationAnalyzerTests.cs",
+      "line": 21,
+      "matched": [
+       "SuppressSourceGeneration"
+      ]
+     },
+     {
+      "test": "AllowPrivateRequiredIsReported",
+      "file": "tests/MessagePack.SourceGenerator.Tests/SuppressSourceGenerationAnalyzerTests.cs",
+      "line": 39,
+      "matched": [
+       "SuppressSourceGeneration"
+      ]
+     },
+     {
+      "test": "MemberTypeMustBeMessagePackObjectIsReported",
+      "file": "tests/MessagePack.SourceGenerator.Tests/SuppressSourceGenerationAnalyzerTests.cs",
+      "line": 58,
+      "matched": [
+       "SuppressSourceGeneration"
+      ]
+     },
+     {
+      "test": "DuplicateIntKeysAreReportedWithoutAnalyzerFailure",
+      "file": "tests/MessagePack.SourceGenerator.Tests/SuppressSourceGenerationAnalyzerTests.cs",
+      "line": 81,
+      "matched": [
+       "SuppressSourceGeneration"
+      ]
+     },
+     {
+      "test": "DuplicateStringKeysAreReportedWithoutAnalyzerFailure",
+      "file": "tests/MessagePack.SourceGenerator.Tests/SuppressSourceGenerationAnalyzerTests.cs",
+      "line": 103,
+      "matched": [
+       "SuppressSourceGeneration"
+      ]
+     },
+     {
+      "test": "MixedKeyKindsAreReportedWithoutAnalyzerFailure",
+      "file": "tests/MessagePack.SourceGenerator.Tests/SuppressSourceGenerationAnalyzerTests.cs",
+      "line": 125,
+      "matched": [
+       "SuppressSourceGeneration"
+      ]
+     },
+     {
+      "test": "SourceGenerationOnlyDiagnosticsAreNotReportedWhenSuppressed",
+      "file": "tests/MessagePack.SourceGenerator.Tests/SuppressSourceGenerationAnalyzerTests.cs",
+      "line": 169,
+      "matched": [
+       "SuppressSourceGeneration",
+       "Suppressed"
+      ]
+     }
+    ],
+    "execution": "PASS",
+    "contradictions": [],
+    "status": "VERIFIED",
+    "why": "implemented, covered by 9 test(s) that ran and passed (environment deviation: global.json (SDK 8.0.402) removed in the worktree to build with mcr.microsoft.com/dotnet/sdk:9.0; DOTNET_ROLL_FORWARD=Major: the net8.0 test host runs on the image's newer runtime)"
+   },
+   {
+    "id": "REQ-2234-2",
+    "kind": "implicit constraint (reviewers' reading of the issue, not stated in it)",
+    "claim": "Types that do get a generated formatter keep their behaviour: the change is on the shared collection path, so they must be covered too",
+    "quote": "(implicit) fixing suppressed types must not change generated ones",
+    "implementation": [
+     {
+      "file": "src/MessagePack.SourceGenerator/CodeAnalysis/TypeCollector.cs",
+      "line": 1023,
+      "text": "if (!intMembers.ContainsKey(member.IntKey))"
+     }
+    ],
+    "tests": [
+     {
+      "test": "DuplicateKeysAreReportedWithoutAnalyzerFailureForGeneratedTypes",
+      "file": "tests/MessagePack.SourceGenerator.Tests/SuppressSourceGenerationAnalyzerTests.cs",
+      "line": 147,
+      "matched": [
+       "ForGeneratedTypes"
+      ]
+     }
+    ],
+    "execution": "PASS",
+    "contradictions": [],
+    "status": "VERIFIED",
+    "why": "implemented, covered by 1 test(s) that ran and passed (environment deviation: global.json (SDK 8.0.402) removed in the worktree to build with mcr.microsoft.com/dotnet/sdk:9.0; DOTNET_ROLL_FORWARD=Major: the net8.0 test host runs on the image's newer runtime)"
+   },
+   {
+    "id": "DOC-2234-1",
+    "kind": "claim the change makes in its docs",
+    "claim": "A `[MessagePackObject]` type can opt out of source generation with `[MessagePackObject(SuppressSourceGeneration = true)]`.",
+    "quote": "README.md:1622",
+    "implementation": [
+     {
+      "file": "README.md",
+      "line": 1622,
+      "text": "(the change's own documentation)"
+     }
+    ],
+    "tests": [
+     {
+      "test": "MemberWithoutKeyIsReported",
+      "file": "tests/MessagePack.SourceGenerator.Tests/SuppressSourceGenerationAnalyzerTests.cs",
+      "line": 21,
+      "matched": [
+       "MessagePackObject",
+       "MessagePackObject(SuppressSourceGeneration = true)"
+      ]
+     },
+     {
+      "test": "AllowPrivateRequiredIsReported",
+      "file": "tests/MessagePack.SourceGenerator.Tests/SuppressSourceGenerationAnalyzerTests.cs",
+      "line": 39,
+      "matched": [
+       "MessagePackObject",
+       "MessagePackObject(SuppressSourceGeneration = true)"
+      ]
+     },
+     {
+      "test": "MemberTypeMustBeMessagePackObjectIsReported",
+      "file": "tests/MessagePack.SourceGenerator.Tests/SuppressSourceGenerationAnalyzerTests.cs",
+      "line": 58,
+      "matched": [
+       "MessagePackObject",
+       "MessagePackObject(SuppressSourceGeneration = true)"
+      ]
+     },
+     {
+      "test": "DuplicateIntKeysAreReportedWithoutAnalyzerFailure",
+      "file": "tests/MessagePack.SourceGenerator.Tests/SuppressSourceGenerationAnalyzerTests.cs",
+      "line": 81,
+      "matched": [
+       "MessagePackObject",
+       "MessagePackObject(SuppressSourceGeneration = true)"
+      ]
+     },
+     {
+      "test": "DuplicateStringKeysAreReportedWithoutAnalyzerFailure",
+      "file": "tests/MessagePack.SourceGenerator.Tests/SuppressSourceGenerationAnalyzerTests.cs",
+      "line": 103,
+      "matched": [
+       "MessagePackObject",
+       "MessagePackObject(SuppressSourceGeneration = true)"
+      ]
+     },
+     {
+      "test": "MixedKeyKindsAreReportedWithoutAnalyzerFailure",
+      "file": "tests/MessagePack.SourceGenerator.Tests/SuppressSourceGenerationAnalyzerTests.cs",
+      "line": 125,
+      "matched": [
+       "MessagePackObject",
+       "MessagePackObject(SuppressSourceGeneration = true)"
+      ]
+     },
+     {
+      "test": "DuplicateKeysAreReportedWithoutAnalyzerFailureForGeneratedTypes",
+      "file": "tests/MessagePack.SourceGenerator.Tests/SuppressSourceGenerationAnalyzerTests.cs",
+      "line": 147,
+      "matched": [
+       "MessagePackObject"
+      ]
+     },
+     {
+      "test": "SourceGenerationOnlyDiagnosticsAreNotReportedWhenSuppressed",
+      "file": "tests/MessagePack.SourceGenerator.Tests/SuppressSourceGenerationAnalyzerTests.cs",
+      "line": 169,
+      "matched": [
+       "MessagePackObject"
+      ]
+     }
+    ],
+    "execution": "PASS",
+    "contradictions": [],
+    "status": "VERIFIED",
+    "why": "implemented, covered by 8 test(s) that ran and passed (environment deviation: global.json (SDK 8.0.402) removed in the worktree to build with mcr.microsoft.com/dotnet/sdk:9.0; DOTNET_ROLL_FORWARD=Major: the net8.0 test host runs on the image's newer runtime)"
+   },
+   {
+    "id": "DOC-2234-2",
+    "kind": "claim the change makes in its docs",
+    "claim": "Members have a `[Key]` or `[IgnoreMember]` attribute ([MsgPack004](doc/analyzers/MsgPack004.md)).",
+    "quote": "README.md:1626",
+    "implementation": [
+     {
+      "file": "README.md",
+      "line": 1626,
+      "text": "(the change's own documentation)"
+     }
+    ],
+    "tests": [
+     {
+      "test": "MemberWithoutKeyIsReported",
+      "file": "tests/MessagePack.SourceGenerator.Tests/SuppressSourceGenerationAnalyzerTests.cs",
+      "line": 21,
+      "matched": [
+       "MsgPack004"
+      ]
+     }
+    ],
+    "execution": "PASS",
+    "contradictions": [],
+    "status": "VERIFIED",
+    "why": "implemented, covered by 1 test(s) that ran and passed (environment deviation: global.json (SDK 8.0.402) removed in the worktree to build with mcr.microsoft.com/dotnet/sdk:9.0; DOTNET_ROLL_FORWARD=Major: the net8.0 test host runs on the image's newer runtime)"
+   },
+   {
+    "id": "DOC-2234-3",
+    "kind": "claim the change makes in its docs",
+    "claim": "Keys are unique and all of the same kind ([MsgPack005](doc/analyzers/MsgPack005.md)).",
+    "quote": "README.md:1627",
+    "implementation": [
+     {
+      "file": "README.md",
+      "line": 1627,
+      "text": "(the change's own documentation)"
+     }
+    ],
+    "tests": [
+     {
+      "test": "DuplicateIntKeysAreReportedWithoutAnalyzerFailure",
+      "file": "tests/MessagePack.SourceGenerator.Tests/SuppressSourceGenerationAnalyzerTests.cs",
+      "line": 81,
+      "matched": [
+       "MsgPack005"
+      ]
+     },
+     {
+      "test": "DuplicateStringKeysAreReportedWithoutAnalyzerFailure",
+      "file": "tests/MessagePack.SourceGenerator.Tests/SuppressSourceGenerationAnalyzerTests.cs",
+      "line": 103,
+      "matched": [
+       "MsgPack005"
+      ]
+     },
+     {
+      "test": "MixedKeyKindsAreReportedWithoutAnalyzerFailure",
+      "file": "tests/MessagePack.SourceGenerator.Tests/SuppressSourceGenerationAnalyzerTests.cs",
+      "line": 125,
+      "matched": [
+       "MsgPack005"
+      ]
+     },
+     {
+      "test": "DuplicateKeysAreReportedWithoutAnalyzerFailureForGeneratedTypes",
+      "file": "tests/MessagePack.SourceGenerator.Tests/SuppressSourceGenerationAnalyzerTests.cs",
+      "line": 147,
+      "matched": [
+       "MsgPack005"
+      ]
+     }
+    ],
+    "execution": "PASS",
+    "contradictions": [],
+    "status": "VERIFIED",
+    "why": "implemented, covered by 4 test(s) that ran and passed (environment deviation: global.json (SDK 8.0.402) removed in the worktree to build with mcr.microsoft.com/dotnet/sdk:9.0; DOTNET_ROLL_FORWARD=Major: the net8.0 test host runs on the image's newer runtime)"
+   },
+   {
+    "id": "DOC-2234-4",
+    "kind": "claim the change makes in its docs",
+    "claim": "Non-public members require `AllowPrivate` ([MsgPack015](doc/analyzers/MsgPack015.md)).",
+    "quote": "README.md:1628",
+    "implementation": [
+     {
+      "file": "README.md",
+      "line": 1628,
+      "text": "(the change's own documentation)"
+     }
+    ],
+    "tests": [
+     {
+      "test": "AllowPrivateRequiredIsReported",
+      "file": "tests/MessagePack.SourceGenerator.Tests/SuppressSourceGenerationAnalyzerTests.cs",
+      "line": 39,
+      "matched": [
+       "MsgPack015",
+       "AllowPrivate"
+      ]
+     },
+     {
+      "test": "SourceGenerationOnlyDiagnosticsAreNotReportedWhenSuppressed",
+      "file": "tests/MessagePack.SourceGenerator.Tests/SuppressSourceGenerationAnalyzerTests.cs",
+      "line": 169,
+      "matched": [
+       "AllowPrivate"
+      ]
+     }
+    ],
+    "execution": "PASS",
+    "contradictions": [],
+    "status": "VERIFIED",
+    "why": "implemented, covered by 2 test(s) that ran and passed (environment deviation: global.json (SDK 8.0.402) removed in the worktree to build with mcr.microsoft.com/dotnet/sdk:9.0; DOTNET_ROLL_FORWARD=Major: the net8.0 test host runs on the image's newer runtime)"
+   },
+   {
+    "id": "DOC-2234-5",
+    "kind": "claim the change makes in its docs",
+    "claim": "Members have types that are themselves serializable ([MsgPack003](doc/analyzers/MsgPack003.md)).",
+    "quote": "README.md:1629",
+    "implementation": [
+     {
+      "file": "README.md",
+      "line": 1629,
+      "text": "(the change's own documentation)"
+     }
+    ],
+    "tests": [
+     {
+      "test": "MemberTypeMustBeMessagePackObjectIsReported",
+      "file": "tests/MessagePack.SourceGenerator.Tests/SuppressSourceGenerationAnalyzerTests.cs",
+      "line": 58,
+      "matched": [
+       "MsgPack003",
+       "TypeMustBeMessagePackObject"
+      ]
+     }
+    ],
+    "execution": "PASS",
+    "contradictions": [],
+    "status": "VERIFIED",
+    "why": "implemented, covered by 1 test(s) that ran and passed (environment deviation: global.json (SDK 8.0.402) removed in the worktree to build with mcr.microsoft.com/dotnet/sdk:9.0; DOTNET_ROLL_FORWARD=Major: the net8.0 test host runs on the image's newer runtime)"
+   },
+   {
+    "id": "DOC-2234-6",
+    "kind": "claim the change makes in its docs",
+    "claim": "Types are accessible to the resolver ([MsgPack012](doc/analyzers/MsgPack012.md)).",
+    "quote": "README.md:1630",
+    "implementation": [
+     {
+      "file": "README.md",
+      "line": 1630,
+      "text": "(the change's own documentation)"
+     }
+    ],
+    "tests": [],
+    "execution": "PASS",
+    "contradictions": [],
+    "status": "UNVERIFIED",
+    "why": "documented, but no test in this change mentions `MsgPack012`, `InaccessibleDataType`"
+   },
+   {
+    "id": "DOC-2234-7",
+    "kind": "claim the change makes in its docs",
+    "claim": "The analyzer does not report the partial-class requirement ([MsgPack011](doc/analyzers/MsgPack011.md)) or the AOT-only checks ([MsgPack016](doc/analyzers/MsgPack016.md) and [MsgPack017](doc/analyzers/MsgPack017.md)) for these types, because they only apply when a formatter is generated.",
+    "quote": "README.md:1632",
+    "implementation": [
+     {
+      "file": "README.md",
+      "line": 1632,
+      "text": "(the change's own documentation)"
+     }
+    ],
+    "tests": [
+     {
+      "test": "SourceGenerationOnlyDiagnosticsAreNotReportedWhenSuppressed",
+      "file": "tests/MessagePack.SourceGenerator.Tests/SuppressSourceGenerationAnalyzerTests.cs",
+      "line": 169,
+      "matched": [
+       "MsgPack011",
+       "MsgPack016",
+       "MsgPack017"
+      ]
+     }
+    ],
+    "execution": "PASS",
+    "contradictions": [],
+    "status": "VERIFIED",
+    "why": "implemented, covered by 1 test(s) that ran and passed (environment deviation: global.json (SDK 8.0.402) removed in the worktree to build with mcr.microsoft.com/dotnet/sdk:9.0; DOTNET_ROLL_FORWARD=Major: the net8.0 test host runs on the image's newer runtime)"
+   }
+  ],
+  "alternatives": [],
+  "counts": {
+   "VERIFIED": 8,
+   "UNVERIFIED": 1
+  }
+ },
+ "auditor": {
+  "stage": "auditor",
+  "engine": "deterministic (scope terms + facts); LLM drift review is optional",
+  "scope_terms": [
+   "ContainsKey",
+   "continue;",
+   "SuppressSourceGeneration",
+   "DoNotMixStringAndIntKeys"
+  ],
+  "out_of_scope": [],
+  "outlier_links": [],
+  "findings": []
+ },
+ "prosecutor": {
+  "stage": "prosecutor",
+  "llm": {
+   "status": "NOT RUN",
+   "why": "offline and no cached answer for this input"
+  },
+  "accusations": [
+   {
+    "id": "P-FIRST-WINS",
+    "source": "rules (deterministic)",
+    "category": "prosecution",
+    "severity": "medium",
+    "claim": "With duplicate keys the first member wins and the later one is dropped from the serialization model silently; only the MsgPack005 error stops the build. This is the shared collection path, so it also changes types that do get a generated formatter",
+    "file": "src/MessagePack.SourceGenerator/CodeAnalysis/TypeCollector.cs",
+    "line_start": 1023,
+    "line_end": 1023,
+    "symbol": "ContainsKey",
+    "phantom_test": "[Fact]\npublic async Task DuplicateKeyMemberIsNotSilentlyDroppedWhenDiagnosticIsSuppressed()\n{\n    // With MsgPack005 suppressed via .editorconfig, a duplicate [Key(0)] must not produce\n    // a formatter that silently omits the second member.\n}",
+    "also_at": [
+     1039,
+     1163,
+     1179
+    ]
+   },
+   {
+    "id": "P-SILENT-SKIP",
+    "source": "rules (deterministic)",
+    "category": "prosecution",
+    "severity": "medium",
+    "claim": "After reporting, the member is skipped with `continue`, so it is missing from the model; if the diagnostic's severity is lowered by the user, the generated formatter silently leaves it out",
+    "file": "src/MessagePack.SourceGenerator/CodeAnalysis/TypeCollector.cs",
+    "line_start": 1008,
+    "line_end": 1008,
+    "symbol": "continue",
+    "phantom_test": null,
+    "also_at": [
+     1148
+    ]
+   },
+   {
+    "branch": "ju26-issue-2234",
+    "claim": "A [ThreadStatic] UTF-8 buffer is reused across calls and can leak data between threads",
+    "symbol": "[ThreadStatic]",
+    "file": null,
+    "line_start": null,
+    "line_end": null,
+    "id": "DRAFT-1",
+    "source": "replay: our LLM-written concept draft",
+    "category": "prosecution",
+    "severity": "high",
+    "phantom_test": null
+   }
+  ]
+ },
+ "judge": {
+  "stage": "judge",
+  "accepted": [
+   {
+    "id": "P-FIRST-WINS",
+    "source": "rules (deterministic)",
+    "category": "prosecution",
+    "severity": "medium",
+    "claim": "With duplicate keys the first member wins and the later one is dropped from the serialization model silently; only the MsgPack005 error stops the build. This is the shared collection path, so it also changes types that do get a generated formatter",
+    "file": "src/MessagePack.SourceGenerator/CodeAnalysis/TypeCollector.cs",
+    "line_start": 1023,
+    "line_end": 1023,
+    "symbol": "ContainsKey",
+    "phantom_test": "[Fact]\npublic async Task DuplicateKeyMemberIsNotSilentlyDroppedWhenDiagnosticIsSuppressed()\n{\n    // With MsgPack005 suppressed via .editorconfig, a duplicate [Key(0)] must not produce\n    // a formatter that silently omits the second member.\n}",
+    "also_at": [
+     1039,
+     1163,
+     1179
+    ],
+    "verdict": "ACCEPTED",
+    "kind": "citation_verified",
+    "why": "`ContainsKey` is on a changed line of src/MessagePack.SourceGenerator/CodeAnalysis/TypeCollector.cs:1023-1023",
+    "evidence": [
+     {
+      "line": 1023,
+      "kind": "+",
+      "text": "                        if (!intMembers.ContainsKey(member.IntKey))"
+     }
+    ]
+   },
+   {
+    "id": "P-SILENT-SKIP",
+    "source": "rules (deterministic)",
+    "category": "prosecution",
+    "severity": "medium",
+    "claim": "After reporting, the member is skipped with `continue`, so it is missing from the model; if the diagnostic's severity is lowered by the user, the generated formatter silently leaves it out",
+    "file": "src/MessagePack.SourceGenerator/CodeAnalysis/TypeCollector.cs",
+    "line_start": 1008,
+    "line_end": 1008,
+    "symbol": "continue",
+    "phantom_test": null,
+    "also_at": [
+     1148
+    ],
+    "verdict": "ACCEPTED",
+    "kind": "citation_verified",
+    "why": "`continue` is on a changed line of src/MessagePack.SourceGenerator/CodeAnalysis/TypeCollector.cs:1008-1008",
+    "evidence": [
+     {
+      "line": 1008,
+      "kind": "+",
+      "text": "                            continue; // The key kind does not match the other members; the diagnostic is reported, so skip this member."
+     }
+    ]
+   }
+  ],
+  "rejected": [
+   {
+    "branch": "ju26-issue-2234",
+    "claim": "A [ThreadStatic] UTF-8 buffer is reused across calls and can leak data between threads",
+    "symbol": "[ThreadStatic]",
+    "file": null,
+    "line_start": null,
+    "line_end": null,
+    "id": "DRAFT-1",
+    "source": "replay: our LLM-written concept draft",
+    "category": "prosecution",
+    "severity": "high",
+    "phantom_test": null,
+    "verdict": "REJECTED",
+    "kind": "hallucination_rejected",
+    "why": "cites no file or line, and `[ThreadStatic]` appears nowhere in the diff"
+   }
+  ],
+  "total": 3,
+  "rejection_rate": 0.333
+ },
+ "router": {
+  "stage": "router",
+  "tier": "T1",
+  "policy": "factory rules (earned_trust/gate.py + classifier.py)",
+  "reasons": [
+   "1 semantic file to read"
+  ],
+  "second_reviewer": false,
+  "module_states": {
+   ".": "REVOKED",
+   "src/MessagePack.SourceGenerator/CodeAnalysis": "PROBATION",
+   "tests/MessagePack.SourceGenerator.ExecutionTests": "PROBATION",
+   "tests/MessagePack.SourceGenerator.Tests": "PROBATION"
+  },
+  "read": {
+   "files_total": 4,
+   "files_must_read": 2,
+   "files_hidden": 0,
+   "lines_total": 266,
+   "lines_must_read": 36,
+   "lines_tests_summarized": 230,
+   "lines_hidden": 0
+  },
+  "must_read": [
+   "README.md",
+   "src/MessagePack.SourceGenerator/CodeAnalysis/TypeCollector.cs"
+  ],
+  "hidden": []
+ },
+ "sampler": {
+  "stage": "sampler",
+  "population": 0,
+  "sample": [],
+  "seed": null,
+  "method": "nothing hidden, nothing to sample"
+ },
+ "abstentions": [],
+ "change": {
+  "branch": "ju26-issue-2234",
+  "issue": 2234,
+  "sha": "9007cee1163c4a274fd60c3cc20c21ae63622786",
+  "subject": "Implementation for #2234 The analyzer does not work if SuppressSourceGeneration = true",
+  "author": "Stelian Vultur",
+  "issue_title": "The analyzer does not work if SuppressSourceGeneration = true",
+  "issue_url": "https://github.com/MessagePack-CSharp/MessagePack-CSharp/issues/2234",
+  "files": 4,
+  "added": 262,
+  "deleted": 4,
+  "diff_sha": "0f232d0b0493d33a89572af93a0ff847fed999ecd09e794478189f1790e12dac",
+  "source": "replay cache (factory/cache)"
+ },
+ "provenance": {
+  "llm": "NOT RUN: offline and no cached answer for this input",
+  "policy_sha": "cf2ba253bd60f8e6e0b8bd49f652835916756c38a7b72475e83c7c5c76579ddf",
+  "trust": "git log origin/master -n 2000 --no-merges (te-industry-tech-office/junction26-messagepack-csharp, a mirror of MessagePack-CSharp), 730 days up to 2026-10-23"
+ },
+ "not_checked": [
+  {
+   "item": "The rest of the test suite",
+   "why": "only the 10 tests this change adds were run (docker mcr.microsoft.com/dotnet/sdk:9.0, 2026-11-14T05:32:48Z)"
+  },
+  {
+   "item": "The pinned build environment",
+   "why": "global.json (SDK 8.0.402) removed in the worktree to build with mcr.microsoft.com/dotnet/sdk:9.0; DOTNET_ROLL_FORWARD=Major: the net8.0 test host runs on the image's newer runtime"
+  },
+  {
+   "item": "Semantic analysis with Roslyn",
+   "why": "classification is diff heuristics + regex (Roslyn classifier is P2)"
+  },
+  {
+   "item": "LLM prosecution",
+   "why": "NOT RUN: offline and no cached answer for this input \u2014 deterministic only for this run"
+  },
+  {
+   "item": "Claims DOC-2234-6",
+   "why": "no test in this change covers them"
+  },
+  {
+   "item": "Whether each finding's argument is right",
+   "why": "the judge checks citations only; a human accepts or refutes"
+  }
+ ]
+}

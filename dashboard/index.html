@@ -1,0 +1,88 @@
+<!doctype html><html lang=en><head><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'><title>Earned-Trust Dashboard</title><style>
+:root{color-scheme:light;--bg:#f6f6f4;--surface:#fcfcfb;--border:#e4e3df;--ink:#0b0b0b;--ink2:#52514e;--muted:#8a8984;
+--s1:#2a78d6;--s1b:#a9c8ef;--rest:#d9d8d3;--good:#008300;--bad:#e34948;--chip:#efeeea}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#111110;--surface:#1a1a19;--border:#2e2e2c;
+--ink:#f0efec;--ink2:#c3c2b7;--muted:#8f8e88;--s1:#3987e5;--s1b:#2b4d78;--rest:#3a3a37;--good:#3fae3f;--bad:#e66767;--chip:#262624}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#111110;--surface:#1a1a19;--border:#2e2e2c;--ink:#f0efec;--ink2:#c3c2b7;--muted:#8f8e88;
+--s1:#3987e5;--s1b:#2b4d78;--rest:#3a3a37;--good:#3fae3f;--bad:#e66767;--chip:#262624}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,Segoe UI,sans-serif}
+main{max-width:1080px;margin:0 auto;padding:32px 16px 64px}h1{font-size:26px;margin:0 0 4px}h2{font-size:17px;margin:0 0 4px}
+.sub{color:var(--ink2);margin:0 0 24px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-bottom:24px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:16px}
+.tile .n{font-size:30px;font-weight:650;font-variant-numeric:tabular-nums}.tile .l{color:var(--ink2);font-size:13px}
+.chip{display:inline-block;background:var(--chip);color:var(--ink2);border-radius:999px;padding:1px 8px;font-size:11px;margin-top:6px}
+.desc{color:var(--ink2);font-size:13px;margin:0 0 12px}table{border-collapse:collapse;width:100%;font-size:13px}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);vertical-align:top}th{color:var(--ink2);font-weight:600}
+td.num{text-align:right;font-variant-numeric:tabular-nums}.ok{color:var(--good)}.no{color:var(--bad)}
+.bar{display:flex;height:22px;border-radius:4px;overflow:hidden;gap:2px;background:var(--surface)}.bar span{display:block;height:100%}
+.row{display:grid;grid-template-columns:150px 1fr 110px;gap:10px;align-items:center;margin:8px 0}.row .lab{font-size:13px}
+.row .val{font-size:13px;color:var(--ink2);text-align:right;font-variant-numeric:tabular-nums}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--ink2);margin-top:8px}.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+.scroll{overflow-x:auto}@media(max-width:600px){.row{grid-template-columns:90px 1fr 70px}}
+</style></head><body><main>
+<h1>Earned-Trust Dashboard</h1>
+<p class=sub>AI reviews. Humans sign. Evidence decides. Generated 2026-11-14T06:06:49Z by <code>python -m earned_trust bench</code>; every number names where it comes from.</p>
+<div class=grid>
+<div class="card tile"><div class="n">14/14</div><div class="l">seeded defects that reached a human</div><span class="chip">source: seeded (bench/mutate.py)</span></div>
+<div class="card tile"><div class="n">12/14</div><div class="l">…flagged by name (finding, outlier, trigger, tracer)</div><span class="chip">source: seeded (bench/mutate.py)</span></div>
+<div class="card tile"><div class="n">36/36</div><div class="l">corrupted citations rejected by the judge (9/9 real ones kept)</div><span class="chip">source: seeded (citation corruptions of real findings)</span></div>
+<div class="card tile"><div class="n">4/14</div><div class="l">accusations rejected in the real runs (all from our own LLM-written draft)</div><span class="chip">source: replay (our LLM-written concept draft&#x27;s findings)</span></div>
+<div class="card tile"><div class="n">9/9</div><div class="l">verified findings labelled real (small sample, provisional labels)</div><span class="chip">source: labels (Claude Code (the build engineer), after reading each cited hunk on 2026-11-14; a person on the team should re-label before the numbers are quoted)</span></div>
+</div>
+<div class=card><h2>What the human reads</h2><p class=desc>Changed lines per branch: read by the signer, summarized as test evidence (named in the claims matrix), or hidden as mechanical (pattern-checked and sampled). T2 changes are read in full: the factory saves no time there, on purpose.</p>
+<div class=row><div class=lab><b>#2129</b> · T2</div><div class=bar role=img aria-label="1035 of 1043 lines read"><span style="width:99.23%;background:var(--s1)" title="read by the human: 1,035 lines"></span><span style="width:0.77%;background:var(--rest)" title="mechanical, hidden: 8 lines"></span></div><div class=val>1,035 of 1,043</div></div>
+<div class=row><div class=lab><b>#2234</b> · T1</div><div class=bar role=img aria-label="36 of 266 lines read"><span style="width:13.53%;background:var(--s1)" title="read by the human: 36 lines"></span><span style="width:86.47%;background:var(--s1b)" title="tests, summarized: 230 lines"></span></div><div class=val>36 of 266</div></div>
+<div class=row><div class=lab><b>#2283</b> · T1</div><div class=bar role=img aria-label="39 of 228 lines read"><span style="width:17.11%;background:var(--s1)" title="read by the human: 39 lines"></span><span style="width:82.89%;background:var(--s1b)" title="tests, summarized: 189 lines"></span></div><div class=val>39 of 228</div></div>
+<div class=row><div class=lab><b>#2297</b> · T1</div><div class=bar role=img aria-label="42 of 1392 lines read"><span style="width:3.02%;background:var(--s1)" title="read by the human: 42 lines"></span><span style="width:9.34%;background:var(--s1b)" title="tests, summarized: 130 lines"></span><span style="width:87.64%;background:var(--rest)" title="mechanical, hidden: 1,220 lines"></span></div><div class=val>42 of 1,392</div></div>
+<div class=legend><span><i style="background:var(--s1)"></i>read by the human</span><span><i style="background:var(--s1b)"></i>tests, summarized</span><span><i style="background:var(--rest)"></i>mechanical, hidden + sampled</span></div>
+<span class="chip">source: replay (4 real branches, offline, LLM off)</span>
+</div>
+<div class=card><h2>Defects that keep the shape</h2><p class=desc>One snapshot of #2297 at a time gets <code>SuppressMessage</code> instead of <code>ExcludeFromCodeCoverage</code>: same shape, different words. 221 mutants. With the shape check alone only the 5% spot-check stands between them and the merge; this measurement is why the classifier now compares the text inside each pattern too.</p>
+<div class=row><div class=lab>shape check only</div><div class=bar role=img aria-label="208 escaped"><span style="width:94.12%;background:var(--bad)" title="escaped: 208"></span><span style="width:5.43%;background:var(--s1b)" title="caught by the sample: 12"></span><span style="width:0.45%;background:var(--good)" title="flagged: 1"></span></div><div class=val>208 escaped</div></div>
+<div class=row><div class=lab>+ text inside the pattern</div><div class=bar role=img aria-label="0 escaped"><span style="width:100.00%;background:var(--good)" title="flagged: 221"></span></div><div class=val>0 escaped</div></div>
+<div class=legend><span><i style="background:var(--bad)"></i>escaped</span><span><i style="background:var(--s1b)"></i>caught only by the spot-check sample</span><span><i style="background:var(--good)"></i>flagged as outlier</span></div>
+<span class="chip">source: seeded (one attribute swap per snapshot of #2297)</span>
+</div>
+<div class=card><h2>Guardrail: review time may go down only while escapes stay flat</h2><p class=desc>Minutes are measured from brief to <code>/sign</code> in live sessions only; scripted demo sessions have no timing. If a seeded defect escapes, the module it hid in loses a level of trust automatically.</p>
+<table><tr><th>Signal</th><th>Now</th><th>Source</th></tr>
+<tr><td>Human review minutes (median, live sessions)</td><td>no live session recorded yet</td><td>session (runs/*/state.json; simulated sessions are scripted and have no timing)</td></tr>
+<tr><td>Seeded defects escaped</td><td>0 of 14</td><td>seeded</td></tr>
+<tr><td>Shape-preserving escapes</td><td>0 of 221</td><td>seeded</td></tr>
+<tr><td>Trust demotions triggered</td><td>none</td><td>seeded escapes → trust demotion</td></tr>
+<tr><td>Modules EARNED / PROBATION / REVOKED</td><td>10 / 38 / 5</td><td>upstream git history (730 days up to 2026-10-23, 208 commits)</td></tr>
+</table></div>
+<div class=card><h2>Signing sessions</h2><div class=scroll><table><tr><th>Branch</th><th>Kind</th><th>Accepted</th><th>Refuted</th><th>Spot-check</th><th>Signed</th><th>Minutes</th></tr>
+<tr><td>ju26-issue-2129</td><td>simulated (scripted)</td><td class=num>2</td><td class=num>0</td><td>clean</td><td>yes</td><td class=num>—</td></tr>
+<tr><td>ju26-issue-2234</td><td>simulated (scripted)</td><td class=num>1</td><td class=num>1</td><td>—</td><td>yes</td><td class=num>—</td></tr>
+<tr><td>ju26-issue-2283</td><td>simulated (scripted)</td><td class=num>1</td><td class=num>0</td><td>—</td><td>yes</td><td class=num>—</td></tr>
+<tr><td>ju26-issue-2297</td><td>simulated (scripted)</td><td class=num>4</td><td class=num>0</td><td>clean</td><td>yes</td><td class=num>—</td></tr>
+</table></div><p class=desc style='margin-top:8px'>Finding acceptance: 8 accepted, 1 refuted (all from scripted sessions: not evidence of usefulness yet).</p><span class="chip">source: session (runs/*/state.json; simulated sessions are scripted and have no timing)</span></div>
+<div class=card><h2>Seeded defects</h2><div class=scroll><table><tr><th>Id</th><th>Branch</th><th>Defect</th><th>Result</th><th>Caught by</th><th>Tier</th></tr>
+<tr><td>M01</td><td>#2297</td><td>a line of logic slipped into one &#x27;mechanical&#x27; snapshot</td><td class=ok>FLAGGED</td><td>outlier, classifier</td><td>T1→T1</td></tr>
+<tr><td>M02</td><td>#2297</td><td>one snapshot keeps the #if/#endif but loses the attribute</td><td class=ok>FLAGGED</td><td>outlier, classifier</td><td>T1→T1</td></tr>
+<tr><td>M03</td><td>#2297</td><td>Reflection.Emit added inside a snapshot</td><td class=ok>FLAGGED</td><td>outlier, classifier</td><td>T1→T1</td></tr>
+<tr><td>M04</td><td>#2297</td><td>the T4 output (.cs) edited by hand: a line its .tt does not have</td><td class=ok>FLAGGED</td><td>classifier</td><td>T1→T1</td></tr>
+<tr><td>M05</td><td>#2297</td><td>unsafe code added to the generator</td><td class=ok>FLAGGED</td><td>finding, T2 trigger, abstention</td><td>T1→T2</td></tr>
+<tr><td>M06</td><td>#2297</td><td>the out-of-scope hunk now also changes logic (not just whitespace)</td><td class=ok>FLAGGED</td><td>finding</td><td>T1→T1</td></tr>
+<tr><td>M07</td><td>#2297</td><td>the new test file is excluded from its project</td><td class=ok>FLAGGED</td><td>T2 trigger</td><td>T1→T2</td></tr>
+<tr><td>M08</td><td>#2297</td><td>a new public type in the MessagePack package</td><td class=ok>FLAGGED</td><td>finding, T2 trigger, abstention</td><td>T1→T2</td></tr>
+<tr><td>M09</td><td>#2283</td><td>ReportIfLocatedInCompilation&#x27;s condition inverted</td><td class=ok>ROUTED</td><td>in the must-read set</td><td>T1→T1</td></tr>
+<tr><td>M10</td><td>#2283</td><td>a lone &#x27;snapshot&#x27; that is really new code (no pattern to compare against)</td><td class=ok>FLAGGED</td><td>outlier</td><td>T1→T1</td></tr>
+<tr><td>M11</td><td>#2234</td><td>one of the two `continue` statements removed (mixed keys crash again)</td><td class=ok>ROUTED</td><td>in the must-read set</td><td>T1→T1</td></tr>
+<tr><td>M12</td><td>#2234</td><td>the duplicate-key guard removed: a duplicate key throws inside the analyzer again</td><td class=ok>FLAGGED</td><td>finding</td><td>T1→T1</td></tr>
+<tr><td>M13</td><td>#2234</td><td>the only MsgPack004 test deleted, README still claims it</td><td class=ok>FLAGGED</td><td>tracer (DOC-2234-2 now UNVERIFIED)</td><td>T1→T1</td></tr>
+<tr><td>M14</td><td>#2129</td><td>Reflection.Emit in the new collector</td><td class=ok>FLAGGED</td><td>T2 trigger, abstention</td><td>T2→T2</td></tr>
+</table></div><span class="chip">source: seeded (bench/mutate.py)</span></div>
+<div class=card><h2>Findings on the real branches</h2><div class=scroll><table><tr><th>Branch</th><th>Finding</th><th>Label</th><th>Note</th></tr>
+<tr><td>#2129</td><td>P-TEST-EXCLUDED</td><td>real</td><td>MapModeExecutionTests.csproj excludes GeneratedFormatterForExternalTypes*.cs: the new formatters never run in map mode</td></tr>
+<tr><td>#2129</td><td>P-DOUBLE-RUN</td><td>real</td><td>GeneratedFormatterCollector.Collect is called in the model pipeline (reportDiagnostic: null) and again in the diagnostics pipeline; low severity</td></tr>
+<tr><td>#2234</td><td>P-FIRST-WINS</td><td>real</td><td>ContainsKey guard keeps the first member; MsgPack005 is still an error, so impact needs the user to suppress it</td></tr>
+<tr><td>#2234</td><td>P-SILENT-SKIP</td><td>real</td><td>true as stated; before the change the same input crashed the analyzer, so this may be the better behaviour</td></tr>
+<tr><td>#2283</td><td>P-GLOBAL-WRAP</td><td>real</td><td>the constructor wraps every reportDiagnostic call in ReportIfLocatedInCompilation</td></tr>
+<tr><td>#2297</td><td>SCOPE-1</td><td>real</td><td>TransformUtilities.cs:58 only changes &quot;{&quot; to &quot;{\r\n&quot;; #2297 does not ask for it</td></tr>
+<tr><td>#2297</td><td>DRIFT-1</td><td>real</td><td>the #if guard leaves netstandard2.0/.NET Framework consumers without the attribute</td></tr>
+<tr><td>#2297</td><td>DRIFT-2</td><td>real</td><td>README says the attribute is unavailable there; Microsoft docs list netstandard-2.0 and netframework-4.0+</td></tr>
+<tr><td>#2297</td><td>DRIFT-3</td><td>real</td><td>same false statement in the test&#x27;s comment</td></tr>
+</table></div><span class="chip">source: labels (Claude Code (the build engineer), after reading each cited hunk on 2026-11-14; a person on the team should re-label before the numbers are quoted)</span></div>
+<p class=desc>Earned-Trust PR Factory · runs on every pull request with GitHub Actions</p>
+</main></body></html>
