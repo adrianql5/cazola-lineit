@@ -4,7 +4,7 @@ locally it uses a worktree of the MessagePack clone and `dotnet`, or the
 official .NET SDK image through Docker. The result is tied to the commit SHA;
 the tracer ignores results for another commit.
 
-    python3 factory/et.py test --branch ju26-issue-2297 [--repo PATH]
+    python3 factory/sancho.py test --branch ju26-issue-2297 [--repo PATH]
 """
 
 from __future__ import annotations
@@ -83,7 +83,7 @@ def explain(r: dict) -> tuple[str, str]:
             return "This change adds no tests.", "Add a test for each claim, or accept the risk when you sign."
         if "dotnet" in why or "docker" in why:
             return "There is no .NET SDK (or Docker) on this machine.", "Install the .NET 8 SDK, or Docker."
-        return why or "The tests were not run.", "Run `python3 factory/et.py test --branch <branch>`."
+        return why or "The tests were not run.", "Run `python3 factory/sancho.py test --branch <branch>`."
     errs = ", ".join(sorted(codes)) or "unknown"
     return (f"The tests did not build (errors: {errs}).", "Open the build log (tests.json in the workflow artifact).")
 
@@ -134,7 +134,7 @@ def execute(workdir: Path, tests_added: list[dict], sha: str, *, image: str = IM
 
 def run(branch: str, repo: str | None = None, image: str = IMAGE, ignore_global_json: bool = False) -> dict:
     """Locally: a worktree of the MessagePack clone at the branch's commit."""
-    repo = repo or os.environ.get("ET_REPO") or str(sources.DEFAULT_REPO)
+    repo = repo or os.environ.get("SANCHO_REPO") or str(sources.DEFAULT_REPO)
     change = sources.load(branch, offline=True)
     run_dir = pipeline.RUNS / branch
     tracer = json.loads((run_dir / "tracer.json").read_text())

@@ -31,5 +31,5 @@ jobs:
         run: |
           for n in $PRS; do
             case "$n" in *[!0-9]*) echo "::error::'$n' is not a pull request number"; exit 1;; esac
-            python3 factory/et.py github --reset "$n"
+            python3 factory/sancho.py github --reset "$n"
           done
