@@ -4,7 +4,7 @@ partner model, all by configuration:
 
     LLM_BASE_URL   e.g. https://api.vultrinference.com/v1
     LLM_API_KEY
-    LLM_MODEL      no model name lives in the code: `python -m earned_trust models` lists them
+    LLM_MODEL      no model name lives in the code: `python -m sancho models` lists them
     LLM_EXTRA_BODY optional JSON merged into each request, e.g.
                    {"chat_template_kwargs": {"enable_thinking": false}} for models that
                    would otherwise spend the whole answer budget reasoning

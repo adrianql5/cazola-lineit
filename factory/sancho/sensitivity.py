@@ -3,7 +3,7 @@ data, untrusted input, or an area the team declared), who must sign for
 them, and what the situation adds.
 
 Four layers, each one can only *raise* the review, never lower it:
-1. declared: critical areas in .earned-trust.toml, with their owners;
+1. declared: critical areas in .sancho.toml, with their owners;
 2. detected: built-in patterns over the changed lines (deleted lines too:
    removing a balance check is as critical as adding one);
 3. AI: the model is asked which changed lines are sensitive; every answer

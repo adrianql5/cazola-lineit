@@ -9,7 +9,7 @@ import unittest
 import unittest.mock
 from pathlib import Path
 
-from earned_trust import classifier, commands, gate, gitdiff, judge, pipeline, sources
+from sancho import classifier, commands, gate, gitdiff, judge, pipeline, sources
 
 PATCH = """diff --git a/src/A.cs b/src/A.cs
 index 1..2 100644
@@ -89,7 +89,7 @@ class SamplerTests(unittest.TestCase):
 
 class SpotcheckTests(unittest.TestCase):
     def test_clean_needs_a_line_only_one_sample_file_has(self):
-        with tempfile.TemporaryDirectory() as d, unittest.mock.patch.dict("os.environ", {"ET_LEDGER_DIR": d}):
+        with tempfile.TemporaryDirectory() as d, unittest.mock.patch.dict("os.environ", {"SANCHO_LEDGER_DIR": d}):
             d = Path(d)
             rep = pipeline.review(sources.load("ju26-issue-2297"), use_llm=False, run_dir=d)
             _, msg = commands.apply(rep, d, "demo-owner", "/spotcheck clean")
@@ -102,7 +102,7 @@ class SpotcheckTests(unittest.TestCase):
 
 class LearningTests(unittest.TestCase):
     def test_an_escape_makes_the_next_review_read_the_folder(self):
-        from earned_trust import ledger
+        from sancho import ledger
         mod = "tests/MessagePack.SourceGenerator.Tests/Resources"
         with unittest.mock.patch.object(ledger, "EVENTS", [{"kind": "escape", "pr": 8, "modules": [mod], "until": "2999-01-01"}]):
             with tempfile.TemporaryDirectory() as d:
@@ -117,7 +117,7 @@ class AnyIssueTests(unittest.TestCase):
                             {"title": "Crash on generic structs", "body": "It crashes.", "url": ""}, c.diff_text, "test")
 
     def test_no_requirements_and_no_ai_asks_the_human(self):
-        with tempfile.TemporaryDirectory() as d, unittest.mock.patch.dict("os.environ", {"ET_LEDGER_DIR": d}):
+        with tempfile.TemporaryDirectory() as d, unittest.mock.patch.dict("os.environ", {"SANCHO_LEDGER_DIR": d}):
             rep = pipeline.review(self.change(), use_llm=False, run_dir=Path(d))
             self.assertEqual(rep["tracer"]["requirements_status"], "missing")
             self.assertEqual(rep["auditor"]["out_of_scope"], [])  # no requirements: nothing to be out of scope of
@@ -127,14 +127,14 @@ class AnyIssueTests(unittest.TestCase):
             self.assertNotIn("Say what this PR must do", [t["what"] for t in commands.todo(rep, state)])
 
     def test_reqs_is_short_for_requirements(self):
-        with tempfile.TemporaryDirectory() as d, unittest.mock.patch.dict("os.environ", {"ET_LEDGER_DIR": d}):
+        with tempfile.TemporaryDirectory() as d, unittest.mock.patch.dict("os.environ", {"SANCHO_LEDGER_DIR": d}):
             rep = pipeline.review(self.change(), use_llm=False, run_dir=Path(d))
             state, msg = commands.apply(rep, Path(d), "demo-owner", '/reqs ok "compared with the issue"')
             self.assertEqual(msg, "Requirements confirmed.")
             self.assertEqual(state["requirements"]["verdict"], "ok")
 
     def test_the_ai_proposes_requirements_for_a_person_to_confirm(self):
-        from earned_trust import llm
+        from sancho import llm
         answer = {"model": "fake-model", "prompt_version": "t", "input_sha256": "0", "cached": False, "content": '[{"text": "No crash", "quote": "It crashes.", '
                   '"code": ["GetPropertyIdentifierLocation"], "tests": ["FromMetadataReference"]}]'}
         with tempfile.TemporaryDirectory() as d, unittest.mock.patch.object(llm, "chat", lambda *a, **k: answer):
@@ -148,7 +148,7 @@ class AnyIssueTests(unittest.TestCase):
 
 class GateTests(unittest.TestCase):
     def test_cannot_sign_before_deciding_and_non_owner_cannot_sign(self):
-        with tempfile.TemporaryDirectory() as d, unittest.mock.patch.dict("os.environ", {"ET_LEDGER_DIR": d}):
+        with tempfile.TemporaryDirectory() as d, unittest.mock.patch.dict("os.environ", {"SANCHO_LEDGER_DIR": d}):
             d = Path(d)
             rep = pipeline.review(sources.load("ju26-issue-2283"), use_llm=False, run_dir=d)
             _, msg = commands.apply(rep, d, "demo-owner", '/sign "Demo Owner"')
@@ -164,7 +164,7 @@ class GateTests(unittest.TestCase):
             self.assertTrue((d / "receipt.json").exists())
 
     def test_accept_all_answers_every_open_finding_and_keeps_refutes(self):
-        with tempfile.TemporaryDirectory() as d, unittest.mock.patch.dict("os.environ", {"ET_LEDGER_DIR": d}):
+        with tempfile.TemporaryDirectory() as d, unittest.mock.patch.dict("os.environ", {"SANCHO_LEDGER_DIR": d}):
             d = Path(d)
             rep = pipeline.review(sources.load("ju26-issue-2297"), use_llm=False, run_dir=d)
             commands.apply(rep, d, "demo-owner", '/refute DRIFT-2 "the issue asks for it"')
@@ -198,7 +198,7 @@ class DocsOnlyTests(unittest.TestCase):
                             {"title": "", "body": "", "url": ""}, README_PATCH, "test")
 
     def test_a_docs_only_pr_asks_only_for_a_signature(self):
-        with tempfile.TemporaryDirectory() as d, unittest.mock.patch.dict("os.environ", {"ET_LEDGER_DIR": d}):
+        with tempfile.TemporaryDirectory() as d, unittest.mock.patch.dict("os.environ", {"SANCHO_LEDGER_DIR": d}):
             rep = pipeline.review(self.change(), use_llm=False, run_dir=Path(d))
             tr = rep["tracer"]
             self.assertEqual((tr["requirements_status"], tr["execution"]["status"], tr["claims"]),
@@ -209,7 +209,7 @@ class DocsOnlyTests(unittest.TestCase):
             self.assertIn("documentation only", msg)
 
     def test_the_ai_is_not_asked_about_a_diff_with_no_code(self):
-        from earned_trust import llm, prosecutor
+        from sancho import llm, prosecutor
         c = self.change()
         with unittest.mock.patch.object(llm, "chat", side_effect=AssertionError("asked the AI")):
             accs, meta = prosecutor.ask_llm(c, classifier.run(c), offline=False)

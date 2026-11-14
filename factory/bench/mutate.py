@@ -14,8 +14,8 @@ import copy
 import re
 from dataclasses import dataclass, field
 
-from earned_trust import gitdiff, sources
-from earned_trust.gitdiff import FileDiff, Hunk, Line
+from sancho import gitdiff, sources
+from sancho.gitdiff import FileDiff, Hunk, Line
 
 
 @dataclass

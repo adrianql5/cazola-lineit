@@ -16,8 +16,8 @@ import tempfile
 import time
 from pathlib import Path
 
-from earned_trust import judge, ledger, pipeline, sources
-from earned_trust.sources import FACTORY
+from sancho import judge, ledger, pipeline, sources
+from sancho.sources import FACTORY
 
 from . import mutate
 
@@ -26,7 +26,7 @@ OUT = FACTORY / "bench" / "report.json"
 
 
 def review(change, content_check: bool = True) -> dict:
-    from earned_trust import classifier
+    from sancho import classifier
     orig = classifier.run
     if not content_check:
         classifier.run = lambda c, content_check=True: orig(c, content_check=False)

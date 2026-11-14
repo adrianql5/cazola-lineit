@@ -4,10 +4,10 @@ were accepted or refuted (rules and AI apart), and how long it took from the
 brief to the signature and to the merge.
 
 Every review writes its numbers into the brief, hidden
-(`<!-- earned-trust-metrics {...} -->`). A brief written before that existed
+(`<!-- sancho-metrics {...} -->`). A brief written before that existed
 is read from its text, the PR's comments and the gate check instead.
 
-    GITHUB_TOKEN=... python3 factory/et.py live [--repo owner/name]
+    GITHUB_TOKEN=... python3 factory/sancho.py live [--repo owner/name]
 """
 
 from __future__ import annotations
@@ -85,7 +85,8 @@ def from_text(repo: str, pr: dict, brief: dict) -> dict:
                 verdict = "accepted" if mm.group(1).lower() == "accept" else "refuted"
                 answers[mm.group(2)] = {"id": mm.group(2), "verdict": verdict, "by": c["user"]["login"],
                                         "at": c["created_at"], "source": "ai" if mm.group(2).startswith("LLM") else "rules"}
-    checks = github.gh("GET", f"/repos/{repo}/commits/{sha}/check-runs?check_name={github.CHECK}").get("check_runs", [])
+    checks = [c for name in (github.CHECK, github.OLD_CHECK)
+              for c in github.gh("GET", f"/repos/{repo}/commits/{sha}/check-runs?check_name={name}").get("check_runs", [])]
     done = next((c for c in checks if c.get("conclusion") == "success"), None)
     return {"v": 0, "pr": pr["number"], "title": pr["title"], "sha": sha, "pr_opened_at": pr["created_at"],
             "brief_published_at": max(brief["created_at"], commit_at), "tier": "T2" if full else ("T1" if m else "?"),

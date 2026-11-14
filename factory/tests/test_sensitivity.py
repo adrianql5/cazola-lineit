@@ -6,7 +6,7 @@ import unittest
 import unittest.mock
 from pathlib import Path
 
-from earned_trust import commands, config, pipeline, sensitivity, sources
+from sancho import commands, config, pipeline, sensitivity, sources
 
 DIFF = """diff --git a/src/Bank/Payments/TransferService.cs b/src/Bank/Payments/TransferService.cs
 --- a/src/Bank/Payments/TransferService.cs
@@ -56,7 +56,7 @@ class SensitivityTests(unittest.TestCase):
     def review(self, settings=SETTINGS, codeowners=None, diff=DIFF):
         config.use(settings, "test", codeowners)
         d = Path(tempfile.mkdtemp())
-        with unittest.mock.patch.dict("os.environ", {"ET_LEDGER_DIR": str(d)}):
+        with unittest.mock.patch.dict("os.environ", {"SANCHO_LEDGER_DIR": str(d)}):
             return pipeline.review(change(diff), use_llm=False, run_dir=d), d
 
     def test_declared_area_forces_a_full_read_and_names_its_owner(self):
@@ -154,6 +154,27 @@ class SensitivityTests(unittest.TestCase):
         self.assertEqual(r["tracer"]["execution"]["status"], "NOT NEEDED")
         self.assertEqual(r["sensitivity"]["required"]["owner_groups"][0]["owners"], ["ana"])
         self.assertNotIn("critical-untested", [a["kind"] for a in r["abstentions"]])
+
+    def test_the_first_of_two_signatures_is_accepted(self):
+        r, d = self.review(settings=SETTINGS.replace('owners = ["ana"]', 'owners = ["ana", "luis"]')
+                           .replace("signatures = 1", "signatures = 2"))
+        commands.apply(r, d, "ana", '/requirements ok "read it"', can_sign=True)
+        for a in r["abstentions"]:
+            commands.apply(r, d, "ana", f"/decide {a['id']} {a['options'][1]} \"x\"", can_sign=True)
+        commands.apply(r, d, "ana", "/accept all", can_sign=True)
+        state, msg = commands.apply(r, d, "ana", '/sign "Ana"', can_sign=True)
+        self.assertEqual(len(state["signatures"]), 1, msg)
+        self.assertFalse(state.get("signed_complete"))
+        state, msg = commands.apply(r, d, "luis", '/sign "Luis"', can_sign=True)
+        self.assertTrue(state["signed_complete"], msg)
+
+    def test_one_signature_line_per_set_of_owners(self):
+        r, _ = self.review(codeowners="* @ana\n", diff=DIFF.replace('+var text = "Hi";', '+var password = "Hi";'))
+        self.assertGreater(len(r["sensitivity"]["required"]["owner_groups"]), 1)
+        sign = [i["what"] for i in commands.todo(r, {"signatures": [], "decisions": {}, "findings": {}})
+                if i["what"].startswith("Signature")]
+        self.assertEqual(len(sign), 1, sign)
+        self.assertIn("payments", sign[0])
 
     def test_a_bad_critical_area_is_an_error(self):
         with self.assertRaisesRegex(ValueError, "needs a name and paths"):

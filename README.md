@@ -1,4 +1,4 @@
-# cazola-lineit
+# Sancho
 
 A GitHub Action that reviews every pull request, writes a short evidence
 brief, and keeps the PR blocked until a named person answers its findings and
@@ -11,7 +11,7 @@ signs for the change. The AI points at problems; a human decides and signs.
 | [#2](../../pull/2) [#4](../../pull/4) [#6](../../pull/6) [#8](../../pull/8) | The challenge's four AI-written changes to MessagePack-CSharp, against `ju26-base` |
 | [#19](../../pull/19) | Critical code: a transfer fee in a declared `payments` area |
 | [#22](../../pull/22) | Harder critical code: retries in a helper that `payments` calls, with no word about money in the diff |
-| [Live numbers](https://adrianql5.github.io/cazola-lineit/) | Share of lines read by a person, findings accepted or refuted (rules vs. AI), time to signature and to merge |
+| [Live numbers](https://adrianql5.github.io/sancho/) | Share of lines read by a person, findings accepted or refuted (rules vs. AI), time to signature and to merge |
 
 To show a PR again from the start, run *Actions → reset demo PR*: it takes
 several PR numbers (default: the six above). Earlier commands stop counting;
@@ -19,16 +19,16 @@ nothing is deleted.
 
 ## Set it up
 
-1. Copy [`templates/earned-trust.yml`](templates/earned-trust.yml) to your
+1. Copy [`templates/sancho.yml`](templates/sancho.yml) to your
    repository's `.github/workflows/`.
 2. Set up the merge gate once, as an owner of the repository:
 
    ```sh
-   python3 factory/et.py protect --repo owner/name
+   python3 factory/sancho.py protect --repo owner/name
    ```
 
    It adds a branch ruleset: the default branch takes changes only through
-   PRs, merged once `earned-trust/human-accountability-gate` is green, with no
+   PRs, merged once `sancho/human-accountability-gate` is green, with no
    bypass, admins included. `--branch B` protects another branch too;
    `--dry-run` prints the ruleset and changes nothing.
 
@@ -49,7 +49,7 @@ one (any OpenAI-compatible endpoint), set these repository secrets:
 
 ### Optional: settings for your repository
 
-Put a `.earned-trust.toml` at the root of the default branch. It is read from
+Put a `.sancho.toml` at the root of the default branch. It is read from
 the PR's base branch, never from the PR, so a change can't loosen its own
 rules. Without it, the defaults (written for MessagePack-CSharp) apply.
 
@@ -68,8 +68,8 @@ owners = ["ana", "luis"]      # GitHub logins; empty = CODEOWNERS
 signatures = 2
 ```
 
-Every setting and its default: [`factory/earned_trust/config.py`](factory/earned_trust/config.py).
-This repository's own: [`.earned-trust.toml`](.earned-trust.toml).
+Every setting and its default: [`factory/sancho/config.py`](factory/sancho/config.py).
+This repository's own: [`.sancho.toml`](.sancho.toml).
 
 ### Optional: workflow inputs
 
@@ -78,7 +78,7 @@ Add them under `with:` in the copied file.
 | Input | Default | What it does |
 |---|---|---|
 | `issue_repo` | this repository | Where the issues your PRs implement live (`owner/name`) |
-| `factory_repo` | `adrianql5/cazola-lineit` | Where to get the reviewer from (for a fork of it) |
+| `factory_repo` | `adrianql5/sancho` | Where to get the reviewer from (for a fork of it) |
 | `factory_ref` | `main` | Which branch or tag of it to use |
 
 ## Use it
@@ -132,11 +132,11 @@ Python 3 only, nothing to install.
 |---|---|
 | `make demo` | Offline demo: reviews of the example changes, receipts, benchmark and dashboard |
 | `make test` | The factory's own tests |
-| `python3 factory/et.py review [--branch B] [--offline] [--no-llm]` | Review the cached branches (`--offline`: no git, no network) |
-| `python3 factory/et.py cmd --branch B --as LOGIN "/accept LLM-1"` | Run a command on a review as LOGIN |
-| `python3 factory/et.py status --branch B` | Show what is left on a review |
-| `python3 factory/et.py test --branch B` | Run the tests a change adds (`dotnet`, or the .NET SDK image through Docker) |
-| `python3 factory/et.py protect --repo R [--branch B] [--dry-run]` | Set up the merge gate on a repository (needs admin rights) |
-| `python3 factory/et.py github --reset PR` | Start a PR's review again (earlier commands stop counting); in Actions: *reset demo PR* |
+| `python3 factory/sancho.py review [--branch B] [--offline] [--no-llm]` | Review the cached branches (`--offline`: no git, no network) |
+| `python3 factory/sancho.py cmd --branch B --as LOGIN "/accept LLM-1"` | Run a command on a review as LOGIN |
+| `python3 factory/sancho.py status --branch B` | Show what is left on a review |
+| `python3 factory/sancho.py test --branch B` | Run the tests a change adds (`dotnet`, or the .NET SDK image through Docker) |
+| `python3 factory/sancho.py protect --repo R [--branch B] [--dry-run]` | Set up the merge gate on a repository (needs admin rights) |
+| `python3 factory/sancho.py github --reset PR` | Start a PR's review again (earlier commands stop counting); in Actions: *reset demo PR* |
 
-`python3 factory/et.py --help` lists the rest.
+`python3 factory/sancho.py --help` lists the rest.

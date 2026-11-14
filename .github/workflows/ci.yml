@@ -10,7 +10,7 @@ on:
   schedule:
     - cron: "17 * * * *"
   workflow_run:
-    workflows: ["earned-trust (reusable)", "earned-trust", "earned-trust (PR comments)", "earned-trust (PRs to main)", "reset demo PR"]
+    workflows: ["sancho (reusable)", "sancho", "sancho (PR comments)", "sancho (PRs to main)", "reset demo PR"]
     types: [completed]
 
 permissions:
@@ -33,9 +33,9 @@ jobs:
         if: github.event_name != 'pull_request'
         env:
           GITHUB_TOKEN: ${{ github.token }}
-        run: python3 factory/et.py live
+        run: python3 factory/sancho.py live
       - name: Offline demo (4 reviews, scripted receipts, benchmark, dashboard)
-        run: python3 factory/et.py demo
+        run: python3 factory/sancho.py demo
       - name: Keep the dashboard for GitHub Pages
         uses: actions/upload-pages-artifact@v5
         with:

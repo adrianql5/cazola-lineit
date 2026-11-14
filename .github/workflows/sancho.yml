@@ -1,14 +1,14 @@
-# The Earned-Trust review, as a reusable workflow. A repository adds
-# templates/earned-trust.yml to its .github/workflows and, from then on, every
+# The Sancho review, as a reusable workflow. A repository adds
+# templates/sancho.yml to its .github/workflows and, from then on, every
 # pull request gets a brief, a gate and (once signed) a receipt, by itself.
-name: earned-trust (reusable)
+name: sancho (reusable)
 
 on:
   workflow_call:
     inputs:
       factory_repo:
         type: string
-        default: adrianql5/cazola-lineit
+        default: adrianql5/sancho
       factory_ref:
         type: string
         default: main
@@ -39,7 +39,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     concurrency:
-      group: earned-trust-${{ github.event.pull_request.number || github.event.issue.number }}
+      group: sancho-${{ github.event.pull_request.number || github.event.issue.number }}
       cancel-in-progress: false
     steps:
       - name: Get the factory
@@ -69,16 +69,16 @@ jobs:
         id: review
         env:
           GITHUB_TOKEN: ${{ github.token }}
-          ET_ISSUE_REPO: ${{ inputs.issue_repo }}
+          SANCHO_ISSUE_REPO: ${{ inputs.issue_repo }}
           LLM_BASE_URL: ${{ secrets.LLM_BASE_URL }}
           LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
           LLM_MODEL: ${{ secrets.LLM_MODEL }}
           LLM_EXTRA_BODY: ${{ secrets.LLM_EXTRA_BODY }}
-        run: python3 factory-src/factory/et.py github ${{ github.event_name == 'pull_request' && '--target target' || '' }}
+        run: python3 factory-src/factory/sancho.py github ${{ github.event_name == 'pull_request' && '--target target' || '' }}
 
       - name: Keep the stage outputs and the receipt
         if: always() && steps.review.outputs.run_dir != ''
         uses: actions/upload-artifact@v7
         with:
-          name: earned-trust-pr-${{ github.event.pull_request.number || github.event.issue.number }}-${{ github.run_id }}
+          name: sancho-pr-${{ github.event.pull_request.number || github.event.issue.number }}-${{ github.run_id }}
           path: ${{ steps.review.outputs.run_dir }}

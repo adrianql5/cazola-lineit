@@ -1,0 +1,24 @@
+# Copy this file to .github/workflows/sancho.yml in the repository to review.
+# Then set up the merge gate once, as an owner:
+#   python3 factory/sancho.py protect --repo owner/name
+# Optional: a .sancho.toml at the root of the default branch (see factory/sancho/config.py).
+name: sancho
+
+on:
+  pull_request:
+  issue_comment:                 # commands in PR comments
+    types: [created]
+  pull_request_review_comment:   # commands in replies on a finding's line
+    types: [created]
+
+permissions:
+  contents: write     # only used to merge a signed PR when .sancho.toml sets merge_on_sign = true
+  pull-requests: write
+  issues: write
+  checks: write
+  actions: write      # only used to start ci after such a merge
+
+jobs:
+  sancho:
+    uses: adrianql5/sancho/.github/workflows/sancho.yml@main
+    secrets: inherit

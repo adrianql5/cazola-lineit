@@ -1,14 +1,14 @@
-"""Earned-Trust PR Factory: AI reviews. Humans sign. Evidence decides.
+"""Sancho: AI reviews. Humans sign. Evidence decides.
 
-    python -m earned_trust review --branch ju26-issue-2297 [--offline] [--no-llm]
-    python -m earned_trust cmd --branch B --as LOGIN '/decide ABS-1 keep-guard "reason"'
-    python -m earned_trust status --branch B
-    python -m earned_trust test --branch B          (dotnet test of the tests the change adds)
-    python -m earned_trust github --target DIR      (inside GitHub Actions, on every PR)
-    python -m earned_trust live [--repo owner/name] (measurements from the repo's PRs; needs GITHUB_TOKEN)
-    python -m earned_trust protect --repo owner/name [--branch B]  (the merge gate as a ruleset; admin token)
-    python -m earned_trust demo                     (offline: 4 briefs, sessions, bench, dashboard)
-    python -m earned_trust bench | dashboard | ledger | models
+    python -m sancho review --branch ju26-issue-2297 [--offline] [--no-llm]
+    python -m sancho cmd --branch B --as LOGIN '/decide ABS-1 keep-guard "reason"'
+    python -m sancho status --branch B
+    python -m sancho test --branch B          (dotnet test of the tests the change adds)
+    python -m sancho github --target DIR      (inside GitHub Actions, on every PR)
+    python -m sancho live [--repo owner/name] (measurements from the repo's PRs; needs GITHUB_TOKEN)
+    python -m sancho protect --repo owner/name [--branch B]  (the merge gate as a ruleset; admin token)
+    python -m sancho demo                     (offline: 4 briefs, sessions, bench, dashboard)
+    python -m sancho bench | dashboard | ledger | models
 """
 
 from __future__ import annotations
@@ -27,7 +27,7 @@ def status_line(rep: dict, state: dict) -> str:
 
 
 def main(argv: list[str] | None = None) -> int:
-    ap = argparse.ArgumentParser(prog="earned_trust", description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap = argparse.ArgumentParser(prog="sancho", description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
     r = sub.add_parser("review", help="review the cached branches (or one of them)")
     r.add_argument("--branch", action="append")

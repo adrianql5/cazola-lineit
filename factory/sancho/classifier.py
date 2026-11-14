@@ -5,7 +5,7 @@ groups mechanical files by the normalized shape of their hunks so the one
 that does not fit the pattern stands out, and raises the T2 triggers.
 
 Engine: diff heuristics and regexes. A Roslyn classifier
-(tools/EarnedTrust.Classifier) is P2 and is not used; the brief says so.
+(tools/Sancho.Classifier) is P2 and is not used; the brief says so.
 """
 
 from __future__ import annotations

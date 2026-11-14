@@ -5,7 +5,7 @@ import os
 import unittest
 import unittest.mock
 
-from earned_trust import github, protect
+from sancho import github, protect
 
 
 class FakeGitHub:

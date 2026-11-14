@@ -155,7 +155,7 @@ def route(change: Change, cl: dict, trust: dict, abst: list[dict], sens: dict | 
     second = tier == "T2" and bool(revoked)
     if second:
         reasons.append(f"second reviewer required: module(s) {', '.join(revoked)} are REVOKED in the trust ledger")
-    policy = "factory rules (earned_trust/gate.py + classifier.py)"
+    policy = "factory rules (sancho/gate.py + classifier.py)"
 
     # What the human must read, per tier
     hidden, must = [], []

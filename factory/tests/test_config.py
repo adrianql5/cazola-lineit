@@ -1,9 +1,9 @@
-"""Per-repository settings (.earned-trust.toml): parsing, mistakes that must
+"""Per-repository settings (.sancho.toml): parsing, mistakes that must
 not pass silently, and their effect on the review."""
 
 import unittest
 
-from earned_trust import classifier, config, sources
+from sancho import classifier, config, sources
 
 
 class ConfigTests(unittest.TestCase):

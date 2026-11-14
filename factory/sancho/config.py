@@ -1,4 +1,4 @@
-"""Per-repository settings: `.earned-trust.toml` at the root of the repository.
+"""Per-repository settings: `.sancho.toml` at the root of the repository.
 
 In GitHub Actions it is read from the pull request's *base* branch, never
 from the pull request itself, so a change cannot loosen the rules it is
@@ -38,7 +38,7 @@ import os
 import tomllib
 from pathlib import Path
 
-FILE = ".earned-trust.toml"
+FILE = ".sancho.toml"
 
 DEFAULTS: dict = {
     "gate": {"merge_on_sign": False, "merge_method": "merge"},
@@ -113,8 +113,8 @@ def codeowners() -> str:
 
 
 def load_local(root: Path | None = None) -> dict:
-    """Outside GitHub: ET_CONFIG, or .earned-trust.toml in ROOT, or the defaults."""
-    path = Path(os.environ["ET_CONFIG"]) if os.environ.get("ET_CONFIG") else (root / FILE if root else None)
+    """Outside GitHub: SANCHO_CONFIG, or .sancho.toml in ROOT, or the defaults."""
+    path = Path(os.environ["SANCHO_CONFIG"]) if os.environ.get("SANCHO_CONFIG") else (root / FILE if root else None)
     if path and path.exists():
         return use(path.read_text(), str(path))
     return use(None, "")

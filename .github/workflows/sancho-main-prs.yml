@@ -3,7 +3,7 @@
 # secrets, so a fork's PR gets the LLM review without anyone approving it.
 # Safe because the reusable workflow never checks out or runs the PR's code on
 # this event: it reads the diff through the API and runs the factory from main.
-name: earned-trust (PRs to main)
+name: sancho (PRs to main)
 
 on:
   pull_request_target:
@@ -16,6 +16,6 @@ permissions:
   checks: write
 
 jobs:
-  earned-trust:
-    uses: ./.github/workflows/earned-trust.yml
+  sancho:
+    uses: ./.github/workflows/sancho.yml
     secrets: inherit

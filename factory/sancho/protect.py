@@ -1,14 +1,14 @@
 """Sets up the merge gate on a repository with one command, instead of by
 hand in Settings: a branch ruleset that makes the default branch (and any
 other branch named) take changes only through pull requests, and only once
-the check `earned-trust/human-accountability-gate` is green, which happens
+the check `sancho/human-accountability-gate` is green, which happens
 when an owner signs. Running it again changes nothing if the ruleset is
 already right; a ruleset that requires the same check is updated in place.
 
 Needs a token with admin rights on the repository (GitHub Actions' own
 token cannot manage rulesets), so it is run once by an owner:
 
-    python3 factory/et.py protect --repo owner/name [--branch ju26-base] [--dry-run]
+    python3 factory/sancho.py protect --repo owner/name [--branch ju26-base] [--dry-run]
 """
 
 from __future__ import annotations
@@ -19,7 +19,7 @@ import subprocess
 
 from . import github
 
-NAME = "Earned-Trust gate"
+NAME = "Sancho gate"
 GITHUB_ACTIONS_APP = 15368  # the check must come from GitHub Actions, not from any other app or token
 
 
@@ -56,7 +56,7 @@ def ours(rs: dict) -> bool:
     for rule in rs.get("rules", []):
         if rule.get("type") == "required_status_checks":
             checks = rule.get("parameters", {}).get("required_status_checks", [])
-            if any(c.get("context") == github.CHECK for c in checks):
+            if any(c.get("context") in (github.CHECK, github.OLD_CHECK) for c in checks):
                 return True
     return False
 
