@@ -10,7 +10,7 @@ on:
       pr:
         description: Pull request numbers, separated by spaces
         required: true
-        default: "2 4 6 8 19 20"
+        default: "2 4 6 8 19 22"
 
 permissions:
   contents: read
