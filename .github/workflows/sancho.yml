@@ -1,6 +1,6 @@
-# Copy this file to .github/workflows/earned-trust.yml in the repository to review.
-# Then, in Settings > Branches, require the check "earned-trust/human-accountability-gate".
-name: earned-trust
+# Copy this file to .github/workflows/sancho.yml in the repository to review.
+# Then, in Settings > Branches, require the check "sancho/human-accountability-gate".
+name: sancho
 
 on:
   pull_request:
@@ -16,6 +16,6 @@ permissions:
   checks: write
 
 jobs:
-  earned-trust:
-    uses: adrianql5/cazola-lineit/.github/workflows/earned-trust.yml@main
+  sancho:
+    uses: adrianql5/sancho/.github/workflows/sancho.yml@main
     secrets: inherit
