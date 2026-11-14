@@ -32,7 +32,7 @@ gets its answer where it was written. The AI prosecutor is `qwen3.8-27b` on
 Vultr Serverless Inference, called once per commit through an
 OpenAI-compatible client; comment runs reuse its saved answer.
 
-## Six principles
+## Seven principles
 
 1. **Deterministic evidence first.** No finding that blocks a merge comes from
    the AI alone. Classification, the judge, sampling and routing are code. The
@@ -55,7 +55,11 @@ OpenAI-compatible client; comment runs reuse its saved answer.
 5. **Name what was not checked.** Tests that were not run show as `NOT RUN`,
    never as passing. Every brief and every receipt has a *What was NOT
    checked* section.
-6. **A signature covers exactly what was reviewed.** A new commit starts a
+6. **Critical code has a named owner.** Money, credentials, data deletion, untrusted
+   input, or an area the team declares: always a full read, the owner decides whether
+   it is correct, and only the owner can sign. Detectors and the AI can raise this
+   level, never lower it.
+7. **A signature covers exactly what was reviewed.** A new commit starts a
    new gate. The receipt pins the commit SHA, the diff's hash and the hash of
    the routing rules (`gate.py` + `classifier.py`) that let the change through.
 

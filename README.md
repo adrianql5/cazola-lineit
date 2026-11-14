@@ -59,13 +59,51 @@ marker comment makes earlier commands stop counting, and the findings stay the s
 ## Put it on a repository
 
 Copy [`templates/earned-trust.yml`](templates/earned-trust.yml) to the
-repository's `.github/workflows/`. In *Settings → Branches*, require the
-check `earned-trust/human-accountability-gate`. That's all: every new PR
-gets its brief. To add an LLM (any OpenAI-compatible endpoint, for example
+repository's `.github/workflows/`, then set up the merge gate once, as an
+owner:
+
+```sh
+python3 factory/et.py protect --repo owner/name   # add --branch B for other branches, --dry-run to see it first
+```
+
+It creates (or brings up to date) a branch ruleset: the default branch takes
+changes only through pull requests, merged once
+`earned-trust/human-accountability-gate` is green, with no bypass, admins
+included. That's all: every new PR gets its brief. To add an LLM (any OpenAI-compatible endpoint, for example
 Vultr Serverless Inference), set the repository secrets `LLM_BASE_URL`,
 `LLM_API_KEY` and `LLM_MODEL` (and, for models that think out loud,
 `LLM_EXTRA_BODY` = `{"chat_template_kwargs": {"enable_thinking": false}}`).
 Without them the factory runs on its deterministic rules and says so.
+
+## Settings for each repository
+
+A `.earned-trust.toml` at the root of the default branch adapts the review to
+the repository: which files are generated, where the published API lives, the
+spot-check rate, and whether a signed PR is merged at once (`merge_on_sign`).
+It is read from the PR's base branch, never from the PR itself, so a change
+cannot loosen its own rules; its hash goes into every receipt. Without it, the
+defaults written for MessagePack-CSharp apply. Every setting:
+[`factory/earned_trust/config.py`](factory/earned_trust/config.py). This
+repository's own: [`.earned-trust.toml`](.earned-trust.toml).
+
+## Critical code
+
+Some code must always be read in full and signed by a specific person: moving
+money, credentials, deleting data, reading untrusted input. The review finds it
+in four ways, each of which can only raise the level of review, never lower it:
+
+1. **Declared**: `[[critical]]` areas in `.earned-trust.toml`, each with its paths,
+   its owners (or the file's owners in `CODEOWNERS`) and how many signatures it needs.
+2. **Detected**: built-in patterns over the changed lines, deleted lines included
+   (removing a balance check is as critical as adding one): money (including money in
+   floating point), security, data, untrusted input, and your own patterns.
+3. **AI**: the model is asked which changed lines are sensitive; each answer must cite
+   file, line and symbol, and goes through the judge.
+4. **Situation**: critical and untested is a decision for the owner; critical in a folder
+   whose trust was revoked needs one more signature; critical generated files are never hidden.
+
+A critical change is a full read, its owner decides whether it is correct, and only
+its owners can sign it. The bank demo PR shows it: see [pull requests](../../pulls).
 
 ## The example pull requests
 

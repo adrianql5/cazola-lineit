@@ -6,6 +6,7 @@
     python -m earned_trust test --branch B          (dotnet test of the tests the change adds)
     python -m earned_trust github --target DIR      (inside GitHub Actions, on every PR)
     python -m earned_trust live [--repo owner/name] (measurements from the repo's PRs; needs GITHUB_TOKEN)
+    python -m earned_trust protect --repo owner/name [--branch B]  (the merge gate as a ruleset; admin token)
     python -m earned_trust demo                     (offline: 4 briefs, sessions, bench, dashboard)
     python -m earned_trust bench | dashboard | ledger | models
 """
@@ -48,6 +49,10 @@ def main(argv: list[str] | None = None) -> int:
     g = sub.add_parser("github", help="GitHub Actions: review the PR of this event, replay its commands, set the check")
     g.add_argument("--target", help="checkout of the PR head, to run its tests (pull_request events)")
     g.add_argument("--reset", type=int, metavar="PR", help="start PR's review again: earlier commands stop counting, same findings")
+    pt = sub.add_parser("protect", help="set up the merge gate (a branch ruleset) on a repository; needs admin rights")
+    pt.add_argument("--repo", required=True)
+    pt.add_argument("--branch", action="append", default=[], help="another branch to protect (the default branch always is)")
+    pt.add_argument("--dry-run", action="store_true", help="print the ruleset, change nothing")
     lv = sub.add_parser("live", help="measurements from this repository's pull requests (needs GITHUB_TOKEN)")
     lv.add_argument("--repo")
     sub.add_parser("demo")
@@ -93,6 +98,10 @@ def main(argv: list[str] | None = None) -> int:
     if a.cmd == "github":
         from . import github
         return github.main(a.target, a.reset)
+    if a.cmd == "protect":
+        from . import protect
+        protect.main(a.repo, a.branch, a.dry_run)
+        return 0
     if a.cmd == "live":
         from . import live
         live.main(a.repo)

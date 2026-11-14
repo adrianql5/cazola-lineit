@@ -61,10 +61,19 @@ def summary(r: dict) -> list[str]:
     """The lines on top. Also used as the check run's summary."""
     ch, cl, rt, au, ab = r["change"], r["classifier"], r["router"], r["auditor"], r["abstentions"]
     rd = rt["read"]
-    out = [f"**What:** {ch['issue_title'].rstrip('.') or ch['subject']} (#{ch['issue']}) · {plural(ch['files'], 'file')}"]
+    issue = f" (#{ch['issue']})" if ch["issue"] else ""
+    out = [f"**What:** {ch['issue_title'].rstrip('.') or ch['subject']}{issue} · {plural(ch['files'], 'file')}"]
+    sens = r.get("sensitivity") or {"zones": []}
+    if sens["zones"]:
+        z = sens["zones"][0]
+        more = f" (+{len(sens['zones']) - 1} more below)" if len(sens["zones"]) > 1 else ""
+        who = (" Only " + " or ".join(f"@{o}" for o in z["owners"]) + " can sign.") if z["owners"] else ""
+        removed = ", a removed line" if z.get("removed") else ""
+        out.append(f"**Critical:** {z['name']} at `{name(z['file'])}:{z['line']}`{removed}{more}. Full read.{who}")
     if rt["tier"] == "T2":
         rules = sorted({t["rule"] for t in cl["triggers"]})
-        why = ", ".join(WHY_FULL_READ.get(x, x) for x in rules[:2])
+        why = ", ".join(([f"it touches {sens['zones'][0]['name']}"] if sens["zones"] else [])
+                        + [WHY_FULL_READ.get(x, x) for x in rules[:2]])
         out.append(f"**Read:** everything ({rd['lines_must_read']:,} lines), because {why}.")
     else:
         n_out = len(cl["outliers"])
@@ -125,6 +134,24 @@ def render(r: dict, state: dict | None = None) -> str:
             L.append("")
 
     # folded details
+    sens = r.get("sensitivity") or {"zones": [], "escalations": []}
+    if sens["zones"]:
+        L += [f"<details open><summary>Why this change is treated as critical ({len(sens['zones'])})</summary>", ""]
+        for z in sens["zones"]:
+            who = " or ".join(f"@{o}" for o in z["owners"]) or "anyone with write access (no owner declared)"
+            if z.get("teams"):
+                who += f" (teams in CODEOWNERS are not checked: {', '.join(z['teams'])})"
+            L += [f"**{z['name']}** · `{name(z['file'])}:{z['line']}` · {z['source']}  ",
+                  f"Why: {z['why']}. Signs: {who}."]
+            if z.get("text"):
+                L += ["```diff", ("-" if z.get("removed") else "+") + z["text"], "```"]
+            for e in z.get("evidence", [])[:3]:
+                L.append(f"- also `{name(e['file'])}:{e['line']}`: {e['detector']}{' (removed line)' if e.get('removed') else ''}")
+            L.append("")
+        for e in sens["escalations"]:
+            L.append(f"- **{e['rule']}** → {e['effect']}: {e['why']}")
+        L += ["", "</details>", ""]
+
     ab = r["abstentions"]
     if ab:
         L += [f"<details><summary>Decisions left to you ({len(ab)})</summary>", ""]
@@ -183,6 +210,7 @@ def render(r: dict, state: dict | None = None) -> str:
           f"- Files sorted by: {cl['engine']}",
           f"- AI reviewer: {p['llm']}",
           f"- Rules: {rt['policy']}" + (f", sha256 `{p['policy_sha'][:12]}`" if p.get("policy_sha") else ""),
+          f"- Settings: {p.get('settings', 'defaults')}",
           f"- Module trust: {p['trust']}",
           "", "</details>", "",
           "<sub>Earned-Trust PR Factory · AI reviews. Humans sign. Evidence decides.</sub>"]

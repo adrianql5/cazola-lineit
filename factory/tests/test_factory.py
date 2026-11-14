@@ -120,6 +120,7 @@ class AnyIssueTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d, unittest.mock.patch.dict("os.environ", {"ET_LEDGER_DIR": d}):
             rep = pipeline.review(self.change(), use_llm=False, run_dir=Path(d))
             self.assertEqual(rep["tracer"]["requirements_status"], "missing")
+            self.assertEqual(rep["auditor"]["out_of_scope"], [])  # no requirements: nothing to be out of scope of
             todo = [t["what"] for t in commands.todo(rep, commands.load(Path(d)))]
             self.assertIn("Say what this PR must do", todo)
             state, _ = commands.apply(rep, Path(d), "demo-owner", '/requirements ok "compared with the issue"')

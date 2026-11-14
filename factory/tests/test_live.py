@@ -91,6 +91,13 @@ class LiveTests(unittest.TestCase):
         self.assertEqual((s["lines_to_humans"], s["lines_total"]), (42 + 1035, 1392 + 1043))
         self.assertEqual((s["signed"], s["median_minutes_to_sign"]), (2, 26.0))
 
+    def test_labels_give_the_precision_of_rules_and_ai_apart(self):
+        lab = self.d["labels"]
+        self.assertEqual((lab["rules"]["real"], lab["rules"]["false_positive"]), (9, 0))
+        ai = lab["ai"]
+        self.assertEqual(ai["real"] + ai["false_positive"] + ai["unclear"], len(ai["findings"]))
+        self.assertEqual(ai["precision"], round(ai["real"] / (ai["real"] + ai["false_positive"]), 3))
+
 
 class MetricsBlockTests(unittest.TestCase):
     def test_a_signed_review_writes_its_numbers(self):

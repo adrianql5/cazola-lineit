@@ -23,6 +23,28 @@ from . import github
 from .sources import FACTORY
 
 OUT = FACTORY / "bench" / "live.json"
+AI_LABELS = FACTORY / "bench" / "ai_labels.json"
+RULE_LABELS = FACTORY / "bench" / "labels.json"
+
+
+def labels() -> dict:
+    """Findings labelled real or false by a person reading the cited code:
+    the AI's (ai_labels.json) and the rules' (labels.json)."""
+    def precision(counts: dict) -> float | None:
+        done = counts["real"] + counts["false_positive"]
+        return round(counts["real"] / done, 3) if done else None
+    ai = json.loads(AI_LABELS.read_text()) if AI_LABELS.exists() else {"findings": [], "labelled_by": ""}
+    ai_counts = {"real": 0, "false_positive": 0, "unclear": 0}
+    for f in ai["findings"]:
+        ai_counts[f["label"]] += 1
+    rules = json.loads(RULE_LABELS.read_text()) if RULE_LABELS.exists() else {"labels": {}, "labelled_by": ""}
+    rule_counts = {"real": 0, "false_positive": 0, "unclear": 0}
+    for per_branch in rules["labels"].values():
+        for lab in per_branch.values():
+            rule_counts[lab["label"] if lab["label"] in rule_counts else "unclear"] += 1
+    return {"ai": {**ai_counts, "precision": precision(ai_counts), "findings": ai["findings"],
+                   "labelled_by": ai.get("labelled_by", ""), "model": ai.get("model", "")},
+            "rules": {**rule_counts, "precision": precision(rule_counts), "labelled_by": rules.get("labelled_by", "")}}
 CMD = re.compile(r"^/(accept|refute)\s+(\S+)", re.I)
 
 
@@ -93,6 +115,13 @@ def collect(repo: str) -> dict:
             break
         page += 1
     rows.sort(key=lambda r: r["pr"])
+    lab = labels()
+    by_key = {(f["pr"], f["id"], f["sha"]): f for f in lab["ai"]["findings"]}
+    for r in rows:
+        for f in r["findings"]:
+            hit = by_key.get((r["pr"], f["id"], r["sha"][:12]))
+            if hit:
+                f["label"] = hit["label"]
 
     answers = {"rules": {"accepted": 0, "refuted": 0, "open": 0}, "ai": {"accepted": 0, "refuted": 0, "open": 0}}
     for r in rows:
@@ -122,6 +151,7 @@ def collect(repo: str) -> dict:
             "answers": answers,
             "escapes": len(events),
         },
+        "labels": lab,
     }
 
 

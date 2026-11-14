@@ -8,13 +8,13 @@ import hashlib
 import json
 from pathlib import Path
 
-from . import auditor, brief, classifier, gate, judge, ledger, prosecutor, sources, tracer, worker
+from . import auditor, brief, classifier, config, gate, judge, ledger, prosecutor, sensitivity, sources, tracer, worker
 from .sources import FACTORY, Change
 
 RUNS = FACTORY.parent / "runs"
 # the routing policy is these files: their hash goes into every receipt
 POLICY_FILES = [FACTORY / "earned_trust" / "gate.py", FACTORY / "earned_trust" / "classifier.py"]
-STAGES = ["classifier", "tracer", "auditor", "prosecutor", "judge", "abstention", "router", "sampler"]
+STAGES = ["classifier", "tracer", "auditor", "prosecutor", "judge", "sensitivity", "abstention", "router", "sampler"]
 
 
 def dedupe(accepted: list[dict]) -> list[dict]:
@@ -99,10 +99,15 @@ class Run:
             jd = judge.run(self.get("auditor")["findings"] + self.get("prosecutor")["accusations"], c.files)
             jd["accepted"] = dedupe(jd["accepted"])
             self.put(name, jd)
+        elif name == "sensitivity":
+            self.put(name, sensitivity.run(c, self.get("classifier"), self.get("tracer"),
+                                           offline=self.offline, use_llm=self.use_llm))
         elif name == "abstention":
-            self.put(name, gate.abstentions(c, self.get("classifier"), self.get("tracer"), self.get("judge")))
+            self.put(name, gate.abstentions(c, self.get("classifier"), self.get("tracer"), self.get("judge"),
+                                            self.get("sensitivity")))
         elif name == "router":
-            self.put(name, gate.route(c, self.get("classifier"), ledger.trust_table(), self.get("abstention")))
+            self.put(name, gate.route(c, self.get("classifier"), ledger.trust_table(), self.get("abstention"),
+                                      self.get("sensitivity")))
         elif name == "sampler":
             self.put(name, gate.sample(c, self.get("router")["hidden"]))
         elif name == "brief":
@@ -117,7 +122,8 @@ class Run:
         r = {k: self.get(k) for k in STAGES}
         r["abstentions"] = r.pop("abstention")
         pr = r["prosecutor"]
-        policy_sha = hashlib.sha256(b"".join(p.read_bytes() for p in POLICY_FILES)).hexdigest()
+        # the rules' code and the repository's settings that let this change through
+        policy_sha = hashlib.sha256(b"".join(p.read_bytes() for p in POLICY_FILES) + config.digest().encode()).hexdigest()
         r["change"] = {"branch": c.branch, "issue": c.issue, "sha": c.sha, "subject": c.subject, "author": c.author,
                        "issue_title": c.issue_title, "issue_url": c.issue_url, "files": len(c.files),
                        "added": c.added, "deleted": c.deleted, "diff_sha": c.diff_sha, "source": c.source}
@@ -126,6 +132,7 @@ class Run:
                     f"{', from replay cache' if pr['llm'].get('cached') else ''})"
                     if pr["llm"]["status"] == "RAN" else f"{pr['llm']['status']}: {pr['llm'].get('why', '')}"),
             "policy_sha": policy_sha,
+            "settings": config.source(),
             "trust": f"{trust['source']}, {trust['window']}",
         }
         r["not_checked"] = not_checked(r)
