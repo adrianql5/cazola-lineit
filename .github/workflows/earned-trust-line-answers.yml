@@ -1,0 +1,58 @@
+# Answers the line comments that "earned-trust (line comments)" passed on. This
+# runs from main, with the secrets and a token that can write. What it gets from
+# the other run (possibly a fork's code) is only a number: the comment and its
+# PR are read again from the API, and the PR's code is never run.
+name: earned-trust (line comments, answer)
+
+on:
+  workflow_run:
+    workflows: ["earned-trust (line comments)"]
+    types: [completed]
+
+permissions:
+  contents: read
+  actions: read
+  pull-requests: write
+  issues: write
+  checks: write
+
+jobs:
+  relayed:
+    if: github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    outputs:
+      comment: ${{ steps.id.outputs.comment }}
+      pr: ${{ steps.id.outputs.pr }}
+    steps:
+      - name: Read the comment's id, and its PR from the API
+        id: id
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+        run: |
+          gh run download "$RUN_ID" -R "$GITHUB_REPOSITORY" -n earned-trust-line-comment
+          id=$(head -c 20 comment-id | tr -cd 0-9)
+          [ -n "$id" ] || { echo "no comment id"; exit 1; }
+          pr=$(gh api "repos/$GITHUB_REPOSITORY/pulls/comments/$id" --jq '.pull_request_url | split("/") | last')
+          echo "comment=$id" >> "$GITHUB_OUTPUT"
+          echo "pr=$pr" >> "$GITHUB_OUTPUT"
+
+  answer:
+    needs: relayed
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    concurrency:  # the same group as the other review runs of this PR
+      group: earned-trust-${{ needs.relayed.outputs.pr }}
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v7
+      - name: Run the comment's commands, update the brief and the gate
+        id: review
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          LLM_BASE_URL: ${{ secrets.LLM_BASE_URL }}
+          LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
+          LLM_MODEL: ${{ secrets.LLM_MODEL }}
+          LLM_EXTRA_BODY: ${{ secrets.LLM_EXTRA_BODY }}
+          COMMENT_ID: ${{ needs.relayed.outputs.comment }}
+        run: python3 factory/et.py github --line-comment "$COMMENT_ID"

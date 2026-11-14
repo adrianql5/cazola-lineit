@@ -48,6 +48,7 @@ def main(argv: list[str] | None = None) -> int:
     g = sub.add_parser("github", help="GitHub Actions: review the PR of this event, replay its commands, set the check")
     g.add_argument("--target", help="checkout of the PR head, to run its tests (pull_request events)")
     g.add_argument("--reset", type=int, metavar="PR", help="start PR's review again: earlier commands stop counting, same findings")
+    g.add_argument("--line-comment", type=int, metavar="ID", help="run the commands in this line comment (relayed from a fork's PR)")
     lv = sub.add_parser("live", help="measurements from this repository's pull requests (needs GITHUB_TOKEN)")
     lv.add_argument("--repo")
     sub.add_parser("demo")
@@ -92,7 +93,7 @@ def main(argv: list[str] | None = None) -> int:
         return 0 if res["status"] in ("PASS", "NOT RUN") else 1
     if a.cmd == "github":
         from . import github
-        return github.main(a.target, a.reset)
+        return github.main(a.target, a.reset, a.line_comment)
     if a.cmd == "live":
         from . import live
         live.main(a.repo)

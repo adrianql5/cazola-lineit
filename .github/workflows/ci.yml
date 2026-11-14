@@ -10,7 +10,7 @@ on:
   schedule:
     - cron: "17 * * * *"
   workflow_run:
-    workflows: ["earned-trust (reusable)", "earned-trust", "earned-trust (PR comments)", "earned-trust (PRs to main)", "reset demo PR"]
+    workflows: ["earned-trust (reusable)", "earned-trust", "earned-trust (PR comments)", "earned-trust (PRs to main)", "reset demo PR", "earned-trust (line comments, answer)"]
     types: [completed]
 
 permissions:

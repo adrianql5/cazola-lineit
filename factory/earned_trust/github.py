@@ -250,13 +250,19 @@ def reply_to(repo: str, number: int, comment: dict, kind: str, replies: list[str
         gh("POST", f"/repos/{repo}/issues/{number}/comments", {"body": f"{quote}\n\n{text}"})
 
 
-def main(target: str | None, reset_pr: int | None = None) -> int:
+def main(target: str | None, reset_pr: int | None = None, line_comment: int | None = None) -> int:
     """RESET_PR: start a PR's review again (for repeated demos). A marker
     comment makes every command written before it stop counting; nothing is
-    deleted, and the saved LLM answers are reused, so the findings stay the same."""
+    deleted, and the saved LLM answers are reused, so the findings stay the same.
+    LINE_COMMENT: a line comment on a fork's PR, relayed by id: its own event
+    has no write token, so the comment and its PR are read here from the API."""
     name = os.environ.get("GITHUB_EVENT_NAME", "")
     repo = os.environ["GITHUB_REPOSITORY"]
-    event = json.loads(Path(os.environ["GITHUB_EVENT_PATH"]).read_text()) if not reset_pr else {}
+    if line_comment:
+        c = gh("GET", f"/repos/{repo}/pulls/comments/{line_comment}")
+        name, event = "pull_request_review_comment", {"comment": c, "pull_request": {"number": int(c["pull_request_url"].rsplit("/", 1)[1])}}
+    else:
+        event = json.loads(Path(os.environ["GITHUB_EVENT_PATH"]).read_text()) if not reset_pr else {}
     trigger, trigger_kind = None, None
     if reset_pr:
         pr = gh("GET", f"/repos/{repo}/pulls/{reset_pr}")

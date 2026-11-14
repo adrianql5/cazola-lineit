@@ -1,0 +1,25 @@
+# Commands in line comments (replies on a finding's line) on PRs to main. On a
+# fork's PR this event gets no secrets and a read-only token, and the file runs
+# as it is in the PR, so it can't answer. It only passes the comment's id on;
+# "earned-trust (line comments, answer)" reads it on main and replies.
+name: earned-trust (line comments)
+
+on:
+  pull_request_review_comment:
+    types: [created]
+
+permissions: {}
+
+jobs:
+  relay:
+    if: github.event.pull_request.base.ref == 'main' && contains(github.event.comment.body, '/')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Keep the comment's id for the run that answers it
+        env:
+          COMMENT_ID: ${{ github.event.comment.id }}
+        run: echo "$COMMENT_ID" > comment-id
+      - uses: actions/upload-artifact@v7
+        with:
+          name: earned-trust-line-comment
+          path: comment-id
