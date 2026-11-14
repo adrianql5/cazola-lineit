@@ -52,6 +52,8 @@ def tests_line(ex: dict) -> str:
         if ex.get("deviations"):
             line += " (on a newer .NET SDK than the repo pins: the generator needs it)"
         return line
+    if ex["status"] == "NOT NEEDED":
+        return f"none to run: {ex['why']}"
     problem, fix = worker.explain(ex)
     icon = "❌" if ex["status"] == "FAIL" else "⚠️"
     return f"{icon} {problem} **Fix:** {fix}"
