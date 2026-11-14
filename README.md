@@ -21,20 +21,17 @@ On every pull request a GitHub Action, with nobody pressing anything:
 
 | | |
 |---|---|
-| **New here? The problem and the solution in plain words** | [START_HERE.md](START_HERE.md) · en español: [EMPIEZA_AQUI.md](EMPIEZA_AQUI.md) |
-| How to give the demo and the pitch | [demo/PITCH_AND_DEMO_GUIDE.md](demo/PITCH_AND_DEMO_GUIDE.md) |
 | The concept on one page | [docs/CONCEPT_CARD.md](docs/CONCEPT_CARD.md) |
-| Briefs and receipts of the four real branches | [runs/](runs) |
-| What we measured | `dashboard/index.html` · [factory/bench/report.json](factory/bench/report.json) |
 | Decisions, lessons | [docs/DECISION_LOG.md](docs/DECISION_LOG.md) · [docs/LESSONS_AND_FAILURE_MODES.md](docs/LESSONS_AND_FAILURE_MODES.md) |
 | How the code is organised | [factory/README.md](factory/README.md) |
+| **See it work** | the [pull requests](../../pulls) of this repository: the four AI-written changes of the challenge, each reviewed by the Action |
 
 ## Try it in one minute (offline, Python 3 only)
 
 ```sh
 make demo                              # 4 reviews, example receipts, benchmark, dashboard (~15 s)
-open dashboard/index.html
-open runs/ju26-issue-2297/brief.md
+open dashboard/index.html              # the measurements, each with its source
+open runs/ju26-issue-2297/brief.md     # the brief of the 237-file change
 ```
 
 ## Put it on a repository
@@ -47,5 +44,10 @@ Vultr Serverless Inference), set the repository secrets `LLM_BASE_URL`,
 `LLM_API_KEY` and `LLM_MODEL`. Without them the factory runs on its
 deterministic rules and says so.
 
-[`demo/setup_demo_fork.sh`](demo/setup_demo_fork.sh) sets up a fork of the
-challenge repository with the four branches opened as PRs, for the live demo.
+## The example pull requests
+
+The [issues](../../issues) and [pull requests](../../pulls) of this repository
+are copies of the challenge's: four upstream MessagePack-CSharp issues and the
+four AI-written changes for them (branches `ju26-issue-*`, opened against
+`ju26-base`, a snapshot of MessagePack-CSharp at the commit the changes start
+from). The Action reviews each one on its own.

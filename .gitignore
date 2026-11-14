@@ -2,3 +2,12 @@ __pycache__/
 *.pyc
 /ledger/ledger.db
 /factory/bench/work/
+
+# Local only: guides for the team, and what `make demo` regenerates
+/demo/
+/START_HERE.md
+/EMPIEZA_AQUI.md
+/runs/
+/dashboard/
+/ledger/
+/factory/bench/report.json
