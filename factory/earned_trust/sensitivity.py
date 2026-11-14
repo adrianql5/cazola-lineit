@@ -8,6 +8,9 @@ Four layers, each one can only *raise* the review, never lower it:
    removing a balance check is as critical as adding one);
 3. AI: the model is asked which changed lines are sensitive; every answer
    must cite file, line and symbol, and goes through the judge;
+   (and reach: a file outside a declared area whose types the area's code
+   uses, on the base branch, is critical too: changing a helper changes
+   the critical code that calls it);
 4. situation: critical and untested, critical in a folder that lost trust,
    critical inside generated files.
 
@@ -62,6 +65,44 @@ personal data, or reading untrusted input. Answer ONLY with a JSON array, at mos
 {"file": str, "line_start": int, "line_end": int, "symbol": str (an identifier written on those lines),
 "area": str (2 or 3 words), "why": str (one short sentence)}. Use the line numbers given after L.
 If nothing is critical, answer []."""
+
+
+# --- reach: the base branch's files inside declared areas ------------------
+
+_base_files: dict[str, str] = {}
+
+
+def use_base(files: dict[str, str] | None) -> None:
+    """The files inside declared critical areas, as they are on the base
+    branch (read by github.load_settings). Empty: the reach check is skipped."""
+    global _base_files
+    _base_files = dict(files or {})
+
+
+DECLARES = re.compile(r"\b(?:class|record|struct|interface|enum)\s+([A-Z]\w{3,})")
+
+
+def declared_types(f) -> set[str]:
+    """Type names a changed file declares: its C#-style file name, and the
+    types declared on the lines the diff shows."""
+    stem = f.path.rsplit("/", 1)[-1].split(".")[0]
+    names = {stem} if f.path.endswith(".cs") and stem[:1].isupper() and len(stem) >= 4 else set()
+    for h in f.hunks:
+        for l in h.lines:
+            names |= set(DECLARES.findall(l.text))
+    return names
+
+
+def callers(names: set[str], area: dict) -> tuple[str, int, str, str] | None:
+    """The first line inside AREA (base branch) that uses one of NAMES."""
+    for path in sorted(_base_files):
+        if not any(re.search(p, path) for p in area["paths"]):
+            continue
+        for no, text in enumerate(_base_files[path].splitlines(), 1):
+            for n in sorted(names):
+                if re.search(rf"\b{re.escape(n)}\b", text) and not DECLARES.search(text):
+                    return path, no, text.strip()[:140], n
+    return None
 
 
 # --- CODEOWNERS ------------------------------------------------------------
@@ -164,6 +205,25 @@ def run(change: Change, cl: dict, trace: dict, offline: bool = True, use_llm: bo
 
     def inside(path: str) -> dict | None:
         return next((z for z in zones if z["source"].startswith("declared") and path in z["files"]), None)
+
+    # 1b. reach: helpers that a declared area calls
+    for area in cfg["critical"]:
+        for f in eligible:
+            if inside(f.path) or any(re.search(p, f.path) for p in area["paths"]):
+                continue
+            hit = callers(declared_types(f), area)
+            if not hit:
+                continue
+            path, no, text, name = hit
+            first = next((l for l in changed_lines(f) if l.kind == "+"), None) or next(changed_lines(f), None)
+            users, teams = owners_for([path], area["owners"])
+            zones.append({"name": f"{area['name']} (through {name})", "source": f"used from {area['name']}",
+                          "files": [f.path], "file": f.path, "line": (first.new_no or first.old_no) if first else None,
+                          "text": first.text.strip()[:140] if first else "", "removed": bool(first and first.kind == "-"),
+                          "why": f"`{name}` is used by {area['name']} code at {path}:{no} (`{text}`), "
+                                 f"so changing it changes how {area['name']} behaves",
+                          "caller": {"file": path, "line": no, "text": text},
+                          "owners": users, "teams": teams, "signatures": area["signatures"], "evidence": []})
 
     # 2. detected by pattern
     detectors = [(d, *x) for d in cfg["sensitivity"]["detectors"] for x in DETECTORS.get(d, [])]

@@ -8,9 +8,9 @@ on:
   workflow_dispatch:
     inputs:
       pr:
-        description: Pull request number
+        description: Pull request numbers, separated by spaces
         required: true
-        default: "8"
+        default: "2 4 6 8 19 20"
 
 permissions:
   contents: read
@@ -27,4 +27,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
           LLM_MODEL: ${{ secrets.LLM_MODEL }}
-        run: python3 factory/et.py github --reset "${{ inputs.pr }}"
+          PRS: ${{ inputs.pr }}
+        run: |
+          for n in $PRS; do
+            case "$n" in *[!0-9]*) echo "::error::'$n' is not a pull request number"; exit 1;; esac
+            python3 factory/et.py github --reset "$n"
+          done

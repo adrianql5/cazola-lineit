@@ -51,6 +51,7 @@ def change(diff=DIFF):
 class SensitivityTests(unittest.TestCase):
     def tearDown(self):
         config.use(None, "")
+        sensitivity.use_base(None)
 
     def review(self, settings=SETTINGS, codeowners=None, diff=DIFF):
         config.use(settings, "test", codeowners)
@@ -113,6 +114,33 @@ class SensitivityTests(unittest.TestCase):
             with tempfile.TemporaryDirectory() as d:
                 r = pipeline.review(sources.load(b), use_llm=False, run_dir=Path(d), write=False)
             self.assertEqual(r["sensitivity"]["zones"], [], b)
+
+    def test_a_helper_used_by_a_critical_area_is_critical_too(self):
+        helper = """diff --git a/src/Bank/Infrastructure/Retry.cs b/src/Bank/Infrastructure/Retry.cs
+--- a/src/Bank/Infrastructure/Retry.cs
++++ b/src/Bank/Infrastructure/Retry.cs
+@@ -1,3 +1,4 @@
+ public static class Retry
+ {
+-    public static T Run<T>(Func<T> op) => op();
++    public static T Run<T>(Func<T> op, int attempts = 3)
++        => Loop(op, attempts);
+ }
+"""
+        sensitivity.use_base({"src/Bank/Payments/CardGateway.cs":
+                              "public sealed class CardGateway\n{\n    public string Charge() => Retry.Run(() => net.Charge());\n}\n",
+                              "src/Bank/Other.cs": "Retry.Run(x);"})
+        r, _ = self.review(diff=helper)
+        z = r["sensitivity"]["zones"][0]
+        self.assertEqual((z["name"], z["owners"], r["router"]["tier"]), ("payments (through Retry)", ["ana"], "T2"))
+        self.assertEqual((z["caller"]["file"], z["caller"]["line"]), ("src/Bank/Payments/CardGateway.cs", 3))
+        self.assertIn("CardGateway.cs:3", r["abstentions"][0]["decision"])
+
+    def test_without_callers_in_the_area_a_helper_is_not_critical(self):
+        sensitivity.use_base({"src/Bank/Payments/CardGateway.cs": "public sealed class CardGateway { }\n"})
+        r, _ = self.review(diff=DIFF.split("diff --git a/src/Ui")[0].replace("Payments/TransferService", "Ui/Text")
+                           .replace("Balance", "Width").replace("amount", "size").replace("double", "int"))
+        self.assertEqual(r["sensitivity"]["zones"], [])
 
     def test_a_bad_critical_area_is_an_error(self):
         with self.assertRaisesRegex(ValueError, "needs a name and paths"):
