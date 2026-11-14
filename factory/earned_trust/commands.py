@@ -45,12 +45,12 @@ def todo(report: dict, state: dict) -> list[dict]:
     out = []
     s = report["sampler"]
     if s["population"] and not state["spotcheck"]:
-        out.append({"what": f"Spot-check {s['n']} sample files",
-                    "how": "open them, then reply `/spotcheck clean` (or `/spotcheck escape` if one looks wrong)"})
+        out.append({"what": f"Spot-check {s['n']} sample file{'' if s['n'] == 1 else 's'}",
+                    "how": f"open {'it' if s['n'] == 1 else 'them'} (list below), then reply `/spotcheck clean`, or `/spotcheck escape` if something looks wrong"})
     for a in report["abstentions"]:
         if a["id"] not in state["decisions"]:
             opts = " or ".join(f'`/decide {a["id"]} {o} "why"`' for o in a["options"])
-            out.append({"what": f"Decide {a['id']} (see *Your call*)", "how": f"reply {opts}"})
+            out.append({"what": f"Decide {a['id']}", "how": f"{a['decision']} Reply {opts}"})
     open_ = [f["id"] for f in report["judge"]["accepted"] if f["id"] not in state["findings"]]
     if open_:
         out.append({"what": f"Answer {'finding' if len(open_) == 1 else 'findings'} {', '.join(open_)}",
