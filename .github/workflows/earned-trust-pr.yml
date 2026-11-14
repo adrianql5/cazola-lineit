@@ -1,0 +1,21 @@
+# Copy this file to .github/workflows/earned-trust.yml in the repository to review.
+# Then, in Settings > Branches, require the check "earned-trust/human-accountability-gate".
+name: earned-trust
+
+on:
+  pull_request:
+  issue_comment:                 # commands in PR comments
+    types: [created]
+  pull_request_review_comment:   # commands in replies on a finding's line
+    types: [created]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+  checks: write
+
+jobs:
+  earned-trust:
+    uses: adrianql5/cazola-lineit/.github/workflows/earned-trust.yml@main
+    secrets: inherit
