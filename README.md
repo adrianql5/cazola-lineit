@@ -27,7 +27,7 @@ On every pull request a GitHub Action, with nobody pressing anything:
 |---|---|
 | The concept on one page | [docs/CONCEPT_CARD.md](docs/CONCEPT_CARD.md) |
 | How the code is organised | [factory/README.md](factory/README.md) |
-| The measurements, live | **https://adrianql5.github.io/cazola-lineit/** (rebuilt on every push) |
+| The measurements, live | **https://adrianql5.github.io/cazola-lineit/**: the benchmark, and live numbers from this repository's PRs (share read by a person, findings accepted or refuted by rules and AI, time to signature and to merge), rebuilt after every review and every hour |
 | **See it work** | the [pull requests](../../pulls) of this repository: the four AI-written changes of the challenge, each reviewed by the Action |
 
 ## Try it in one minute (offline, Python 3 only)

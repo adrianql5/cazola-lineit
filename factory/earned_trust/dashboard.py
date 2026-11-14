@@ -61,6 +61,7 @@ def build() -> str:
          "</div>"]
 
     # what the human reads
+    P += live_section()
     P += ["<div class=card><h2>What the human reads</h2><p class=desc>Changed lines per branch: read by the signer, "
           "summarized as test evidence (named in the claims matrix), or hidden as mechanical (pattern-checked and sampled). "
           "T2 changes are read in full: the factory saves no time there, on purpose.</p>"]
@@ -142,6 +143,47 @@ def build() -> str:
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text("\n".join(P))
     return str(OUT.relative_to(ROOT))
+
+
+def live_section() -> list[str]:
+    """This repository's pull requests, as the GitHub API reports them."""
+    p = FACTORY / "bench" / "live.json"
+    if not p.exists():
+        return ["<div class=card><h2>Live: this repository's pull requests</h2><p class=desc>Not collected in this build "
+                "(run <code>python3 factory/et.py live</code> with a GITHUB_TOKEN).</p></div>"]
+    d = json.loads(p.read_text())
+    s = d["summary"]
+    src = f"{d['source']}, collected {d['collected_at']}"
+    fmt_min = lambda m: "—" if m is None else (f"{m:.0f} min" if m < 120 else f"{m / 60:.1f} h")
+    rate = lambda a: "no answers yet" if a["acceptance_rate"] is None else f"{a['accepted']} of {a['accepted'] + a['refuted']} accepted"
+    P = ["<div class=card><h2>Live: this repository's pull requests</h2>",
+         "<p class=desc>Read from GitHub on every build and after every review: the four AI-written PRs of the challenge, "
+         "reviewed by the Action. Times run from the brief to the signature, and from opening to merge. "
+         "Findings are split by who raised them: deterministic rules or the AI model.</p>",
+         "<div class=grid>",
+         tile(f"{s['lines_to_humans']:,} of {s['lines_total']:,}", f"changed lines sent to a person ({s['share_lines_to_humans']:.0%})", "GitHub API"),
+         tile(f"{s['signed']} of {s['reviewed']}", "PRs signed", "GitHub API"),
+         tile(fmt_min(s["median_minutes_to_sign"]), "median time from brief to signature" + ("" if s["signed"] else " (no PR signed yet)"), "GitHub API"),
+         tile(rate(s["answers"]["rules"]), f"rule findings ({s['answers']['rules']['open']} still open)", "GitHub API"),
+         tile(rate(s["answers"]["ai"]), f"AI findings ({s['answers']['ai']['open']} still open)", "GitHub API"),
+         "</div>",
+         "<div class=scroll><table><tr><th>PR</th><th>Tier</th><th>Lines to a person</th><th>Findings (rules / AI)</th>"
+         "<th>Accepted / refuted</th><th>Gate</th><th>Brief → signature</th><th>Open → merge</th></tr>"]
+    for r in d["prs"]:
+        n_rules = sum(1 for f in r["findings"] if f["source"] == "rules")
+        n_ai = len(r["findings"]) - n_rules
+        acc = sum(1 for a in r["answers"] if a["verdict"] == "accepted")
+        ref = sum(1 for a in r["answers"] if a["verdict"] == "refuted")
+        gate = "<span class=ok>signed</span>" if r["gate"] == "success" else "waiting"
+        share = f"{r['lines_must_read']:,} of {r['lines_total']:,}" if r["lines_total"] else "—"
+        P.append(f"<tr><td><a href='{html.escape(r['url'])}'>#{r['pr']}</a> {html.escape(r['title'][:60])}</td><td>{r['tier']}</td>"
+                 f"<td class=num>{share}</td><td class=num>{n_rules} / {n_ai}</td><td class=num>{acc} / {ref}</td><td>{gate}</td>"
+                 f"<td class=num>{fmt_min(r['minutes_to_sign'])}</td><td class=num>{fmt_min(r['minutes_to_merge'])}</td></tr>")
+    P += ["</table></div>",
+          f"<p class=desc style='margin-top:8px'>Spot-check escapes recorded in the trust ledger: {s['escapes']}. "
+          "A rising number of escapes, or of reverts after signed merges, would mean shorter reviews are costing quality.</p>",
+          chip(src), "</div>"]
+    return P
 
 
 def _median(xs: list[float]) -> float:

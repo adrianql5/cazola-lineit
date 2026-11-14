@@ -35,6 +35,34 @@ CHECK = "earned-trust/human-accountability-gate"
 MARK = "<!-- earned-trust-brief -->"
 EVIDENCE = re.compile(r"<!-- earned-trust-evidence (.*?) -->", re.S)
 LLM_ANSWERS = re.compile(r"<!-- earned-trust-llm (.*?) -->", re.S)
+METRICS = re.compile(r"<!-- earned-trust-metrics (.*?) -->", re.S)
+
+
+def finding_source(f: dict) -> str:
+    """Who raised a finding: the AI, or a deterministic rule (also when the AI raised it too)."""
+    return "ai" if f["source"].startswith("llm") else "rules"
+
+
+def metrics(pr: dict, sha: str, report: dict, state: dict, gate: dict) -> dict:
+    """What the live dashboard needs from this review, kept hidden in the brief."""
+    rd = report["router"]["read"]
+    src = {f["id"]: finding_source(f) for f in report["judge"]["accepted"]}
+    signs = [e for e in state["events"] if e["command"].lower().startswith("/sign")]
+    return {
+        "v": 1, "pr": pr["number"], "title": pr["title"], "sha": sha, "pr_opened_at": pr.get("created_at"),
+        "brief_published_at": state["published_at"], "tier": report["router"]["tier"],
+        "lines_total": rd["lines_total"], "lines_must_read": rd["lines_must_read"],
+        "files_total": rd["files_total"], "files_must_read": rd["files_must_read"],
+        "findings": [{"id": i, "source": s} for i, s in src.items()],
+        "answers": [{"id": i, "verdict": v["verdict"], "by": v["by"], "at": v["at"], "source": src.get(i, "rules")}
+                    for i, v in state["findings"].items()],
+        "decisions": [{"id": i, "option": d["option"], "by": d["by"], "at": d["at"]} for i, d in state["decisions"].items()],
+        "abstentions": len(report["abstentions"]), "gate": gate["conclusion"],
+        "signed_at": signs[-1]["at"] if gate["conclusion"] == "success" and signs else None,
+        "signers": [x["by"] for x in state["signatures"]],
+        "llm": report["prosecutor"]["llm"].get("model") if report["prosecutor"]["llm"]["status"] == "RAN" else None,
+        "tests": report["tracer"]["execution"]["status"],
+    }
 
 
 def restore_llm(old_body: str, sha: str, cache: Path) -> None:
@@ -296,7 +324,8 @@ def main(target: str | None) -> int:
     text = brief.render(report, state)
     if log:
         text += "\n<details><summary>Replies so far</summary>\n\n" + "\n".join(log[-30:]) + "\n\n</details>\n"
-    body = f"{MARK}\n{hidden}\n{save_llm(llm_cache, sha)}\n{text}"
+    m = json.dumps(metrics(pr, sha, report, state, gate)).replace("--", "- -")
+    body = f"{MARK}\n{hidden}\n{save_llm(llm_cache, sha)}\n<!-- earned-trust-metrics {m} -->\n{text}"
     if mine:
         gh("PATCH", f"/repos/{repo}/issues/comments/{mine['id']}", {"body": body})
     else:

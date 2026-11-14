@@ -9,3 +9,4 @@ __pycache__/
 /dashboard/
 /ledger/
 /factory/bench/report.json
+/factory/bench/live.json
