@@ -208,6 +208,8 @@ def live_section() -> list[str]:
 
 
 def _median(xs: list[float]) -> float:
+    """The middle value of xs; with an even count, the mean of the two middle
+    values, rounded to one decimal. xs must not be empty."""
     xs = sorted(xs)
     n = len(xs)
     return xs[n // 2] if n % 2 else round((xs[n // 2 - 1] + xs[n // 2]) / 2, 1)
