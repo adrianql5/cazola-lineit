@@ -108,10 +108,14 @@ def todo(report: dict, state: dict) -> list[dict]:
                            'or `/refute <id> "why"` if it is not'})
     need, groups = required_signatures(report)
     signers = {x["by"] for x in state["signatures"]}
-    missing = [g for g in groups if not signers & set(g["owners"])]
-    for g in missing:
-        out.append({"what": f"Signature from an owner of {g['zone']} ({owners_text(g['owners'])})",
-                    "how": f'{owners_text(g["owners"])} replies `/sign "Full Name"`'})
+    missing = {}  # one line per set of owners, however many areas they own
+    for g in groups:
+        if not signers & set(g["owners"]):
+            zones = missing.setdefault(tuple(g["owners"]), [])
+            zones += [g["zone"]] if g["zone"] not in zones else []
+    for owners, zones in missing.items():
+        out.append({"what": f"Signature from an owner of {', '.join(zones)} ({owners_text(list(owners))})",
+                    "how": f'{owners_text(list(owners))} replies `/sign "Full Name"`'})
     extra = need - len(state["signatures"]) - len(missing)
     if extra > 0:
         if need == 1:

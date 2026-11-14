@@ -155,6 +155,14 @@ class SensitivityTests(unittest.TestCase):
         self.assertEqual(r["sensitivity"]["required"]["owner_groups"][0]["owners"], ["ana"])
         self.assertNotIn("critical-untested", [a["kind"] for a in r["abstentions"]])
 
+    def test_one_signature_line_per_set_of_owners(self):
+        r, _ = self.review(codeowners="* @ana\n", diff=DIFF.replace('+var text = "Hi";', '+var password = "Hi";'))
+        self.assertGreater(len(r["sensitivity"]["required"]["owner_groups"]), 1)
+        sign = [i["what"] for i in commands.todo(r, {"signatures": [], "decisions": {}, "findings": {}})
+                if i["what"].startswith("Signature")]
+        self.assertEqual(len(sign), 1, sign)
+        self.assertIn("payments", sign[0])
+
     def test_a_bad_critical_area_is_an_error(self):
         with self.assertRaisesRegex(ValueError, "needs a name and paths"):
             config.parse("[[critical]]\nname = \"x\"\n")
