@@ -2,7 +2,7 @@
 
     /spotcheck clean "<a line from one sample file>" | /spotcheck escape "<what looks wrong>"
     /decide <ABS-id> <option> "<reason>"
-    /accept <finding-id>
+    /accept <finding-id> | /accept all
     /refute <finding-id> "<evidence>"
     /verify "<answer>"            (T2 only, optional)
     /sign "<Full Name>"
@@ -104,7 +104,8 @@ def todo(report: dict, state: dict) -> list[dict]:
     open_ = [f["id"] for f in report["judge"]["accepted"] if f["id"] not in state["findings"]]
     if open_:
         out.append({"what": f"Answer {'finding' if len(open_) == 1 else 'findings'} {', '.join(open_)}",
-                    "how": 'reply `/accept <id>` for each one that is real, or `/refute <id> "why"` if it is not'})
+                    "how": 'reply `/accept <id>` for each one that is real (`/accept all` for every one left), '
+                           'or `/refute <id> "why"` if it is not'})
     need = 2 if report["router"]["second_reviewer"] else 1
     if len(state["signatures"]) < need:
         who = "an owner" if need - len(state["signatures"]) == 1 and need == 1 else "a second owner"
@@ -123,7 +124,7 @@ USAGE = {
     "explain": "`/explain <id>` (a finding, a decision or a claim)",
     "spotcheck": '`/spotcheck clean "<a line from one sample file>"` or `/spotcheck escape "<what looks wrong>"`',
     "decide": '`/decide ABS-1 <option> "why"`',
-    "accept": "`/accept <finding-id>`",
+    "accept": "`/accept <finding-id>` or `/accept all`",
     "refute": '`/refute <finding-id> "why"`',
     "verify": '`/verify "your answer"`',
     "sign": '`/sign "Your Full Name"`',
@@ -210,6 +211,15 @@ def apply(report: dict, run_dir: Path, actor: str, text: str, *, at: str | None 
         state["decisions"][args[0]] = {"option": args[1], "reason": " ".join(args[2:]), "by": actor, "at": at,
                                        "decision": a["decision"], "kind": a["kind"]}
         reply = f"{args[0]}: `{args[1]}`, decided by @{actor}."
+    elif cmd == "accept" and args and args[0].lower() == "all":
+        # every finding not answered yet; a /refute already given stays
+        left = [fid for fid in ids_find if fid not in state["findings"]]
+        if not left:
+            return state, "Every finding on this PR is already answered." if ids_find else "There are no findings on this PR."
+        for fid in left:
+            state["findings"][fid] = {"verdict": "accepted", "by": actor, "at": at}
+        reply = f"{', '.join(left)} accepted. " + ("It goes in the receipt as a known issue." if len(left) == 1
+                                                  else "They go in the receipt as known issues.")
     elif cmd == "accept":
         if not args or args[0] not in ids_find:
             return state, bad_finding(args[0] if args else "")
