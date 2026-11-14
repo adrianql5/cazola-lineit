@@ -50,6 +50,9 @@ open runs/ju26-issue-2297/brief.md     # the brief of the 237-file change
 | `/explain <id>` | Tell me more about a finding, decision or claim |
 | `/sign "<Full Name>"` | I take responsibility for this change (write access needed) |
 
+To review the same PR again (for repeated demos), run *Actions → reset demo PR*: a
+marker comment makes earlier commands stop counting, and the findings stay the same.
+
 ## Put it on a repository
 
 Copy [`templates/earned-trust.yml`](templates/earned-trust.yml) to the
