@@ -14,8 +14,9 @@ COMMIT_AT = "2026-11-14T10:00:00Z"
 
 
 class FakeGitHub:
-    def __init__(self, comments):
+    def __init__(self, comments, names=None):
         self.comments = comments
+        self.names = names or {}  # login -> the name on the GitHub profile
         self.posted, self.checks, self.reviews, self.replies, self.reactions = [], [], [], [], []
         self.merges, self.dispatches, self.settings = [], [], None
         self.diff = sources.load("ju26-issue-2283").diff_text
@@ -40,6 +41,8 @@ class FakeGitHub:
             return {}
         if path.endswith("/pulls/7"):
             return PR
+        if path.startswith("/users/"):
+            return {"login": path[len("/users/"):], "name": self.names.get(path[len("/users/"):])}
         if "/commits/" in path:
             return {"commit": {"committer": {"date": COMMIT_AT}}}
         if "/contents/.earned-trust.toml" in path:
@@ -74,8 +77,8 @@ def comment(login, text, at, assoc="OWNER"):
 
 
 class GitHubActionTests(unittest.TestCase):
-    def run_event(self, name, event, comments, settings=None):
-        fake = FakeGitHub(comments)
+    def run_event(self, name, event, comments, settings=None, names=None):
+        fake = FakeGitHub(comments, names)
         fake.settings = settings
         with tempfile.TemporaryDirectory() as d:
             ev = Path(d) / "event.json"
@@ -118,6 +121,26 @@ class GitHubActionTests(unittest.TestCase):
         self.assertTrue(fake.posted[-1].startswith('> /sign "The Owner"'))
         # the comment with the commands got a 👍 as soon as it was read
         self.assertEqual(fake.reactions, [(f"/repos/me/mp/issues/comments/{comments[-1]['id']}/reactions", "+1")])
+
+    def test_a_bare_sign_uses_the_name_on_the_github_profile(self):
+        comments = [
+            comment("owner", '/decide ABS-1 narrow-to-metadata-types "x"\n/accept P-GLOBAL-WRAP', "2026-11-14T10:05:00Z"),
+            comment("owner", "/sign", "2026-11-14T10:07:00Z"),
+        ]
+        ev = {"issue": {"number": 7, "pull_request": {}}, "comment": comments[-1]}
+        fake = self.run_event("issue_comment", ev, comments, names={"owner": "Ana O'Neill"})
+        self.assertEqual(fake.checks[-1]["conclusion"], "success")
+        self.assertEqual(fake.checks[-1]["output"]["title"], "Signed by Ana O'Neill")
+
+    def test_a_bare_sign_without_a_profile_name_asks_for_it(self):
+        comments = [
+            comment("owner", '/decide ABS-1 narrow-to-metadata-types "x"\n/accept P-GLOBAL-WRAP', "2026-11-14T10:05:00Z"),
+            comment("owner", "/sign", "2026-11-14T10:07:00Z"),
+        ]
+        ev = {"issue": {"number": 7, "pull_request": {}}, "comment": comments[-1]}
+        fake = self.run_event("issue_comment", ev, comments)
+        self.assertEqual(fake.checks[-1]["conclusion"], "action_required")
+        self.assertIn("Your GitHub profile has no name", fake.posted[-1])
 
     def test_command_in_a_line_comment_gets_a_reply_in_its_thread(self):
         c = comment("owner", "/explain P-GLOBAL-WRAP", "2026-11-14T10:05:00Z")

@@ -126,6 +126,13 @@ class AnyIssueTests(unittest.TestCase):
             state, _ = commands.apply(rep, Path(d), "demo-owner", '/requirements ok "compared with the issue"')
             self.assertNotIn("Say what this PR must do", [t["what"] for t in commands.todo(rep, state)])
 
+    def test_reqs_is_short_for_requirements(self):
+        with tempfile.TemporaryDirectory() as d, unittest.mock.patch.dict("os.environ", {"ET_LEDGER_DIR": d}):
+            rep = pipeline.review(self.change(), use_llm=False, run_dir=Path(d))
+            state, msg = commands.apply(rep, Path(d), "demo-owner", '/reqs ok "compared with the issue"')
+            self.assertEqual(msg, "Requirements confirmed.")
+            self.assertEqual(state["requirements"]["verdict"], "ok")
+
     def test_the_ai_proposes_requirements_for_a_person_to_confirm(self):
         from earned_trust import llm
         answer = {"model": "fake-model", "prompt_version": "t", "input_sha256": "0", "cached": False, "content": '[{"text": "No crash", "quote": "It crashes.", '

@@ -50,8 +50,10 @@ then answers below it.
 | `/decide ABS-1 <option> "<why>"` | My decision on something the AI won't decide |
 | `/accept <id>` · `/refute <id> "<why>"` | This finding is real · it isn't, because… |
 | `/requirements ok "<what I checked>"` | Only when the issue has no written requirements |
+| `/reqs ...` | Short for `/requirements ...` |
 | `/explain <id>` | Tell me more about a finding, decision or claim |
 | `/sign "<Full Name>"` | I take responsibility for this change (write access needed) |
+| `/sign` | The same, with the name on your GitHub profile |
 
 To review the same PR again (for repeated demos), run *Actions → reset demo PR*: a
 marker comment makes earlier commands stop counting, and the findings stay the same.
