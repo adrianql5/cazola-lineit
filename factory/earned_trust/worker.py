@@ -55,7 +55,8 @@ def parse(out: str) -> dict:
         status = "FAIL"
     else:
         status = "ERROR"
-    return {"status": status, "passed": passed, "failed": failed, "per_project": per}
+    warnings = sorted(set(re.findall(r"warning (CS9057)", out)))  # the generator needs a newer compiler
+    return {"status": status, "passed": passed, "failed": failed, "per_project": per, "warnings": warnings}
 
 
 def execute(workdir: Path, tests_added: list[dict], sha: str, *, image: str = IMAGE,

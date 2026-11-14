@@ -97,8 +97,8 @@ def evidence(change: sources.Change, run_dir: Path, target: Path | None, old_bod
     facts = json.loads((FACTORY / "knowledge" / "facts.json").read_text())["facts"]
     added = tracer.run(change, run_dir, facts)["tests_added"]
     res = worker.execute(target, added, change.sha)
-    errors = {e for p in res.get("per_project", []) for e in p["errors"]}
-    if res["status"] == "ERROR" and "CS9057" in errors:
+    codes = {e for p in res.get("per_project", []) for e in p["errors"]} | set(res.get("warnings", []))
+    if res["status"] == "ERROR" and "CS9057" in codes:
         # the pinned SDK's compiler is older than the generator needs: retry on the newer SDK, and say so
         res = worker.execute(target, added, change.sha, ignore_global_json=True)
     return res
