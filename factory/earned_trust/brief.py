@@ -69,7 +69,8 @@ def summary(r: dict) -> list[str]:
         more = f" (+{len(sens['zones']) - 1} more below)" if len(sens["zones"]) > 1 else ""
         who = (" Only " + " or ".join(f"@{o}" for o in z["owners"]) + " can sign.") if z["owners"] else ""
         removed = ", a removed line" if z.get("removed") else ""
-        out.append(f"**Critical:** {z['name']} at `{name(z['file'])}:{z['line']}`{removed}{more}. Full read.{who}")
+        via = f", used by `{name(z['caller']['file'])}:{z['caller']['line']}`" if z.get("caller") else ""
+        out.append(f"**Critical:** {z['name']} at `{name(z['file'])}:{z['line']}`{removed}{via}{more}. Full read.{who}")
     if rt["tier"] == "T2":
         rules = sorted({t["rule"] for t in cl["triggers"]})
         why = ", ".join(([f"it touches {sens['zones'][0]['name']}"] if sens["zones"] else [])
@@ -145,6 +146,9 @@ def render(r: dict, state: dict | None = None) -> str:
                   f"Why: {z['why']}. Signs: {who}."]
             if z.get("text"):
                 L += ["```diff", ("-" if z.get("removed") else "+") + z["text"], "```"]
+            if z.get("caller"):
+                L += [f"Called from `{z['caller']['file']}:{z['caller']['line']}` (base branch):", "```",
+                      z["caller"]["text"], "```"]
             for e in z.get("evidence", [])[:3]:
                 L.append(f"- also `{name(e['file'])}:{e['line']}`: {e['detector']}{' (removed line)' if e.get('removed') else ''}")
             L.append("")

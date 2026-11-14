@@ -27,7 +27,7 @@ import time
 import urllib.request
 from pathlib import Path
 
-from . import brief, commands, config, ledger, llm, pipeline, sources, tracer, worker
+from . import brief, commands, config, ledger, llm, pipeline, sensitivity, sources, tracer, worker
 from .sources import FACTORY
 
 API = os.environ.get("GITHUB_API_URL", "https://api.github.com")
@@ -272,7 +272,21 @@ def load_settings(repo: str, pr: dict) -> None:
             return None
     owners = next((t for t in (read(p) for p in (".github/CODEOWNERS", "CODEOWNERS", "docs/CODEOWNERS")) if t), None)
     text = read(config.FILE)
-    config.use(text, f"{config.FILE} on {base}" if text else "", owners)
+    cfg = config.use(text, f"{config.FILE} on {base}" if text else "", owners)
+    # the code inside declared critical areas, so helpers they call count as critical too
+    files = {}
+    if cfg["critical"]:
+        try:
+            tree = gh("GET", f"/repos/{repo}/git/trees/{base}?recursive=1")["tree"]
+        except Exception:
+            tree = []
+        paths = [t["path"] for t in tree if t["type"] == "blob" and t.get("size", 0) < 200_000
+                 and any(re.search(p, t["path"]) for a in cfg["critical"] for p in a["paths"])]
+        for p in paths[:40]:
+            t = read(p)
+            if t is not None:
+                files[p] = t
+    sensitivity.use_base(files)
 
 
 def merge_signed(repo: str, pr: dict, state: dict) -> str:

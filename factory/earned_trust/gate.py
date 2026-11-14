@@ -44,7 +44,14 @@ def abstentions(change: Change, cl: dict, trace: dict, judged: dict, sens: dict 
         seen.add(z["name"])
         who = ("@" + " or @".join(z["owners"])) if z["owners"] else "the owners of that code (no owner is declared for it)"
         removed = " (a line removed)" if z.get("removed") else ""
-        add("critical-operation", f"This change touches {z['name']} at `{z['file'].rsplit('/', 1)[-1]}:{z['line']}`{removed}. Is its behaviour correct?",
+        where = f"`{z['file'].rsplit('/', 1)[-1]}:{z['line']}`{removed}"
+        if z.get("caller"):
+            c = z["caller"]
+            question = (f"{where} is used by `{c['file'].rsplit('/', 1)[-1]}:{c['line']}` ({c['text']}). "
+                        "Is the new behaviour still correct there?")
+        else:
+            question = f"This change touches {z['name']} at {where}. Is its behaviour correct?"
+        add("critical-operation", question,
             f"It is critical because {z['why']}. The AI does not judge whether critical logic is right; its owner does.",
             ["the owner's reading of the code", "a test that covers this behaviour"], ["approve", "request-changes"],
             f"{z['file']}:{z['line']}", who)
