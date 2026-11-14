@@ -21,26 +21,22 @@ jobs:
           echo "endpoint: $LLM_BASE_URL"
           [ -n "$LLM_API_KEY" ] && echo "key: set (${#LLM_API_KEY} characters)" || echo "key: NOT SET"
           python3 factory/et.py models
-      - name: Time a small review answer from each candidate
+      - name: Real prosecutor prompt (#2283) per model and answer budget
         env:
           LLM_BASE_URL: ${{ secrets.LLM_BASE_URL || 'https://api.vultrinference.com/v1' }}
           LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
         run: |
-          python3 - <<'PY'
-          import json, os, time, urllib.request
-          base, key = os.environ["LLM_BASE_URL"].rstrip("/"), os.environ["LLM_API_KEY"]
-          ask = ("Diff:\nL10 +if (x != null) return;\nL11 +total += x.Value;\n"
-                 'Answer ONLY a JSON array of problems: [{"file": "a.cs", "line_start": 11, "symbol": "...", "claim": "..."}]')
-          for model in ["glm-5.3-flash", "deepseek-v4.1-flash-1017", "qwen3.8-flash-next", "glm-5.3", "qwen3.8-27b", "mimo-v2.6-pro"]:
-              body = json.dumps({"model": model, "temperature": 0, "max_tokens": 600,
-                                 "messages": [{"role": "user", "content": ask}]}).encode()
-              req = urllib.request.Request(base + "/chat/completions", data=body, method="POST",
-                                           headers={"Content-Type": "application/json", "Authorization": "Bearer " + key})
+          cd factory && python3 - <<'PY'
+          import os, time
+          from earned_trust import sources, classifier, prosecutor
+          c = sources.load("ju26-issue-2283"); cl = classifier.run(c)
+          for model, budget in [("deepseek-v4.1-flash-1017", "16000"), ("glm-5.3-flash", "16000"),
+                                ("qwen3.8-27b", "16000"), ("glm-5.3", "16000")]:
+              os.environ["LLM_MODEL"], os.environ["LLM_MAX_TOKENS"] = model, budget
               t = time.time()
-              try:
-                  with urllib.request.urlopen(req, timeout=180) as r:
-                      out = json.loads(r.read())["choices"][0]["message"]["content"] or ""
-                  print(f"{model:28} {time.time() - t:6.1f}s  {out.strip()[:120]!r}")
-              except Exception as e:
-                  print(f"{model:28} {time.time() - t:6.1f}s  ERROR {e}")
+              accs, meta = prosecutor.ask_llm(c, cl, offline=False)
+              print(f"{model:26} budget={budget:>6} {time.time() - t:6.1f}s {meta.get('status')} "
+                    f"accusations={len(accs)} {str(meta.get('why', ''))[:140]}")
+              for a in accs[:3]:
+                  print("     ", a.get("file"), a.get("line_start"), repr(a.get("symbol")), "|", (a.get("claim") or "")[:90])
           PY
