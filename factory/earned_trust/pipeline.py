@@ -8,7 +8,7 @@ import hashlib
 import json
 from pathlib import Path
 
-from . import auditor, brief, classifier, gate, judge, ledger, prosecutor, sources, tracer
+from . import auditor, brief, classifier, gate, judge, ledger, prosecutor, sources, tracer, worker
 from .sources import FACTORY, Change
 
 RUNS = FACTORY.parent / "runs"
@@ -36,25 +36,28 @@ def not_checked(r: dict) -> list[dict]:
     out = []
     ex = r["tracer"]["execution"]
     if ex["status"] != "PASS":
-        out.append({"item": "Running the tests (`dotnet build`, `dotnet test`)", "why": f"{ex['status']}: {ex.get('why', '')}"})
+        problem, fix = worker.explain(ex)
+        out.append({"item": "Tests", "why": f"{problem} {fix}"})
     else:
-        out.append({"item": "The rest of the test suite", "why": f"only the {ex['passed']} tests this change adds were run ({ex['how']}, {ex['ran_at']})"})
+        out.append({"item": "The rest of the test suite", "why": f"only the {ex['passed']} tests this PR adds were run"})
         if ex.get("deviations"):
-            out.append({"item": "The pinned build environment", "why": "; ".join(ex["deviations"])})
+            out.append({"item": "The .NET SDK the repo pins", "why": "tests ran on a newer SDK, because the source generator needs a newer compiler"})
         if any(t["rule"] == "T2-TEST-EXCLUSION" for t in r["classifier"]["triggers"]):
-            out.append({"item": "Tests excluded from another test project", "why": "excluded tests were not run there (see the T2-TEST-EXCLUSION trigger)"})
-    out.append({"item": "Semantic analysis with Roslyn", "why": "classification is diff heuristics + regex (Roslyn classifier is P2)"})
+            out.append({"item": "Tests this PR switches off", "why": "they were not run in the project that excludes them"})
+    out.append({"item": "Deep code analysis", "why": "files are sorted by text patterns, not by compiling them (no Roslyn)"})
     llm = r["prosecutor"]["llm"]
     if llm["status"] != "RAN":
-        out.append({"item": "LLM prosecution", "why": f"{llm['status']}: {llm.get('why', '')} — deterministic only for this run"})
+        out.append({"item": "AI reviewer", "why": "turned off, because no LLM key is set, so findings come from rules only. "
+                    "To turn it on, add the secrets LLM_BASE_URL, LLM_API_KEY and LLM_MODEL"})
     un = [c["id"] for c in r["tracer"]["claims"] if c["status"] == "UNVERIFIED"]
     if un:
-        out.append({"item": f"Claims {', '.join(un)}", "why": "no test in this change covers them"})
+        out.append({"item": f"Claims with no test ({', '.join(un)})", "why": "add a test for them, or accept the risk when you sign"})
     s = r["sampler"]
     if s["population"]:
-        out.append({"item": f"{s['population'] - s['n']} of {s['population']} hidden mechanical files", "why": "not sampled; covered by the pattern check only"})
+        out.append({"item": f"{s['population'] - s['n']} of the {s['population']} hidden files",
+                    "why": f"they match the pattern; only the {s['n']} spot-check files are opened by a person"})
     if r["judge"]["accepted"]:
-        out.append({"item": "Whether each finding's argument is right", "why": "the judge checks citations only; a human accepts or refutes"})
+        out.append({"item": "Whether each finding is right", "why": "only its file and line were checked automatically; you accept or refute it"})
     return out
 
 
@@ -144,7 +147,12 @@ def review(change: Change, *, offline: bool = True, use_llm: bool = True, run_di
 
 
 def load_report(branch: str) -> dict:
-    return json.loads((RUNS / branch / "report.json").read_text())
+    p = RUNS / branch / "report.json"
+    if not p.exists() and branch not in sources.branches():
+        raise SystemExit(f"Unknown branch `{branch}`. Known branches: {', '.join(sources.branches())}.")
+    if not p.exists():
+        raise SystemExit(f"There is no review of `{branch}` yet. Run first:\n  python3 factory/et.py review --offline --branch {branch}")
+    return json.loads(p.read_text())
 
 
 def change_for(branch: str, offline: bool = True) -> Change:

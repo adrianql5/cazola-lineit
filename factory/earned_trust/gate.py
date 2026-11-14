@@ -38,43 +38,43 @@ def abstentions(change: Change, cl: dict, trace: dict, judged: dict) -> list[dic
         trig.setdefault(t["rule"], t)
     if "T2-PUBLIC-API" in trig:
         t = trig["T2-PUBLIC-API"]
-        add("public-api", f"Is `{t['text'].split(':')[0].replace('public ', '').strip()}` the public API the package wants to support forever?",
-            "Public API in a published package is a product commitment; tests can show it works, not that it is the right shape.",
+        add("public-api", f"Is the new public API (`{t['text'].split(':')[0].replace('public ', '').replace('class ', '').strip()}`) the right shape to support for years?",
+            "Public API is a long-term promise. Tests show it works, not that it is the right design.",
             ["API review by a maintainer", "a PublicAPI.Unshipped.txt entry (none in this diff)"],
             ["approve-shape", "request-changes"], f"{t['file']}:{t['line']}")
     if "T2-SERIALIZATION-CONTRACT" in trig:
         t = trig["T2-SERIALIZATION-CONTRACT"]
-        add("serialization-contract", "Should the default for these types be contractless (every public read-write member, keyed by its name)?",
-            "The default wire contract decides compatibility of every message ever written with it; that is a product decision.",
+        add("serialization-contract", "Should these types be saved with every public property, keyed by name, by default?",
+            "The default wire format affects every message ever saved with it.",
             ["the maintainers' position on contractless as a default", "round-trip tests against data written by an older version"],
             ["accept-contractless-default", "require-explicit-surrogate"], f"{t['file']}:{t['line']}")
     if "T2-ANALYZER-SEVERITY" in trig:
         t = trig["T2-ANALYZER-SEVERITY"]
-        add("analyzer-severity", "Should the new diagnostics ship as Error (build-breaking) rather than Warning?",
-            "Severity is policy about users' builds, not a property of the code.",
+        add("analyzer-severity", "Should the new rules break users' builds (Error) or only warn?",
+            "Breaking other people's builds is a policy choice, not a code question.",
             ["maintainers' severity policy for new rules"], ["keep-error", "downgrade-to-warning"], f"{t['file']}:{t['line']}")
     if "T2-UNSAFE" in trig:
         t = trig["T2-UNSAFE"]
-        add("security", "Is the unsafe / dynamic code acceptable here?",
-            "Memory safety and code generation at run time need a security reviewer.",
+        add("security", "Is the unsafe or generated-at-runtime code acceptable here?",
+            "Memory safety and runtime code generation need a security reviewer.",
             ["a security review"], ["approve", "reject"], f"{t['file']}:{t['line']}")
     for row in trace["claims"]:
         if row["status"] == "CONTRADICTED" and row["id"].startswith("REQ"):
             c = row["contradictions"][0]
-            add("compatibility", f"{row['id']} asks for \"{row['claim']}\" but the change leaves some targets out. Intended?",
-                "Which target frameworks get a feature is a compatibility promise; the AI can show the gap (and the API docs), not decide it.",
+            add("compatibility", "Keep or remove the guard that leaves out netstandard2.0 and .NET Framework?",
+                "Which platforms get a feature is a promise to users. The AI shows the gap and the docs; a person decides.",
                 ["the PR author's reason for the guard", "a test compiled for netstandard2.0 / net472 consumers"],
                 ["keep-guard", "remove-guard"], f"{c['file']}:{c['line']}")
     alts = trace.get("alternatives", [])
     if alts and not any(a["chosen"] for a in alts):
-        add("ambiguous-requirement", "The issue lists " + str(len(alts)) + " ways to give keys for T and picks none; the change invents another (SurrogateType + contractless). Which one?",
-            "Choosing between designs the issue left open is the requirement owner's call.",
+        add("ambiguous-requirement", f"The issue suggested {len(alts)} designs; the change uses a different one (`SurrogateType`). Is that OK?",
+            "Choosing between designs the issue left open is the issue owner's call.",
             ["the issue author's choice", "maintainers' preference"], ["accept-surrogate-design", "ask-issue-author"],
             trace["requirements_source"])
     for v in judged["accepted"]:
         if v["id"] == "P-GLOBAL-WRAP":
-            add("diagnostic-policy", "Is it acceptable that every diagnostic without a source location in this compilation is now dropped, not only those from referenced assemblies?",
-                "Which diagnostics users may lose is analyzer policy; the AI can point at the filter, not weigh the trade-off.",
+            add("diagnostic-policy", "Is it OK to drop every diagnostic without a source location, not only those from other assemblies?",
+                "Which warnings users may lose is the analyzer owners' call.",
                 ["a test showing a diagnostic of the compilation's own type with a null location is still reported"],
                 ["accept-global-filter", "narrow-to-metadata-types"], f"{v['file']}:{v['line_start']}")
     return out

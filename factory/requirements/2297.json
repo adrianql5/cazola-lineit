@@ -21,7 +21,7 @@
         {
           "path": "Transforms/.*\\.tt$",
           "added": "#if !NETSTANDARD2_0 && !NETFRAMEWORK",
-          "why": "the attribute is compiled out for consumers that target netstandard2.0 or .NET Framework, so not all generated code carries it",
+          "why": "it leaves out apps on netstandard2.0 and .NET Framework",
           "fact": "FACT-ECC-AVAILABILITY"
         }
       ]

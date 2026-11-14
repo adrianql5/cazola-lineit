@@ -191,7 +191,7 @@ def run(change: Change, run_dir: Path, facts: list[dict] | None = None) -> dict:
         for fact in facts:
             if re.search(fact["contradicted_by"], c["text"]):
                 contra.append({"file": c["file"], "line": c["line"], "text": c["text"][:140],
-                               "why": f"contradicted by {fact['id']}: {fact['statement']}", "fact": fact["id"]})
+                               "why": f"False. {fact['short']}", "fact": fact["id"]})
         impl = [{"file": c["file"], "line": c["line"], "text": "(the change's own documentation)"}]
         st, why = status(impl, cov, exe, contra)
         if not cov and not contra:

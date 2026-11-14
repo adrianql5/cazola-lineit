@@ -57,8 +57,8 @@ def run(change: Change, classification: dict, trace: dict) -> dict:
             findings.append({
                 "id": f"SCOPE-{sum(x['id'].startswith('SCOPE') for x in findings) + 1}", "source": "auditor (deterministic)", "category": "scope",
                 "severity": "medium",
-                "claim": ("Out-of-scope change: no requirement of the issue explains this hunk"
-                          + (" — it only changes whitespace (a formatting fix unrelated to the issue)" if fmt else "")),
+                "claim": ("Not part of the issue: nothing in the issue asks for this change."
+                          + (" It only changes spacing." if fmt else "")),
                 "file": f.path, "line_start": line, "line_end": line,
                 "symbol": symbol[0] if symbol else first.text.strip()[:20],
             })
@@ -78,7 +78,10 @@ def run(change: Change, classification: dict, trace: dict) -> dict:
             sym = m.group(0) if m else re.findall(r"[A-Za-z_]\w*", c["text"])[0]
             findings.append({
                 "id": f"DRIFT-{sum(x['id'].startswith('DRIFT') for x in findings) + 1}", "source": "auditor (deterministic)", "category": "spec-drift",
-                "severity": "high", "claim": f"{row['id']} is contradicted: {c['why']}", "requirement": row["id"],
+                "severity": "high",
+                "claim": (f"Says something false: {next((x['short'] for x in facts if x['id'] == c.get('fact')), c['why'])}."
+                          if row["id"].startswith("DOC") else f"Breaks the requirement \"{row['claim']}\": {c['why']}."),
+                "requirement": row["id"],
                 "file": c["file"], "line_start": c["line"], "line_end": c["line"], "symbol": sym,
                 "fact": c.get("fact"),
             })
@@ -93,7 +96,7 @@ def run(change: Change, classification: dict, trace: dict) -> dict:
                     findings.append({
                         "id": f"DRIFT-{sum(x['id'].startswith('DRIFT') for x in findings) + 1}", "source": "auditor (deterministic)", "category": "fact-contradiction",
                         "severity": "medium",
-                        "claim": f"The change states something {fact['id']} contradicts: {fact['statement']}",
+                        "claim": f"Says something false: {fact['short']}.",
                         "file": f.path, "line_start": l.new_no, "line_end": l.new_no,
                         "symbol": m.group(0) if m else l.text.strip()[:20], "fact": fact["id"],
                     })

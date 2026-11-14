@@ -1,177 +1,174 @@
-"""The Evidence Brief: a GitHub comment, story first.
+"""The Evidence Brief: a GitHub comment a person can read in one minute.
 
-Five lines on top that a human can read on a Friday afternoon, then the
-evidence in <details> blocks. Every sentence in it comes from a stage's JSON;
-the brief is written by a template, not by a model.
+A few short lines on top (what, what to read, what to watch, what to decide,
+the tests), then a checklist of replies, then the findings. Everything else
+is folded. Every sentence comes from a stage's JSON; a template writes it,
+not a model.
 """
 
 from __future__ import annotations
 
 from pathlib import PurePosixPath
 
-ICON = {"VERIFIED": "✅", "PARTIAL": "🟡", "UNVERIFIED": "⚪", "CONTRADICTED": "❌"}
+from . import commands, worker
+
+STATUS = {
+    "VERIFIED": "✅ tested",
+    "PARTIAL": "🟡 test not run",
+    "UNVERIFIED": "⚪ no test",
+    "CONTRADICTED": "❌ contradicted",
+}
+
+WHY_FULL_READ = {
+    "T2-PUBLIC-API": "it adds public API",
+    "T2-ANALYZER-SEVERITY": "it adds rules that can break users' builds",
+    "T2-TEST-EXCLUSION": "it turns tests off",
+    "T2-UNSAFE": "it adds unsafe code",
+    "T2-SERIALIZATION-CONTRACT": "it changes the default wire format",
+}
 
 
-def short(path: str, n: int = 60) -> str:
-    return path if len(path) <= n else "…" + path[-(n - 1):]
+def name(path: str) -> str:
+    return PurePosixPath(path).name
 
 
-def story(r: dict) -> list[str]:
+def plural(n: int, word: str) -> str:
+    return f"{n} {word}{'' if n == 1 else 's'}"
+
+
+def tests_line(ex: dict) -> str:
+    if ex["status"] == "PASS":
+        line = f"✅ {ex['passed']} of {ex['passed']} passed"
+        if ex.get("deviations"):
+            line += " (on a newer .NET SDK than the repo pins: the generator needs it)"
+        return line
+    problem, fix = worker.explain(ex)
+    icon = "❌" if ex["status"] == "FAIL" else "⚠️"
+    return f"{icon} {problem} **Fix:** {fix}"
+
+
+def summary(r: dict) -> list[str]:
+    """The lines on top. Also used as the check run's summary."""
     ch, cl, rt, au, ab = r["change"], r["classifier"], r["router"], r["auditor"], r["abstentions"]
-    c = cl["counts"]
-    parts = []
-    for k in ("semantic", "public-contract", "test", "docs", "mechanical"):
-        if c.get(k):
-            parts.append(f"{c[k]} {k}")
-    what = f"**What:** {ch['subject']} — {ch['files']} files ({', '.join(parts)})."
-    why = f"**Why:** issue [#{ch['issue']}]({ch['issue_url']}): \"{ch['issue_title'].rstrip('.')}\"."
-    oos = au["out_of_scope"]
-    if oos:
-        o = oos[0]
-        extra = f" It is what changes {len(au['outlier_links'])} of {cl['snapshots']} snapshots." if au["outlier_links"] else ""
-        also = (f"**Also touches:** `{PurePosixPath(o['file']).name}:{o['line']}`, "
-                f"{'a whitespace-only change' if o['formatting_only'] else 'a change'} no requirement asks for.{extra}")
-    elif cl["triggers"]:
-        rules = sorted({t["rule"] for t in cl["triggers"]})
-        also = f"**Also touches:** {', '.join(f'`{x}`' for x in rules)}."
-    else:
-        also = "**Also touches:** nothing outside the issue that the auditor could find."
     rd = rt["read"]
-    risk = (f"**Risk:** {rt['tier']} — {rt['reasons'][0]}. You read **{rd['lines_must_read']:,} of "
-            f"{rd['lines_total']:,}** changed lines; {rd['files_hidden']} mechanical files summarized, "
-            f"{r['sampler'].get('n', 0)} sampled.")
-    if ab:
-        a = ab[0]
-        watch = f"**Decide:** {a['decision']} → `ABSTAINED`, the AI will not decide this ({len(ab)} in total)."
+    out = [f"**What:** {ch['issue_title'].rstrip('.') or ch['subject']} (#{ch['issue']}) · {plural(ch['files'], 'file')}"]
+    if rt["tier"] == "T2":
+        rules = sorted({t["rule"] for t in cl["triggers"]})
+        why = ", ".join(WHY_FULL_READ.get(x, x) for x in rules[:2])
+        out.append(f"**Read:** everything ({rd['lines_must_read']:,} lines), because {why}.")
     else:
-        watch = "**Decide:** nothing: the AI found no decision outside its remit."
-    return [what, why, also, risk, watch]
-
-
-def gate_lines(r: dict, state: dict | None = None) -> list[str]:
-    state = state or {}
-    done = lambda ok: "x" if ok else " "
-    out = []
-    if r["sampler"]["population"]:
-        out.append(f"- [{done(state.get('spotcheck'))}] `/spotcheck clean|escape` after looking at the {r['sampler']['n']} sampled files")
-    for a in r["abstentions"]:
-        d = state.get("decisions", {}).get(a["id"])
-        out.append(f"- [{done(d)}] `/decide {a['id']} <{'|'.join(a['options'])}> \"<reason>\"` — {a['kind']}")
-    for f in r["judge"]["accepted"]:
-        v = state.get("findings", {}).get(f["id"])
-        out.append(f"- [{done(v)}] `/accept {f['id']}` or `/refute {f['id']} \"<evidence>\"`")
-    who = "two owners (second reviewer required)" if r["router"]["second_reviewer"] else "the owner"
-    out.append(f"- [{done(state.get('signed_complete'))}] `/sign \"<Full Name>\"` by {who}")
+        n_out = len(cl["outliers"])
+        n_files = rd["files_must_read"] - n_out
+        parts = [plural(n_files, "file")] + ([f"{plural(n_out, 'snapshot')} that don't match the others"] if n_out else [])
+        hidden = f" The other {rd['files_hidden']} are generated and identical." if rd["files_hidden"] else ""
+        out.append(f"**Read:** {' + '.join(parts)}.{hidden}")
+    if au["out_of_scope"]:
+        o = au["out_of_scope"][0]
+        what = "a spacing change" if o["formatting_only"] else "a change"
+        out.append(f"**Heads-up:** `{name(o['file'])}:{o['line']}` has {what} the issue didn't ask for.")
+    elif r["judge"]["accepted"]:
+        f = r["judge"]["accepted"][0]
+        out.append(f"**Heads-up:** {f['claim']}")
+    if ab:
+        more = f" (+{len(ab) - 1} more below)" if len(ab) > 1 else ""
+        out.append(f"**Your call:** {ab[0]['decision']}{more} *The AI won't decide this.*")
+    out.append(f"**Tests:** {tests_line(r['tracer']['execution'])}")
     return out
 
 
 def render(r: dict, state: dict | None = None) -> str:
-    ch, rt = r["change"], r["router"]
-    L = [f"## Earned-Trust Evidence Brief · #{ch['issue']} · `{ch['branch']}` @ `{ch['sha'][:10]}`", ""]
-    if rt["tier"] == "T2" or r["abstentions"]:
-        head = f"**{rt['tier']}**"
-        if rt["tier"] == "T2":
-            head += " · full human read required"
-        if r["abstentions"]:
-            n = len(r["abstentions"])
-            head += f" · {n} decision{'s' if n != 1 else ''} the AI refused to make"
-        L += ["> [!CAUTION]", f"> {head}", ""]
-    L += [f"{i}. {s}" for i, s in enumerate(story(r), 1)]
-    L += ["", "**To turn `earned-trust/human-accountability-gate` green:**", *gate_lines(r, state), ""]
+    state = state or commands.load_empty()
+    rt, cl = r["router"], r["classifier"]
+    rd = rt["read"]
+    head = (f"### 🔎 Earned-Trust review · read **{rd['lines_must_read']:,}** of {rd['lines_total']:,} lines"
+            if rt["tier"] != "T2" else f"### 🔎 Earned-Trust review · full read needed ({rd['lines_total']:,} lines)")
+    L = [head, ""]
+    L += [f"{line}  " for line in summary(r)]
+    L.append("")
 
-    # Claims <-> Evidence
-    tr = r["tracer"]
-    counts = " · ".join(f"{ICON[k]} {k} {v}" for k, v in sorted(tr["counts"].items()))
-    L += [f"<details><summary><b>Claims ↔ Evidence</b> — {counts}</summary>", "",
-          f"Requirements: `{tr['requirements_source']}` ({tr['curated_by']}). Tests: **{tr['execution']['status']}** — {tr['execution'].get('why', '')}", "",
-          "| Claim | Status | Implementation | Tests in this change | Why |", "|---|---|---|---|---|"]
-    for c in tr["claims"]:
-        impl = ", ".join(f"`{short(i['file'], 34)}:{i['line']}`" for i in c["implementation"][:2]) or "—"
-        tests = ", ".join(f"`{t['test']}`" for t in c["tests"][:2]) + (f" +{len(c['tests']) - 2}" if len(c["tests"]) > 2 else "") or "—"
-        claim = c["claim"].replace("|", "\\|")
-        L.append(f"| **{c['id']}** {claim[:140]} | {ICON[c['status']]} {c['status']} | {impl} | {tests} | {c['why'][:120]} |")
-    L += ["", "</details>", ""]
+    # what to reply
+    todo = commands.todo(r, state)
+    if todo:
+        L += ["**To merge, reply to this PR with:**"]
+        L += [f"- [ ] **{t['what']}** → {t['how']}" for t in todo]
+    else:
+        names = " and ".join(s["name"] for s in state.get("signatures", []))
+        L += [f"**✅ Signed by {names}.** The receipt is in the `earned-trust/human-accountability-gate` check."]
+    L.append("")
 
-    # Findings
+    # findings, short
     acc = r["judge"]["accepted"]
-    L += [f"<details open><summary><b>Findings</b> — {len(acc)} with a citation the judge verified</summary>", ""]
-    if not acc:
-        L.append("None.")
-    for f in acc:
-        L += [f"**{f['id']}** · {f['severity']} · {f['source']} · `{f['file']}:{f['line_start']}`" +
-              (f" (also lines {', '.join(map(str, f.get('also_at', [])))})" if f.get("also_at") else ""), "",
-              f"{f['claim']}", ""]
-        snippet = "\n".join(f"{e['line']:>5} {e['kind']}{e['text']}" for e in f.get("evidence", [])[:3])
-        if snippet:
-            L += ["```diff", snippet, "```", ""]
-        if f.get("also_raised_by"):
-            L += [f"Also raised by: {', '.join(f['also_raised_by'])}.", ""]
-    L += ["*The judge verifies the citation, not the argument: the reasoning is the AI's until you `/accept` it.*", "", "</details>", ""]
+    if acc:
+        L += [f"#### Findings ({len(acc)})", ""]
+        for f in acc:
+            v = state.get("findings", {}).get(f["id"])
+            mark = f" · {v['verdict']} by @{v['by']}" if v else ""
+            L += [f"**{f['id']}** · `{name(f['file'])}:{f['line_start']}`{mark}  ", f"{f['claim']}"]
+            ev = [e for e in f.get("evidence", []) if e["kind"] != " "][:2]
+            if ev:
+                L += ["```diff"] + [f"{e['kind']}{e['text'].strip()}" for e in ev] + ["```"]
+            L.append("")
 
-    # Abstentions
+    # folded details
     ab = r["abstentions"]
-    L += [f"<details{' open' if ab else ''}><summary><b>What the AI refused to decide</b> — {len(ab)}</summary>", ""]
-    if not ab:
-        L.append("Nothing in this change matched an abstention rule.")
-    for a in ab:
-        L += [f"**{a['id']} · {a['kind']}** — {a['decision']}", "",
-              f"- Why not the AI: {a['why_not_ai']}",
-              f"- Evidence missing: {'; '.join(a['missing_evidence'])}",
-              f"- Who decides: {a['who_decides']}",
-              f"- Where: `{a['cite']}`",
-              f"- Options: {' / '.join(f'`{o}`' for o in a['options'])}", ""]
-    L += ["</details>", ""]
-
-    # Pattern
-    cl = r["classifier"]
-    if cl["groups"]:
-        L += [f"<details><summary><b>Pattern</b> — {cl['snapshots']} snapshots, {len(cl['outliers'])} that do not fit</summary>", ""]
-        for g in cl["groups"]:
-            L.append(f"- **{g['id']}** ({g['role']}, {g['size']} file{'s' if g['size'] != 1 else ''}): `{' · '.join(g['shape'])}`")
-        for o in cl["outliers"]:
-            res = o["residue"]
-            L.append(f"  - outlier `{short(o['path'], 90)}`: beyond the pattern it adds {len(res['added'])} and removes "
-                     f"{len(res['deleted'])} line(s); whitespace only: **{res['whitespace_only']}**")
-        for k in r["auditor"]["outlier_links"]:
-            L.append(f"  - explained by `{k['explained_by']}`: {k['why']}")
-        L += ["", "</details>", ""]
-
-    # Hallucinations
-    rej = r["judge"]["rejected"]
-    L += [f"<details><summary><b>Accusations the judge rejected</b> — {len(rej)}</summary>", "",
-          "| Id | Source | Accusation | Why rejected |", "|---|---|---|---|"]
-    for v in rej:
-        L.append(f"| {v['id']} | {v['source']} | {v['claim'][:110]} | {v['why']} |")
-    L += ["", "</details>", ""]
-
-    # Not checked
-    L += ["<details><summary><b>What was NOT checked</b></summary>", ""]
-    L += [f"- {x['item']} — {x['why']}" for x in r["not_checked"]]
-    L += ["", "</details>", ""]
-
-    # Spot-check
-    s = r["sampler"]
-    L += [f"<details><summary><b>Spot-check sample</b> — {s.get('n', 0)} of {s['population']} hidden files</summary>", ""]
-    if s["population"]:
-        L += [f"Seed `{s['seed']}` (commit SHA): `{s['method']}`. Anyone can re-draw it.", ""]
-        L += [f"- `{p}`" for p in s["sample"]]
-    L += ["", "</details>", ""]
-
-    # Phantom tests
-    ph = [f for f in acc if f.get("phantom_test")]
-    if ph:
-        L += [f"<details><summary><b>Phantom tests</b> — {len(ph)} proposed, not run</summary>", ""]
-        for f in ph:
-            L += [f"For **{f['id']}**:", "```csharp", f["phantom_test"], "```", ""]
+    if ab:
+        L += [f"<details><summary>Decisions left to you ({len(ab)})</summary>", ""]
+        for a in ab:
+            d = state.get("decisions", {}).get(a["id"])
+            done = f" ✅ `{d['option']}` by @{d['by']}" if d else ""
+            L += [f"**{a['id']}** · {a['decision']}{done}  ",
+                  f"Why not the AI: {a['why_not_ai']} Who usually decides: {a['who_decides']}. Where: `{a['cite']}`.", ""]
         L += ["</details>", ""]
 
+    claims = r["tracer"]["claims"]
+    L += [f"<details><summary>What the change claims, and the proof ({len(claims)})</summary>", "",
+          "| | Claim | Proof |", "|---|---|---|"]
+    for c in claims:
+        tests = ", ".join(f"`{t['test']}`" for t in c["tests"][:2]) or "—"
+        text = c["claim"].replace("|", "\\|")
+        text = text if len(text) <= 110 else text[:107] + "…"
+        proof = tests if c["status"] in ("VERIFIED", "PARTIAL") else c["why"].replace("|", "\\|")[:120]
+        L.append(f"| {STATUS[c['status']]} | {text} | {proof} |")
+    L += ["", "</details>", ""]
+
+    if cl["outliers"]:
+        g = next((g for g in cl["groups"] if g["role"] == "dominant"), None)
+        L += [f"<details><summary>Snapshots that don't match ({len(cl['outliers'])} of {cl['snapshots']})</summary>", ""]
+        if g:
+            L.append(f"{g['size']} snapshots all got the same lines. These did not:")
+        for o in cl["outliers"]:
+            extra = "only spacing differs" if o["residue"]["whitespace_only"] else "has different code"
+            L.append(f"- `{name(o['path'])}`: {extra}")
+        for k in r["auditor"]["outlier_links"][:1]:
+            L.append(f"\nBoth come from `{k['explained_by']}`.")
+        L += ["", "</details>", ""]
+
+    s = r["sampler"]
+    if s["population"]:
+        L += [f"<details><summary>Spot-check: {s['n']} random files to open</summary>", "",
+              f"Picked at random from the {s['population']} hidden files (seed: the commit SHA, so anyone can re-pick them).", ""]
+        L += [f"- `{'/'.join(p.split('/')[-2:])}`" for p in s["sample"]]
+        L += ["", "</details>", ""]
+
+    rej = r["judge"]["rejected"]
+    if rej:
+        L += [f"<details><summary>Made-up claims thrown out ({len(rej)})</summary>", "",
+              "These accusations cite code that isn't in this PR, so nobody needs to read them:", ""]
+        for v in rej:
+            L.append(f"- \"{v['claim'][:90]}\": {v['why']}.")
+        L += ["", "</details>", ""]
+
+    L += ["<details><summary>Not checked</summary>", ""]
+    L += [f"- {x['item']}: {x['why']}" for x in r["not_checked"]]
+    L += ["", "</details>", ""]
+
     p = r["provenance"]
-    L += ["<details><summary>Provenance</summary>", "",
-          f"- Source of the diff: {ch['source']} · diff sha256 `{ch['diff_sha'][:16]}`",
-          f"- Classifier: {cl['engine']}",
-          f"- Prosecutor LLM: {p['llm']}",
-          f"- Routing policy: {rt['policy']}" + (f" · rules sha256 `{p['policy_sha'][:16]}`" if p.get("policy_sha") else ""),
-          f"- Trust ledger: {p['trust']}",
+    L += ["<details><summary>How this review was made</summary>", "",
+          f"- Diff: {r['change']['source']}, sha256 `{r['change']['diff_sha'][:12]}`",
+          f"- Files sorted by: {cl['engine']}",
+          f"- AI reviewer: {p['llm']}",
+          f"- Rules: {rt['policy']}" + (f", sha256 `{p['policy_sha'][:12]}`" if p.get("policy_sha") else ""),
+          f"- Module trust: {p['trust']}",
           "", "</details>", "",
           "<sub>Earned-Trust PR Factory · AI reviews. Humans sign. Evidence decides.</sub>"]
     return "\n".join(L) + "\n"

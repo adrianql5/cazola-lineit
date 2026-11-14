@@ -36,9 +36,8 @@ RULES = [
         "id": "P-GLOBAL-WRAP",
         "added": r"this\.(?P<field>\w+)\s*=\s*.*=>\s*(?P<fn>\w+)\(",
         "severity": "high",
-        "claim": "`{field}` is wrapped by `{fn}` for every caller, so whatever `{fn}` filters out is dropped for all "
-                 "diagnostics, not only the ones the issue is about (e.g. a diagnostic of the compilation's own type "
-                 "whose location is null or Location.None)",
+        "claim": "Every diagnostic now goes through `{fn}`, not only those from other assemblies. "
+                 "Some of this project's own diagnostics (with no source location) may disappear.",
         "symbol": "{fn}",
         "phantom": """[Fact]
 public async Task DiagnosticWithoutSourceLocationFromOwnCompilationIsStillReported()
@@ -53,9 +52,8 @@ public async Task DiagnosticWithoutSourceLocationFromOwnCompilationIsStillReport
         "id": "P-FIRST-WINS",
         "added": r"if \(!(?P<dict>\w+)\.ContainsKey\(",
         "severity": "medium",
-        "claim": "With duplicate keys the first member wins and the later one is dropped from the serialization model "
-                 "silently; only the MsgPack005 error stops the build. This is the shared collection path, so it also "
-                 "changes types that do get a generated formatter",
+        "claim": "With duplicate keys, the second member is silently dropped. Only the MsgPack005 error "
+                 "stops the build, and this code also runs for normal (not suppressed) types.",
         "symbol": "ContainsKey",
         "phantom": """[Fact]
 public async Task DuplicateKeyMemberIsNotSilentlyDroppedWhenDiagnosticIsSuppressed()
@@ -69,8 +67,8 @@ public async Task DuplicateKeyMemberIsNotSilentlyDroppedWhenDiagnosticIsSuppress
         "added": r"^\s*continue;",
         "after": r"reportDiagnostic",
         "severity": "medium",
-        "claim": "After reporting, the member is skipped with `continue`, so it is missing from the model; if the "
-                 "diagnostic's severity is lowered by the user, the generated formatter silently leaves it out",
+        "claim": "After the error, the member is skipped. If someone lowers that error to a warning, "
+                 "the member silently disappears from the output.",
         "symbol": "continue",
         "phantom": None,
     },
@@ -79,8 +77,7 @@ public async Task DuplicateKeyMemberIsNotSilentlyDroppedWhenDiagnosticIsSuppress
         "paths": r"\.csproj$",
         "added": r"Exclude=\"[^\"]*(?P<what>GeneratedFormatterFor\w+)",
         "severity": "high",
-        "claim": "New execution tests are excluded from MapModeExecutionTests, so the new formatters are never run "
-                 "in map mode: an evidence gap, not a pass",
+        "claim": "The new tests are excluded from the map-mode test project, so they never run in map mode.",
         "symbol": "Exclude",
         "phantom": None,
     },
@@ -89,9 +86,7 @@ public async Task DuplicateKeyMemberIsNotSilentlyDroppedWhenDiagnosticIsSuppress
         "paths": r"\.tt$",
         "added": r"#if !NETSTANDARD2_0 && !NETFRAMEWORK",
         "severity": "high",
-        "claim": "The guard compiles the attribute out for consumers targeting netstandard2.0 or .NET Framework, "
-                 "although the attribute exists there (FACT-ECC-AVAILABILITY): those users keep the coverage skew the "
-                 "issue asks to remove",
+        "claim": "The attribute is left out for apps on netstandard2.0 and .NET Framework, but it exists there.",
         "symbol": "NETSTANDARD2_0",
         "phantom": None,
     },
@@ -100,8 +95,7 @@ public async Task DuplicateKeyMemberIsNotSilentlyDroppedWhenDiagnosticIsSuppress
         "added": r"(?P<call>\w+Collector\.Collect)\(",
         "repeat": 2,
         "severity": "low",
-        "claim": "`{call}` runs twice per formatter (once for the model with diagnostics off, once for the "
-                 "diagnostics): double cost, and the two runs can disagree if one changes",
+        "claim": "`{call}` runs twice for each formatter. That is slower, and the two runs could disagree.",
         "symbol": "{call}",
         "phantom": None,
     },

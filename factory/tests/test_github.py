@@ -63,7 +63,7 @@ class GitHubActionTests(unittest.TestCase):
 
     def test_pull_request_posts_brief_and_blocks(self):
         fake = self.run_event("pull_request", {"pull_request": PR}, [])
-        self.assertIn("Earned-Trust Evidence Brief", fake.posted[0])
+        self.assertIn("Earned-Trust review", fake.posted[0])
         self.assertEqual(fake.checks[-1]["conclusion"], "action_required")
         self.assertEqual(fake.checks[-1]["name"], github.CHECK)
 
@@ -77,10 +77,11 @@ class GitHubActionTests(unittest.TestCase):
         ev = {"issue": {"number": 7, "pull_request": {}}, "comment": comments[-1]}
         fake = self.run_event("issue_comment", ev, comments)
         self.assertEqual(fake.checks[-1]["conclusion"], "success")
-        self.assertIn("Accountability Receipt", fake.checks[-1]["output"]["text"])
+        self.assertIn("Receipt ·", fake.checks[-1]["output"]["text"])
+        self.assertEqual(fake.checks[-1]["output"]["title"], "Signed by The Owner")
         log = fake.posted[-1]
-        self.assertIn("written before the last commit", log)
-        self.assertIn("drive-by is not an owner", log)
+        self.assertIn("written before the latest commit", log)
+        self.assertIn("@drive-by can't sign", log)
         self.assertIn("Signed by The Owner", log)
 
 

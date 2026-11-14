@@ -12,10 +12,16 @@
 from __future__ import annotations
 
 import argparse
-import json
 import sys
 
 from . import commands, ledger, llm, pipeline, sources
+
+
+def status_line(rep: dict, state: dict) -> str:
+    n = len(commands.todo(rep, state))
+    if not n:
+        return "Status: signed ✅ (receipt: runs/" + rep["change"]["branch"] + "/receipt.md)"
+    return f"Status: waiting for {n} more {'reply' if n == 1 else 'replies'} before it can merge."
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -59,11 +65,14 @@ def main(argv: list[str] | None = None) -> int:
         rep = pipeline.load_report(a.branch)
         state, reply = commands.apply(rep, pipeline.RUNS / a.branch, a.actor, a.text, simulated=a.simulated)
         print(reply)
-        print("gate:", commands.gate(rep, state)["conclusion"])
+        print(status_line(rep, state))
         return 0
     if a.cmd == "status":
         rep = pipeline.load_report(a.branch)
-        print(json.dumps(commands.gate(rep, commands.load(pipeline.RUNS / a.branch)), indent=1))
+        state = commands.load(pipeline.RUNS / a.branch)
+        print(status_line(rep, state))
+        for t in commands.todo(rep, state):
+            print(f"- {t['what']} → {t['how']}")
         return 0
     if a.cmd == "test":
         from . import worker

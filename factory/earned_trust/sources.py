@@ -50,6 +50,8 @@ def branches() -> list[str]:
 
 def load(branch: str, offline: bool = True, repo: str | None = None) -> Change:
     d = CACHE / branch
+    if not (d / "commit.json").exists():
+        raise SystemExit(f"Unknown branch `{branch}`. Known branches: {', '.join(branches())}.")
     commit = json.loads((d / "commit.json").read_text())
     issue = json.loads((d / "issue.json").read_text())
     if offline:

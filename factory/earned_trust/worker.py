@@ -59,6 +59,32 @@ def parse(out: str) -> dict:
     return {"status": status, "passed": passed, "failed": failed, "per_project": per, "warnings": warnings}
 
 
+def explain(r: dict) -> tuple[str, str]:
+    """What went wrong with a test run, and how to fix it, in plain words."""
+    log = r.get("log_tail", "")
+    codes = {e for p in r.get("per_project", []) for e in p.get("errors", [])} | set(r.get("warnings", []))
+    st = r.get("status")
+    if st == "PASS":
+        return "", ""
+    if "ThrowShallowClone" in log:
+        return ("The build needs the full git history, but the checkout only has the last commit.",
+                "Check out the PR with `fetch-depth: 0`.")
+    if "CS9057" in codes:
+        return ("The compiler is older than the source generator needs, so the generator never runs.",
+                "Build with a newer .NET SDK (9.0 or later).")
+    if st == "FAIL":
+        return (f"{r.get('failed', 0)} test(s) failed.", "Open the test log (tests.json in the workflow artifact) and fix the failing tests.")
+    if st == "NOT RUN":
+        why = r.get("why", "")
+        if "adds no tests" in why:
+            return "This change adds no tests.", "Add a test for each claim, or accept the risk when you sign."
+        if "dotnet" in why or "docker" in why:
+            return "There is no .NET SDK (or Docker) on this machine.", "Install the .NET 8 SDK, or Docker."
+        return why or "The tests were not run.", "Run `python3 factory/et.py test --branch <branch>`."
+    errs = ", ".join(sorted(codes)) or "unknown"
+    return (f"The tests did not build (errors: {errs}).", "Open the build log (tests.json in the workflow artifact).")
+
+
 def execute(workdir: Path, tests_added: list[dict], sha: str, *, image: str = IMAGE,
             ignore_global_json: bool = False, docker: bool = False) -> dict:
     projs, filt = projects_and_filter(tests_added)

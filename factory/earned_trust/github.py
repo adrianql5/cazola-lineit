@@ -150,27 +150,32 @@ def main(target: str | None) -> int:
         if not lines:
             continue
         if ts(c["created_at"]) < ts(commit_at):
-            log.append(f"- @{c['user']['login']}: ignored, written before the last commit")
+            log.append(f"- @{c['user']['login']}: ignored, because it was written before the latest commit. Please send it again.")
             continue
         for l in lines:
             ok = c["author_association"] in SIGNERS
             _, reply = commands.apply(report, run_dir, c["user"]["login"], l, at=c["created_at"], can_sign=ok)
-            log.append(f"- @{c['user']['login']} `{l[:70]}` → {reply}")
+            log.append(f"- @{c['user']['login']}: `{l[:70]}`  \n  {reply}")
     state = commands.load(run_dir)
     gate = commands.gate(report, state)
 
     hidden = f"<!-- earned-trust-evidence {json.dumps({k: v for k, v in ev.items() if k != 'log_tail'})} -->" if ev else ""
     text = brief.render(report, state)
     if log:
-        text += "\n<details open><summary><b>Commands on this PR</b></summary>\n\n" + "\n".join(log[-30:]) + "\n\n</details>\n"
+        text += "\n<details open><summary>Replies so far</summary>\n\n" + "\n".join(log[-30:]) + "\n\n</details>\n"
     body = f"{MARK}\n{hidden}\n{text}"
     if mine:
         gh("PATCH", f"/repos/{repo}/issues/comments/{mine['id']}", {"body": body})
     else:
         gh("POST", f"/repos/{repo}/issues/{number}/comments", {"body": body})
 
-    out = {"title": f"{report['router']['tier']}: " + ("signed" if gate["conclusion"] == "success" else "; ".join(gate["missing"]))[:200],
-           "summary": "\n".join(brief.story(report))}
+    if gate["conclusion"] == "success":
+        title = "Signed by " + " and ".join(x["name"] for x in state["signatures"])
+    else:
+        n = len(gate["todo"])
+        title = f"Waiting for {n} {'reply' if n == 1 else 'replies'} on the PR: {gate['todo'][0]['what']}"
+    out = {"title": title[:240], "summary": "\n".join(brief.summary(report)) +
+           ("" if gate["conclusion"] == "success" else "\n\n**Still to do:**\n" + "\n".join(f"- {t['what']} → {t['how']}" for t in gate["todo"]))}
     summary_md = text
     if gate["conclusion"] == "success":
         rc_md = (run_dir / "receipt.md").read_text()

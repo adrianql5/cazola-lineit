@@ -23,30 +23,32 @@ def build(report: dict, state: dict) -> dict:
     ch, rt, tr = report["change"], report["router"], report["tracer"]
     brief_text = brief_mod.render(report)
     decisions = [{"abstention": k, **v} for k, v in sorted(state["decisions"].items())]
+    cl, jd = report["classifier"], report["judge"]
     checked = [
-        {"item": f"Classification of {ch['files']} files ({report['classifier']['engine']})", "by": "machine"},
-        {"item": f"Pattern check over {report['classifier']['snapshots']} snapshots: "
-                 f"{len(report['classifier']['outliers'])} outlier(s) routed to a human", "by": "machine"},
-        {"item": f"Citations of {report['judge']['total']} accusations ({len(report['judge']['rejected'])} rejected)", "by": "machine (judge)"},
-        {"item": f"{len(tr['claims'])} claims traced to diff lines and tests", "by": "machine"},
+        {"item": f"Sorted all {ch['files']} files" + (f"; {len(cl['outliers'])} of {cl['snapshots']} snapshots didn't match and went to a person" if cl["snapshots"] else ""), "by": "machine"},
+        {"item": f"Checked the file and line of {jd['total']} accusations; threw out {len(jd['rejected'])}", "by": "machine"},
+        {"item": f"Matched {len(tr['claims'])} claims to code and tests", "by": "machine"},
     ]
+    if tr["execution"]["status"] == "PASS":
+        checked.append({"item": f"Ran the {tr['execution']['passed']} tests this PR adds: all passed", "by": "machine"})
     if state.get("spotcheck"):
         s = state["spotcheck"]
-        checked.append({"item": f"Spot-check of {len(s['sample'])} hidden files: {s['result']}", "by": f"human:{s['by']}"})
-    checked.append({"item": f"Read {rt['read']['lines_must_read']} lines in {rt['read']['files_must_read']} files ({rt['tier']})",
+        checked.append({"item": f"Opened {len(s['sample'])} random hidden files: {'all fine' if s['result'] == 'clean' else 'found a problem'}", "by": f"human:{s['by']}"})
+    checked.append({"item": f"Read {rt['read']['lines_must_read']} lines in {rt['read']['files_must_read']} files",
                     "by": "human:" + ",".join(s["by"] for s in state["signatures"])})
     findings = []
     for f in report["judge"]["accepted"]:
         v = state["findings"].get(f["id"], {})
         findings.append({"id": f["id"], "citation": f"{f['file']}:{f['line_start']}", "verdict": v.get("verdict"),
                          "by": v.get("by"), "evidence": v.get("evidence")})
-    residual = [f"{f['id']} accepted as a known issue: {next(x['claim'] for x in report['judge']['accepted'] if x['id'] == f['id'])[:160]}"
+    residual = [f"{f['id']}: {next(x['claim'] for x in report['judge']['accepted'] if x['id'] == f['id'])}"
                 for f in findings if f["verdict"] == "accepted"]
-    residual += [f"{c['id']} {c['status']}: {c['claim'][:120]}" for c in tr["claims"] if c["status"] in ("UNVERIFIED", "CONTRADICTED")]
+    residual += [f"No test for: {c['claim'][:120]}" for c in tr["claims"] if c["status"] == "UNVERIFIED"]
+    residual += [f"Contradicted: {c['claim'][:120]}" for c in tr["claims"] if c["status"] == "CONTRADICTED"]
     if tr["execution"]["status"] != "PASS":
-        residual.append(f"Tests {tr['execution']['status']}: the change is signed without a test run")
+        residual.append("Signed without a passing test run")
     if state.get("summary_disabled"):
-        residual.append("Classifier escaped on this PR: summary mode was disabled and every file was read")
+        residual.append("The spot-check found a problem, so every file was read")
     h = hashlib.sha256((brief_text + ch["diff_sha"] + json.dumps(decisions, sort_keys=True)).encode()).hexdigest()
     return {
         "receipt_version": 1,
@@ -73,20 +75,23 @@ def build(report: dict, state: dict) -> dict:
 
 
 def markdown(rc: dict) -> str:
-    L = [f"# Accountability Receipt · {rc['requirement']}", "",
-         f"- Commit `{rc['commit_sha']}` on `{rc['branch']}` · tier **{rc['tier']}** · policy: {rc['policy']['source']}",
-         "- Signed by: " + ", ".join(f"{s['name']} (@{s['by']}, {s['at']})" for s in rc["signatures"]),
-         f"- Receipt hash: `{rc['hash']}`", "", "## Checked", ""]
-    L += [f"- {c['item']} — **{c['by']}**" for c in rc["checked"]]
-    L += ["", "## Not checked", ""] + [f"- {c['item']} — {c['why']}" for c in rc["not_checked"]]
-    L += ["", "## Decisions the AI left to a human", ""]
-    L += [f"- **{d['abstention']}** ({d['kind']}): `{d['option']}` by @{d['by']} — \"{d['reason']}\"" for d in rc["decisions"]] or ["- none"]
-    L += ["", "## Findings", ""]
-    L += [f"- {f['id']} `{f['citation']}`: **{f['verdict']}** by @{f['by']}" + (f" — {f['evidence']}" if f.get("evidence") else "")
-          for f in rc["findings"]] or ["- none"]
-    L += ["", "## Residual risk accepted", ""] + [f"- {x}" for x in rc["residual_risk_accepted"]]
-    L += ["", "*The PR comment can be edited; this receipt's hash is also in the check run output and in ledger/receipts/.*"]
-    return "\n".join(L) + "\n"
+    signers = ", ".join(f"{x['name']} (@{x['by']})" for x in rc["signatures"])
+    when = rc["signatures"][-1]["at"][:10] if rc["signatures"] else ""
+    L = [f"## Receipt · {rc['requirement']}", "",
+         f"Signed by **{signers}** on {when} · commit `{rc['commit_sha'][:10]}`  ",
+         f"Receipt hash `{rc['hash'][:16]}` (full hash in receipt.json)", ""]
+    machine = [c["item"] for c in rc["checked"] if c["by"] == "machine"]
+    people = [(c["item"], c["by"].split(":", 1)[1]) for c in rc["checked"] if c["by"].startswith("human:")]
+    L += ["**Checked by the machine**"] + [f"- {x}" for x in machine] + [""]
+    L += ["**Checked by people**"] + [f"- {x} (@{who})" for x, who in people] + [""]
+    if rc["decisions"]:
+        L += ["**Decisions**"] + [f"- {d['abstention']}: `{d['option']}`, by @{d['by']}: \"{d['reason']}\"" for d in rc["decisions"]] + [""]
+    if rc["findings"]:
+        L += ["**Findings**"] + [f"- {f['id']}: {f['verdict']} by @{f['by']}" + (f": \"{f['evidence']}\"" if f.get("evidence") else "")
+                                 for f in rc["findings"]] + [""]
+    L += ["**Not checked**"] + [f"- {c['item']}: {c['why']}" for c in rc["not_checked"]] + [""]
+    L += ["**Risk the signer accepts**"] + [f"- {x}" for x in rc["residual_risk_accepted"]] + [""]
+    return "\n".join(L)
 
 
 def write(rc: dict, run_dir: Path) -> None:
