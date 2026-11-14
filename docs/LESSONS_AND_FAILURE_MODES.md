@@ -109,3 +109,26 @@ Y", is invisible to it. The repository root is REVOKED because of one revert
 correct by the rule, and coarse. Modules are directories cut at three levels,
 so a REVOKED `src/MessagePack` does not make
 `src/MessagePack.SourceGenerator` REVOKED.
+
+## 10. The first real LLM runs (qwen3.8-27b on Vultr)
+
+- **Reasoning models answered nothing.** On the real prompt, three of the
+  models spent the whole answer budget in a hidden `reasoning` field and
+  returned an empty answer (`finish_reason: length`). They worked on a short test
+  prompt, so only the real prompt showed it. The brief now says *why* an answer
+  could not be read, and the request can carry per-model options.
+- **Our own cache bug.** The answer cache was keyed by the prompt only, so a
+  second model silently got the first model's (empty) answer. It is keyed by
+  model too now.
+- **The judge did its job.** First run: 10 accusations, 1 thrown out (it cited a
+  symbol that is not on that line). Second run: 9 accusations, none thrown out.
+  The model is not deterministic, which is why its answers are saved per commit.
+- **Real citation, wrong argument.** On #2297 the model said the attribute sits on
+  the nested class and not on the outer one; lines 15 (`ResolverTemplate.tt`) and
+  8 (`CompositeResolverTemplate.tt`) show the opposite. The judge keeps it,
+  because the citation is real, and a person refutes it. This is the limit we
+  name in the concept card, and the reason a human signs.
+- **It also agrees with the rules.** In both runs the model independently raised
+  findings the deterministic rules had already raised (P-SILENT-SKIP and
+  P-FIRST-WINS on #2234, SCOPE-1 on #2297); those show as "also raised by".
+

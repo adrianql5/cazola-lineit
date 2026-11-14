@@ -40,4 +40,7 @@ and why.
 | 2026-11-14 | Issues without written requirements: the AI proposes them (if configured) and a person confirms with `/requirements ok`; without AI, the person says what they checked | Refusing to review | Works on any repository, and the receipt still says where the requirements came from |
 | 2026-11-14 | `/explain <id>` answers from the stage data, no LLM | An LLM explanation | It cannot add anything the checks did not find |
 | 2026-11-14 | The dashboard is published with GitHub Pages on every push to main | A file in the repo | One public link that is always current |
+| 2026-11-14 | LLM: `qwen3.8-27b` on Vultr Serverless Inference, with thinking turned off (`LLM_EXTRA_BODY`) | `glm-5.3`, `glm-5.3-flash`, `deepseek-v4.1-flash-1017` | On the real prompt those three spent the whole answer budget (8,000 tokens) in a hidden reasoning field and returned no text; `qwen3.8-27b` answers in about 3 s with valid JSON |
+| 2026-11-14 | The LLM is called once per commit; comment runs reuse its answers, kept hidden in the brief | Calling it on every comment | Same findings on every comment (so `/accept LLM-2` keeps meaning the same thing), and no extra cost |
+| 2026-11-14 | AI findings are asked for in at most two short sentences, and cut in the brief with `/explain` for the rest | Showing the model's full text | The first real answers were paragraphs long |
 

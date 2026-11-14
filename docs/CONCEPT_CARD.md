@@ -89,6 +89,9 @@ precision) are in `dashboard/index.html`, and each one names its source.
   everything except the 5% sample.
 - **The trust ledger reads commit subjects.** A revert not called "revert",
   or a fix not called "fix", is invisible to it.
+- **The AI's arguments can be wrong even when its citations are right.** On
+  #2297 `qwen3.8-27b` claimed the attribute sits on the wrong class; the cited
+  lines show it does not. The judge keeps it, and a person refutes it.
 - **Small numbers.** Four real branches, 14 seeded defects and nine labelled
   findings. The labels were made by the build engineer (an AI) and must be
   re-labelled by a person before anyone quotes them.
