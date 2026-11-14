@@ -82,7 +82,8 @@ def chat(system: str, user: str, *, prompt_version: str, cache_dir: Path, offlin
         "max_tokens": int(os.environ.get("LLM_MAX_TOKENS", "3000")),  # keeps an answer from running on
         "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}],
     }, timeout=int(os.environ.get("LLM_TIMEOUT", "300")))
-    content = resp["choices"][0]["message"]["content"]
+    choice = resp["choices"][0]
+    content = choice["message"].get("content") or ""
     record = {
         "model": resp.get("model", model),
         "prompt_version": prompt_version,
@@ -90,6 +91,7 @@ def chat(system: str, user: str, *, prompt_version: str, cache_dir: Path, offlin
         "seconds": round(time.time() - t0, 2),
         "usage": resp.get("usage", {}),
         "content": content,
+        "finish_reason": choice.get("finish_reason"),
         "at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
     }
     cache_dir.mkdir(parents=True, exist_ok=True)

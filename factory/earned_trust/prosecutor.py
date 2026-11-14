@@ -172,7 +172,8 @@ def ask_llm(change: Change, classification: dict, offline: bool) -> tuple[list[d
     try:
         items = llm.extract_json(r["content"])
     except ValueError as e:
-        return [], {"status": "FAILED", "why": f"unparseable answer: {e}", "model": r["model"]}
+        return [], {"status": "FAILED", "model": r["model"],
+                    "why": f"unparseable answer ({e}; stopped because: {r.get('finish_reason')}): {r['content'][:200]!r}"}
     accs = []
     for i, a in enumerate(items if isinstance(items, list) else [], 1):
         accs.append({"id": f"LLM-{i}", "source": f"llm: {r['model']}", "category": "prosecution",
