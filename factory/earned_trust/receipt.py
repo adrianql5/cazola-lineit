@@ -51,6 +51,11 @@ def build(report: dict, state: dict) -> dict:
     residual += [f"Contradicted: {c['claim'][:120]}" for c in tr["claims"] if c["status"] == "CONTRADICTED"]
     if tr["execution"]["status"] != "PASS":
         residual.append("Signed without a passing test run")
+    sens = report.get("sensitivity") or {"zones": []}
+    signers = [x["by"] for x in state["signatures"]]
+    for z in sens["zones"]:
+        by = [x for x in signers if x in z["owners"]] or signers
+        residual.append(f"Critical ({z['name']}, {z['file']}:{z['line']}): signed by @{', @'.join(by)}")
     req = state.get("requirements")
     if tr.get("requirements_status", "written") != "written":
         if req and req["verdict"] == "wrong":
@@ -77,6 +82,9 @@ def build(report: dict, state: dict) -> dict:
         "checked": checked,
         "not_checked": report["not_checked"],
         "decisions": decisions,
+        "critical": [{"area": z["name"], "file": z["file"], "line": z["line"], "source": z["source"],
+                      "owners": z["owners"], "signed_by": [x for x in signers if x in z["owners"]] or signers}
+                     for z in sens["zones"]],
         "findings": findings,
         "residual_risk_accepted": residual,
         "events": state["events"],

@@ -8,8 +8,16 @@ signs for the change. The AI points at problems; a human decides and signs.
 
 1. Copy [`templates/earned-trust.yml`](templates/earned-trust.yml) to your
    repository's `.github/workflows/`.
-2. In *Settings → Branches*, make the check
-   `earned-trust/human-accountability-gate` required.
+2. Set up the merge gate once, as an owner of the repository:
+
+   ```sh
+   python3 factory/et.py protect --repo owner/name
+   ```
+
+   It adds a branch ruleset: the default branch takes changes only through
+   PRs, merged once `earned-trust/human-accountability-gate` is green, with no
+   bypass, admins included. `--branch B` protects another branch too;
+   `--dry-run` prints the ruleset and changes nothing.
 
 That's it. Every new PR gets a brief, its findings on their lines in
 *Files changed*, and a blocked check until someone signs.
@@ -25,6 +33,30 @@ one (any OpenAI-compatible endpoint), set these repository secrets:
 | `LLM_API_KEY` | Its API key |
 | `LLM_MODEL` | The model name |
 | `LLM_EXTRA_BODY` | Optional. Extra JSON for each request. For models that think out loud: `{"chat_template_kwargs": {"enable_thinking": false}}` |
+
+### Optional: settings for your repository
+
+Put a `.earned-trust.toml` at the root of the default branch. It is read from
+the PR's base branch, never from the PR, so a change can't loosen its own
+rules. Without it, the defaults (written for MessagePack-CSharp) apply.
+
+```toml
+[gate]
+merge_on_sign = true          # merge the PR as soon as it is signed
+
+[review]
+public_api = ['^src/MyLib/']  # a new `public` here forces a full read
+tests = ['(^|/)tests?/']
+
+[[critical]]                  # always read in full, signed by its owners
+name = "payments"
+paths = ['^src/payments/']
+owners = ["ana", "luis"]      # GitHub logins; empty = CODEOWNERS
+signatures = 2
+```
+
+Every setting and its default: [`factory/earned_trust/config.py`](factory/earned_trust/config.py).
+This repository's own: [`.earned-trust.toml`](.earned-trust.toml).
 
 ### Optional: workflow inputs
 
@@ -62,6 +94,12 @@ The brief lists what is left to do. When it is all done, `/sign` turns the
 check green and attaches a signed receipt. Only owners, members and
 collaborators of the repository can sign; some changes need two signatures.
 
+**Critical code** (moving money, credentials, deleting data, reading
+untrusted input) is always read in full, and only its owners can sign it. It is
+found from the `[[critical]]` areas you declare, from built-in patterns over
+the changed lines (deleted ones too), and from the AI, whose answers the
+judge checks. Each of these can only raise the level of review, never lower it.
+
 ## Run it locally
 
 Python 3 only, nothing to install.
@@ -74,6 +112,7 @@ Python 3 only, nothing to install.
 | `python3 factory/et.py cmd --branch B --as LOGIN "/accept LLM-1"` | Run a command on a review as LOGIN |
 | `python3 factory/et.py status --branch B` | Show what is left on a review |
 | `python3 factory/et.py test --branch B` | Run the tests a change adds (`dotnet`, or the .NET SDK image through Docker) |
+| `python3 factory/et.py protect --repo R [--branch B] [--dry-run]` | Set up the merge gate on a repository (needs admin rights) |
 | `python3 factory/et.py github --reset PR` | Start a PR's review again (earlier commands stop counting) |
 
 `python3 factory/et.py --help` lists the rest.

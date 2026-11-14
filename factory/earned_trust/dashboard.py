@@ -167,7 +167,7 @@ def live_section() -> list[str]:
          tile(rate(s["answers"]["rules"]), f"rule findings ({s['answers']['rules']['open']} still open)", "GitHub API"),
          tile(rate(s["answers"]["ai"]), f"AI findings ({s['answers']['ai']['open']} still open)", "GitHub API"),
          "</div>",
-         "<div class=scroll><table><tr><th>PR</th><th>Tier</th><th>Lines to a person</th><th>Findings (rules / AI)</th>"
+         "<div class=scroll><table><tr><th>PR</th><th>Tier</th><th>Critical</th><th>Lines to a person</th><th>Findings (rules / AI)</th>"
          "<th>Accepted / refuted</th><th>Gate</th><th>Brief → signature</th><th>Open → merge</th></tr>"]
     for r in d["prs"]:
         n_rules = sum(1 for f in r["findings"] if f["source"] == "rules")
@@ -176,10 +176,31 @@ def live_section() -> list[str]:
         ref = sum(1 for a in r["answers"] if a["verdict"] == "refuted")
         gate = "<span class=ok>signed</span>" if r["gate"] == "success" else "waiting"
         share = f"{r['lines_must_read']:,} of {r['lines_total']:,}" if r["lines_total"] else "—"
-        P.append(f"<tr><td><a href='{html.escape(r['url'])}'>#{r['pr']}</a> {html.escape(r['title'][:60])}</td><td>{r['tier']}</td>"
+        crit = html.escape(", ".join(r.get("critical", []))) or "—"
+        P.append(f"<tr><td><a href='{html.escape(r['url'])}'>#{r['pr']}</a> {html.escape(r['title'][:60])}</td><td>{r['tier']}</td><td>{crit}</td>"
                  f"<td class=num>{share}</td><td class=num>{n_rules} / {n_ai}</td><td class=num>{acc} / {ref}</td><td>{gate}</td>"
                  f"<td class=num>{fmt_min(r['minutes_to_sign'])}</td><td class=num>{fmt_min(r['minutes_to_merge'])}</td></tr>")
-    P += ["</table></div>",
+    lab = d.get("labels")
+    if lab:
+        a, rl = lab["ai"], lab["rules"]
+        pct = lambda x: "—" if x is None else f"{x:.0%}"
+        P += ["</table></div>",
+              "<h2 style='margin-top:20px'>Are the findings real?</h2>",
+              "<p class=desc>Each finding labelled after reading the cited code: real (the code does what the finding "
+              "says), false, or unclear. The judge only checks that a citation exists; this checks whether the argument "
+              "holds. Who labelled is under each number, and the labels must be checked by a person before being quoted.</p>",
+              "<div class=grid>",
+              tile(f"{rl['real']} of {rl['real'] + rl['false_positive']}", f"rule findings that are real ({pct(rl['precision'])})", "labels: " + rl["labelled_by"][:60]),
+              tile(f"{a['real']} of {a['real'] + a['false_positive']}", f"AI findings that are real ({pct(a['precision'])}); {a['unclear']} unclear", "labels: " + a["labelled_by"][:60]),
+              "</div>",
+              "<div class=scroll><table><tr><th>PR</th><th>Finding</th><th>Where</th><th>What the AI said</th><th>Label</th><th>Why</th></tr>"]
+        for f in a["findings"]:
+            cls = "ok" if f["label"] == "real" else ("no" if f["label"] == "false_positive" else "")
+            P.append(f"<tr><td>#{f['pr']}</td><td>{f['id']}</td><td><code>{html.escape(f['cite'])}</code></td>"
+                     f"<td>{html.escape(f['claim'])}</td><td class={cls}>{f['label'].replace('_', ' ')}</td><td>{html.escape(f['note'])}</td></tr>")
+        P += [f"</table></div><p class=desc style='margin-top:8px'>Model: {html.escape(a['model'])}. "
+              "On the PRs, reviewers' own answers (/accept, /refute) are counted in the table above.</p>"]
+    P += ["</table></div>" if not lab else "",
           f"<p class=desc style='margin-top:8px'>Spot-check escapes recorded in the trust ledger: {s['escapes']}. "
           "A rising number of escapes, or of reverts after signed merges, would mean shorter reviews are costing quality.</p>",
           chip(src), "</div>"]

@@ -76,6 +76,9 @@ def explain(r: dict) -> tuple[str, str]:
         return (f"{r.get('failed', 0)} test(s) failed.", "Open the test log (tests.json in the workflow artifact) and fix the failing tests.")
     if st == "NOT RUN":
         why = r.get("why", "")
+        if "never run by this review" in why:
+            return ("Tests are not run here: on pull requests to the default branch the review never runs the PR's code.",
+                    "See the PR's `ci` check for the repository's own tests.")
         if "adds no tests" in why:
             return "This change adds no tests.", "Add a test for each claim, or accept the risk when you sign."
         if "dotnet" in why or "docker" in why:

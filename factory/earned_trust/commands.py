@@ -106,11 +106,34 @@ def todo(report: dict, state: dict) -> list[dict]:
         out.append({"what": f"Answer {'finding' if len(open_) == 1 else 'findings'} {', '.join(open_)}",
                     "how": 'reply `/accept <id>` for each one that is real (`/accept all` for every one left), '
                            'or `/refute <id> "why"` if it is not'})
-    need = 2 if report["router"]["second_reviewer"] else 1
-    if len(state["signatures"]) < need:
-        who = "an owner" if need - len(state["signatures"]) == 1 and need == 1 else "a second owner"
-        out.append({"what": f"Signature from {who}", "how": 'reply `/sign "Your Full Name"`'})
+    need, groups = required_signatures(report)
+    signers = {x["by"] for x in state["signatures"]}
+    missing = [g for g in groups if not signers & set(g["owners"])]
+    for g in missing:
+        out.append({"what": f"Signature from an owner of {g['zone']} ({owners_text(g['owners'])})",
+                    "how": f'{owners_text(g["owners"])} replies `/sign "Full Name"`'})
+    extra = need - len(state["signatures"]) - len(missing)
+    if extra > 0:
+        if need == 1:
+            what = "Signature from an owner"
+        elif state["signatures"] or missing:
+            what = f"{extra} more signature{'s' if extra > 1 else ''} (each from a different person)"
+        else:
+            what = f"{need} signatures, each from a different person"
+        out.append({"what": what, "how": 'reply `/sign "Your Full Name"`'})
     return out
+
+
+def owners_text(owners: list[str]) -> str:
+    return " or ".join(f"@{o}" for o in owners)
+
+
+def required_signatures(report: dict) -> tuple[int, list[dict]]:
+    """How many distinct signatures, and for each critical area with owners,
+    one signature that must come from one of them."""
+    sens = report.get("sensitivity") or {"required": {"signatures": 1, "owner_groups": []}}
+    need = max(2 if report["router"]["second_reviewer"] else 1, sens["required"]["signatures"])
+    return need, sens["required"]["owner_groups"]
 
 
 def gate(report: dict, state: dict) -> dict:
@@ -249,6 +272,12 @@ def apply(report: dict, run_dir: Path, actor: str, text: str, *, at: str | None 
                            "Ask a maintainer to sign.")
         if any(x["by"] == actor for x in state["signatures"]):
             return state, f"@{actor} has already signed."
+        _, groups = required_signatures(report)
+        allowed_owners = sorted({o for g in groups for o in g["owners"]})
+        if allowed_owners and actor not in allowed_owners:
+            areas = ", ".join(sorted({g["zone"] for g in groups}))
+            return state, (f"@{actor} can't sign: this change touches a critical area ({areas}), and only its owners "
+                           f"can sign it: {owners_text(allowed_owners)}. Ask one of them to review and sign.")
         left = [i for i in todo(report, {**state, "signatures": state["signatures"] + [{"by": actor}]})
                 if not i["what"].startswith("Signature")]
         if left:

@@ -15,12 +15,12 @@ from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import PurePosixPath
 
+from . import config
 from .gitdiff import FileDiff
 from .sources import Change
 
 ENGINE = "heuristic: diff shape + text within each shape + regex rules (Roslyn classifier not used)"
 
-SNAPSHOT_RE = re.compile(r"^tests/.*/Resources/.*\.g\.cs$")
 
 CS_KEYWORDS = set("""
 abstract as base bool break byte case catch char checked class const continue decimal default delegate do
@@ -40,21 +40,28 @@ class Rule:
     added: str
 
 
-# Each one forces T2: a human reads the whole change, whatever else it is.
-T2_RULES = [
-    Rule("T2-PUBLIC-API", "new public type or member in a published package (MessagePack, MessagePack.Annotations)",
-         r"^src/MessagePack(\.Annotations)?/", r"^\s*public\s+(?!override\b)"),
-    Rule("T2-ANALYZER-SEVERITY", "new or changed analyzer rule severity: it can break users' builds",
-         r"AnalyzerReleases\.(Un)?[Ss]hipped\.md$", r"\|\s*(Error|Warning|Info)\s*\|"),
-    Rule("T2-ANALYZER-SEVERITY", "new or changed analyzer rule severity: it can break users' builds",
-         r"^src/", r"DiagnosticSeverity\.Error"),
-    Rule("T2-TEST-EXCLUSION", "tests excluded from a test project: evidence that silently stops running",
-         r"^tests/.*\.csproj$", r"Exclude=|Remove="),
-    Rule("T2-UNSAFE", "unsafe code, Marshal or Reflection.Emit",
-         r"^src/", r"\bunsafe\b|\bMarshal\.|Reflection\.Emit|\bDynamicMethod\b|\bILGenerator\b"),
-    Rule("T2-SERIALIZATION-CONTRACT", "changes how members map to the wire format by default",
-         r"^src/", r"(?i)contractless|wire contract|using its name as a string key"),
-]
+def matches(patterns: list[str], path: str) -> bool:
+    return any(re.search(p, path) for p in patterns)
+
+
+def t2_rules() -> list[tuple[Rule, list[str]]]:
+    """Each one forces T2: a person reads the whole change, whatever else it is.
+    Where each applies comes from the repository's settings (config.py)."""
+    r = config.get()["review"]
+    return [
+        (Rule("T2-PUBLIC-API", "new public type or member in a published package", "", r"^\s*public\s+(?!override\b)"),
+         r["public_api"]),
+        (Rule("T2-ANALYZER-SEVERITY", "new or changed analyzer rule severity: it can break users' builds", "",
+              r"\|\s*(Error|Warning|Info)\s*\|"), r["analyzer_releases"]),
+        (Rule("T2-ANALYZER-SEVERITY", "new or changed analyzer rule severity: it can break users' builds", "",
+              r"DiagnosticSeverity\.Error"), r["source"]),
+        (Rule("T2-TEST-EXCLUSION", "tests excluded from a test project: evidence that silently stops running", "",
+              r"Exclude=|Remove="), r["test_projects"]),
+        (Rule("T2-UNSAFE", "unsafe code, Marshal or Reflection.Emit", "",
+              r"\bunsafe\b|\bMarshal\.|Reflection\.Emit|\bDynamicMethod\b|\bILGenerator\b"), r["source"]),
+        (Rule("T2-SERIALIZATION-CONTRACT", "changes how members map to the wire format by default", "",
+              r"(?i)contractless|wire contract|using its name as a string key"), r["source"]),
+    ]
 
 
 def normalize(text: str) -> str:
@@ -103,15 +110,16 @@ def t4_consistent(cs: FileDiff, tt: FileDiff) -> tuple[bool, list[str]]:
 
 def category(f: FileDiff, paths: set[str], files: dict[str, FileDiff]) -> tuple[str, str]:
     p = f.path
-    if re.search(r"AnalyzerReleases\.", p):
+    r = config.get()["review"]
+    if matches(r["analyzer_releases"], p):
         return "public-contract", "analyzer release notes: the shipped rule list and severities"
     if p.endswith(".md") or p.startswith("doc/"):
         return "docs", "documentation"
-    if SNAPSHOT_RE.match(p):
-        return "mechanical", "generated test snapshot (.g.cs under tests/**/Resources)"
-    if p.startswith("tests/") and p.endswith(".csproj"):
+    if matches(r["generated"], p):
+        return "mechanical", "generated file (review.generated in the settings): checked as a pattern"
+    if matches(r["test_projects"], p):
         return "test", "test project file"
-    if p.startswith("tests/"):
+    if matches(r["tests"], p):
         return "test", "test code"
     tt = t4_twin(f, paths)
     if tt:
@@ -119,9 +127,9 @@ def category(f: FileDiff, paths: set[str], files: dict[str, FileDiff]) -> tuple[
         if ok:
             return "mechanical", f"T4 output of {tt} (in this diff, read by a human); every added identifier comes from it"
         return "semantic", f"generated from {tt}, but adds identifiers its template does not: {', '.join(stray[:3])}"
-    for r in T2_RULES:
-        if r.id == "T2-PUBLIC-API" and re.search(r.paths, p) and any(re.search(r.added, l.text) for l in f.added_lines()):
-            return "public-contract", r.why
+    for rule, where in t2_rules():
+        if rule.id == "T2-PUBLIC-API" and matches(where, p) and any(re.search(rule.added, l.text) for l in f.added_lines()):
+            return "public-contract", rule.why
     return "semantic", "source code"
 
 
@@ -141,8 +149,8 @@ def residue(f: FileDiff, pattern: set[str]) -> dict:
 def triggers(change: Change) -> list[dict]:
     out = []
     for f in change.files:
-        for r in T2_RULES:
-            if not re.search(r.paths, f.path):
+        for r, where in t2_rules():
+            if not matches(where, f.path):
                 continue
             for l in f.added_lines():
                 if re.search(r.added, l.text):
@@ -165,7 +173,8 @@ def run(change: Change, content_check: bool = True) -> dict:
         files.append({"path": f.path, "category": cat, "reason": why, "added": f.added, "deleted": f.deleted, "status": f.status})
 
     # Pattern detection over the snapshots: group by shape, flag what doesn't fit.
-    snaps = [by_path[x["path"]] for x in files if x["category"] == "mechanical" and SNAPSHOT_RE.match(x["path"])]
+    generated = config.get()["review"]["generated"]
+    snaps = [by_path[x["path"]] for x in files if x["category"] == "mechanical" and matches(generated, x["path"])]
     groups: dict[tuple, list[FileDiff]] = defaultdict(list)
     for f in snaps:
         groups[file_shape(f)].append(f)

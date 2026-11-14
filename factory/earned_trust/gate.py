@@ -9,7 +9,7 @@ from __future__ import annotations
 import math
 import random
 
-from . import ledger
+from . import config, ledger
 from .sources import Change
 
 # --- 5. Abstention Gate ----------------------------------------------------
@@ -22,16 +22,38 @@ WHO = {
     "security": "a security reviewer",
     "ambiguous-requirement": "the issue author and the maintainers",
     "analyzer-severity": "the analyzer maintainers: a new Error breaks users' builds on upgrade",
+    "critical-operation": "the owners of that area",
+    "critical-untested": "the owners of that area",
 }
 
 
-def abstentions(change: Change, cl: dict, trace: dict, judged: dict) -> list[dict]:
+def abstentions(change: Change, cl: dict, trace: dict, judged: dict, sens: dict | None = None) -> list[dict]:
     out = []
 
-    def add(kind, decision, why, missing, options, cite):
+    def add(kind, decision, why, missing, options, cite, who=None):
         out.append({"id": f"ABS-{len(out) + 1}", "status": "ABSTAINED", "kind": kind, "decision": decision,
-                    "why_not_ai": why, "missing_evidence": missing, "who_decides": WHO[kind],
+                    "why_not_ai": why, "missing_evidence": missing, "who_decides": who or WHO[kind],
                     "options": options, "cite": cite})
+
+    # Critical operations first: they are the decisions that matter most.
+    sens = sens or {"zones": [], "escalations": []}
+    seen = set()
+    for z in sens["zones"]:
+        if z["name"] in seen:
+            continue
+        seen.add(z["name"])
+        who = ("@" + " or @".join(z["owners"])) if z["owners"] else "the owners of that code (no owner is declared for it)"
+        removed = " (a line removed)" if z.get("removed") else ""
+        add("critical-operation", f"This change touches {z['name']} at `{z['file'].rsplit('/', 1)[-1]}:{z['line']}`{removed}. Is its behaviour correct?",
+            f"It is critical because {z['why']}. The AI does not judge whether critical logic is right; its owner does.",
+            ["the owner's reading of the code", "a test that covers this behaviour"], ["approve", "request-changes"],
+            f"{z['file']}:{z['line']}", who)
+    if any(e["rule"] == "CRITICAL-UNTESTED" for e in sens["escalations"]):
+        z = sens["zones"][0]
+        add("critical-untested", "This critical change has no passing test run. Merge it anyway?",
+            "Accepting critical code without tests is a risk only its owner can take.",
+            ["a passing run of tests that cover the critical lines"], ["merge-without-tests", "wait-for-tests"],
+            f"{z['file']}:{z['line']}", ("@" + " or @".join(z["owners"])) if z["owners"] else None)
 
     trig = {}
     for t in cl["triggers"]:
@@ -82,13 +104,20 @@ def abstentions(change: Change, cl: dict, trace: dict, judged: dict) -> list[dic
 
 # --- 6. Risk Router --------------------------------------------------------
 
-def route(change: Change, cl: dict, trust: dict, abst: list[dict]) -> dict:
+def route(change: Change, cl: dict, trust: dict, abst: list[dict], sens: dict | None = None) -> dict:
+    sens = sens or {"zones": [], "escalations": [], "files": []}
     files = {f["path"]: f for f in cl["files"]}
     states = ledger.states_for(list(files), trust)
     reasons = []
     t2 = sorted({t["rule"] for t in cl["triggers"]})
     semantic = [p for p, f in files.items() if f["category"] in ("semantic", "public-contract")]
-    if t2:
+    if sens["zones"]:
+        tier = "T2"
+        names = sorted({z["name"] for z in sens["zones"]})
+        reasons.append(f"critical operation: {', '.join(names)}")
+        reasons += [f"{r}: {next(t['why'] for t in cl['triggers'] if t['rule'] == r)}" for r in t2]
+        reasons += [e["why"] for e in sens["escalations"]]
+    elif t2:
         tier = "T2"
         reasons += [f"{r}: {next(t['why'] for t in cl['triggers'] if t['rule'] == r)}" for r in t2]
     elif semantic or abst:
@@ -125,7 +154,7 @@ def route(change: Change, cl: dict, trust: dict, abst: list[dict]) -> dict:
     hidden, must = [], []
     for p, f in files.items():
         st = states[p]["state"]
-        if f["category"] == "mechanical" and st != "REVOKED":
+        if f["category"] == "mechanical" and st != "REVOKED" and p not in sens["files"]:  # critical files are never hidden
             hidden.append(p)
         elif tier == "T2" or f["category"] in ("semantic", "public-contract", "docs", "mechanical") or p.endswith(".csproj"):
             must.append(p)
@@ -143,7 +172,8 @@ def route(change: Change, cl: dict, trust: dict, abst: list[dict]) -> dict:
 
 # --- 7. Spot-check sampler -------------------------------------------------
 
-def sample(change: Change, hidden: list[str], rate: float = 0.05) -> dict:
+def sample(change: Change, hidden: list[str], rate: float | None = None) -> dict:
+    rate = config.get()["review"]["sample_rate"] if rate is None else rate
     pop = sorted(hidden)
     if not pop:
         return {"stage": "sampler", "population": 0, "sample": [], "seed": None,

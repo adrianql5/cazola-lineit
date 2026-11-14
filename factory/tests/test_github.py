@@ -17,6 +17,7 @@ class FakeGitHub:
     def __init__(self, comments):
         self.comments = comments
         self.posted, self.checks, self.reviews, self.replies, self.reactions = [], [], [], [], []
+        self.merges, self.dispatches, self.settings = [], [], None
         self.diff = sources.load("ju26-issue-2283").diff_text
 
     def __call__(self, method, path, body=None, accept=""):
@@ -41,6 +42,19 @@ class FakeGitHub:
             return PR
         if "/commits/" in path:
             return {"commit": {"committer": {"date": COMMIT_AT}}}
+        if "/contents/.earned-trust.toml" in path:
+            if self.settings is None:
+                raise RuntimeError("404")
+            import base64
+            return {"content": base64.b64encode(self.settings.encode()).decode()}
+        if path.endswith("/merge"):
+            self.merges.append(body)
+            return {"merged": True}
+        if path.endswith("/dispatches"):
+            self.dispatches.append(path)
+            return {}
+        if path == "/repos/me/mp":
+            return {"default_branch": "main"}
         if path.endswith("/check-runs"):
             self.checks.append(body)
             return {}
@@ -60,8 +74,9 @@ def comment(login, text, at, assoc="OWNER"):
 
 
 class GitHubActionTests(unittest.TestCase):
-    def run_event(self, name, event, comments):
+    def run_event(self, name, event, comments, settings=None):
         fake = FakeGitHub(comments)
+        fake.settings = settings
         with tempfile.TemporaryDirectory() as d:
             ev = Path(d) / "event.json"
             ev.write_text(json.dumps(event))
@@ -171,6 +186,29 @@ class GitHubActionTests(unittest.TestCase):
         self.assertIn("Earned-Trust review", fake.posted[0])
         self.assertTrue(fake.reviews and fake.reviews[0]["comments"])
         self.assertEqual(fake.checks[-1]["conclusion"], "action_required")
+        self.assertIn("never runs the PR's code", fake.posted[0])
+
+
+    def signed_with(self, settings):
+        comments = [comment("owner", '/decide ABS-1 narrow-to-metadata-types "x"\n/accept P-GLOBAL-WRAP\n/sign "The Owner"',
+                            "2026-11-14T10:05:00Z")]
+        pr = {**PR, "base": {"ref": "main"}, "state": "open"}
+        with unittest.mock.patch.dict(PR, pr):
+            return self.run_event("issue_comment", {"issue": {"number": 7, "pull_request": {}}, "comment": comments[0]},
+                                  comments, settings=settings)
+
+    def test_signing_merges_when_the_base_branch_settings_ask_for_it(self):
+        fake = self.signed_with('[gate]\nmerge_on_sign = true\nmerge_method = "squash"\n')
+        self.assertEqual(fake.checks[-1]["conclusion"], "success")
+        self.assertEqual(fake.merges[0]["merge_method"], "squash")
+        self.assertIn("signed by The Owner", fake.merges[0]["commit_title"])
+        self.assertEqual(fake.dispatches, ["/repos/me/mp/actions/workflows/ci.yml/dispatches"])
+        self.assertIn("Merged into `main`", fake.posted[-1])
+
+    def test_signing_does_not_merge_by_default(self):
+        fake = self.signed_with(None)  # no settings file: the defaults, merge_on_sign = false
+        self.assertEqual(fake.checks[-1]["conclusion"], "success")
+        self.assertEqual(fake.merges, [])
 
 
 if __name__ == "__main__":

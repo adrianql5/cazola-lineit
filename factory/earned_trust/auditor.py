@@ -37,7 +37,8 @@ def run(change: Change, classification: dict, trace: dict) -> dict:
     findings = []
 
     out_of_scope = []
-    for f in change.files:
+    # without requirements there is nothing to measure scope against: no scope findings
+    for f in (change.files if terms else []):
         c = cats[f.path]
         if c["category"] not in ("semantic", "public-contract") or c.get("group_role") == "outlier":
             continue
