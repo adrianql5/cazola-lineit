@@ -36,6 +36,7 @@ MARK = "<!-- earned-trust-brief -->"
 EVIDENCE = re.compile(r"<!-- earned-trust-evidence (.*?) -->", re.S)
 LLM_ANSWERS = re.compile(r"<!-- earned-trust-llm (.*?) -->", re.S)
 METRICS = re.compile(r"<!-- earned-trust-metrics (.*?) -->", re.S)
+RESET_MARK = "<!-- earned-trust-reset -->"
 
 
 def finding_source(f: dict) -> str:
@@ -236,12 +237,21 @@ def reply_to(repo: str, number: int, comment: dict, kind: str, replies: list[str
         gh("POST", f"/repos/{repo}/issues/{number}/comments", {"body": f"{quote}\n\n{text}"})
 
 
-def main(target: str | None) -> int:
-    event = json.loads(Path(os.environ["GITHUB_EVENT_PATH"]).read_text())
-    name = os.environ["GITHUB_EVENT_NAME"]
+def main(target: str | None, reset_pr: int | None = None) -> int:
+    """RESET_PR: start a PR's review again (for repeated demos). A marker
+    comment makes every command written before it stop counting; nothing is
+    deleted, and the saved LLM answers are reused, so the findings stay the same."""
+    name = os.environ.get("GITHUB_EVENT_NAME", "")
     repo = os.environ["GITHUB_REPOSITORY"]
+    event = json.loads(Path(os.environ["GITHUB_EVENT_PATH"]).read_text()) if not reset_pr else {}
     trigger, trigger_kind = None, None
-    if name in ("issue_comment", "pull_request_review_comment"):
+    if reset_pr:
+        pr = gh("GET", f"/repos/{repo}/pulls/{reset_pr}")
+        gh("POST", f"/repos/{repo}/issues/{reset_pr}/comments",
+           {"body": f"{RESET_MARK}\n🔄 **Review restarted.** Commands written before this comment no longer count; "
+                    "the findings stay the same. Reply to the brief above to review and sign again."})
+        target = None
+    elif name in ("issue_comment", "pull_request_review_comment"):
         if name == "issue_comment" and "pull_request" not in event["issue"]:
             print("not a pull request comment")
             return 0
@@ -272,19 +282,22 @@ def main(target: str | None) -> int:
     mine = next((c for c in comments if MARK in (c.get("body") or "")), None)
     llm_cache = sources.CACHE / change.branch / "llm"
     shutil.rmtree(llm_cache, ignore_errors=True)
-    if trigger:
+    reuse = trigger is not None or reset_pr is not None
+    if reuse:
         restore_llm(mine["body"] if mine else "", sha, llm_cache)
     ev = evidence(change, run_dir, Path(target).resolve() if target else None, mine["body"] if mine else "")
     if ev:
         (run_dir / "tests.json").write_text(json.dumps(ev, indent=1))
 
     # on comment runs, only the saved answers count: offline=True never calls the LLM again
-    report = pipeline.review(change, offline=bool(trigger) or not llm.configured(), run_dir=run_dir)
+    report = pipeline.review(change, offline=reuse or not llm.configured(), run_dir=run_dir)
 
     # Replay the PR's slash commands (PR comments and line comments) written since its last commit.
     commit_at = gh("GET", f"/repos/{repo}/commits/{sha}")["commit"]["committer"]["date"]
     st = commands.load(run_dir)
-    st["published_at"] = max(mine["created_at"], commit_at) if mine else commit_at
+    resets = [c["created_at"] for c in comments if RESET_MARK in (c.get("body") or "")]
+    reset_at = max(resets) if resets else None
+    st["published_at"] = max([x for x in (mine["created_at"] if mine else None, commit_at, reset_at) if x])
     commands.save(run_dir, st)
     log, mine_replies = [], []
     for c in sorted(comments + rcomments, key=lambda c: c["created_at"]):
@@ -295,6 +308,8 @@ def main(target: str | None) -> int:
         if not lines:
             continue
         is_trigger = trigger is not None and c["id"] == trigger["id"]
+        if reset_at and ts(c["created_at"]) < ts(reset_at):
+            continue  # before the latest restart of the review
         if ts(c["created_at"]) < ts(commit_at):
             msg = "Ignored: this was written before the latest commit, and a new commit starts a new review. Please send it again."
             log.append(f"- @{c['user']['login']}: {msg}")

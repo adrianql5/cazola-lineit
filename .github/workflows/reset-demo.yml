@@ -1,0 +1,29 @@
+# Run by hand (Actions > reset demo PR > Run workflow) between demos: the PR's
+# review starts again. A marker comment makes earlier commands stop counting
+# (nothing is deleted), the gate goes back to "action required", and the saved
+# AI answers are reused, so the findings stay the same.
+name: reset demo PR
+
+on:
+  workflow_dispatch:
+    inputs:
+      pr:
+        description: Pull request number
+        required: true
+        default: "8"
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+  checks: write
+
+jobs:
+  reset:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Start the review again
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python3 factory/et.py github --reset "${{ inputs.pr }}"

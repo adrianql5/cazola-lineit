@@ -107,5 +107,24 @@ class GitHubActionTests(unittest.TestCase):
         self.assertIn("Who raised it", fake.replies[-1])
 
 
+    def test_reset_makes_earlier_commands_stop_counting(self):
+        signed = [
+            comment("owner", '/decide ABS-1 narrow-to-metadata-types "x"\n/accept P-GLOBAL-WRAP\n/sign "The Owner"', "2026-11-14T10:05:00Z"),
+            {**comment("github-actions", github.RESET_MARK + "\nrestarted", "2026-11-14T10:30:00Z", assoc="NONE"),
+             "user": {"login": "github-actions[bot]", "type": "Bot"}},
+        ]
+        fake = FakeGitHub(signed)
+        with tempfile.TemporaryDirectory() as d:
+            env = {"GITHUB_EVENT_NAME": "workflow_dispatch", "GITHUB_REPOSITORY": "me/mp", "GITHUB_TOKEN": "t", "ET_LEDGER_DIR": d}
+            with unittest.mock.patch.object(github, "gh", fake), \
+                    unittest.mock.patch.object(pipeline, "RUNS", Path(d) / "runs"), \
+                    unittest.mock.patch.dict(os.environ, env):
+                github.main(None, reset_pr=7)
+        self.assertTrue(any(github.RESET_MARK in p for p in fake.posted))  # the marker comment
+        self.assertEqual(fake.checks[-1]["conclusion"], "action_required")
+        brief = next(p for p in reversed(fake.posted) if github.MARK in p)
+        self.assertIn("To merge, reply to this PR with", brief)
+
+
 if __name__ == "__main__":
     unittest.main()
