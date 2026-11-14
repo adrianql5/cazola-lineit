@@ -139,5 +139,13 @@ class GitHubActionTests(unittest.TestCase):
             self.assertEqual(llm.chat("S", "U", prompt_version="v", cache_dir=cache, offline=True)["content"], "[]")
 
 
+    def test_pull_request_target_reviews_without_the_prs_code(self):
+        # PRs to main from forks: no checkout (target is None), still the brief, the line comments and the gate
+        fake = self.run_event("pull_request_target", {"pull_request": PR}, [])
+        self.assertIn("Earned-Trust review", fake.posted[0])
+        self.assertTrue(fake.reviews and fake.reviews[0]["comments"])
+        self.assertEqual(fake.checks[-1]["conclusion"], "action_required")
+
+
 if __name__ == "__main__":
     unittest.main()

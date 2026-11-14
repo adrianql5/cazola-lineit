@@ -349,7 +349,7 @@ def main(target: str | None, reset_pr: int | None = None) -> int:
         gh("PATCH", f"/repos/{repo}/issues/comments/{mine['id']}", {"body": body})
     else:
         gh("POST", f"/repos/{repo}/issues/{number}/comments", {"body": body})
-    if name == "pull_request":
+    if name in ("pull_request", "pull_request_target"):
         inline_findings(repo, number, sha, report, rcomments)
     if trigger and mine_replies:
         reply_to(repo, number, trigger, trigger_kind, mine_replies)

@@ -1,0 +1,21 @@
+# The review on pull requests to main, from forks too, as soon as they are
+# opened. pull_request_target runs this file as it is on main, with the
+# secrets, so a fork's PR gets the LLM review without anyone approving it.
+# Safe because the reusable workflow never checks out or runs the PR's code on
+# this event: it reads the diff through the API and runs the factory from main.
+name: earned-trust (PRs to main)
+
+on:
+  pull_request_target:
+    branches: [main]   # the example PRs to ju26-base have their own workflow there
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+  checks: write
+
+jobs:
+  earned-trust:
+    uses: ./.github/workflows/earned-trust.yml
+    secrets: inherit
