@@ -48,7 +48,18 @@ open runs/ju26-issue-2297/brief.md     # the brief of the 237-file change
 | `/accept <id>` · `/refute <id> "<why>"` | This finding is real · it isn't, because… |
 | `/requirements ok "<what I checked>"` | Only when the issue has no written requirements |
 | `/explain <id>` | Tell me more about a finding, decision or claim |
+<<<<<<< Updated upstream
 | `/sign "<Full Name>"` | I take responsibility for this change (write access needed) |
+=======
+| `/decide <ABS-id> <option> "why"` | My call on something the AI won't decide (public API, wire format, compatibility, security) |
+| `/spotcheck clean "<a line from a sample file>"` | I opened the sample files and they look fine. The quoted line proves I opened one |
+| `/spotcheck escape "what looks wrong"` | Something slipped through: read every file in full from now on |
+| `/requirements ok "what I checked"` | The PR does what the issue asks (only asked when the issue has no written requirements) |
+| `/requirements wrong "what is missing"` | It doesn't |
+| `/verify "answer"` | Optional answer to the question on changes that need a full read |
+| `/sign "Full Name"` | I take responsibility for this change |
+| `/sign` | The same, with the name on your GitHub profile |
+>>>>>>> Stashed changes
 
 ## Put it on a repository
 

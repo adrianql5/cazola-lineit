@@ -108,7 +108,7 @@ def todo(report: dict, state: dict) -> list[dict]:
     need = 2 if report["router"]["second_reviewer"] else 1
     if len(state["signatures"]) < need:
         who = "an owner" if need - len(state["signatures"]) == 1 and need == 1 else "a second owner"
-        out.append({"what": f"Signature from {who}", "how": 'reply `/sign "Your Full Name"`'})
+        out.append({"what": f"Signature from {who}", "how": 'reply `/sign "Your Full Name"` (on GitHub, `/sign` alone uses the name on your profile)'})
     return out
 
 

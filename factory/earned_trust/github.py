@@ -22,6 +22,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import shlex
 import shutil
 import time
 import urllib.request
@@ -160,6 +161,25 @@ LEDGER_MARK = "<!-- earned-trust-ledger -->"
 FINDING_MARK = "<!-- earned-trust-finding {id} {sha} -->"
 
 
+def profile_name(login: str, seen: dict[str, str | None]) -> str | None:
+    """The name on LOGIN's GitHub profile, or None when it has none."""
+    if login not in seen:
+        try:
+            seen[login] = (gh("GET", f"/users/{login}").get("name") or "").strip() or None
+        except OSError:
+            seen[login] = None
+    return seen[login]
+
+
+def with_name(line: str, login: str, seen: dict[str, str | None]) -> str | None:
+    """A bare `/sign` signs with the name on the GitHub profile. None when the
+    profile has no name, so the signer must write it."""
+    if line.strip().lower() != "/sign":
+        return line
+    name = profile_name(login, seen)
+    return f"/sign {shlex.quote(name)}" if name else None
+
+
 def review_comments(repo: str, number: int) -> list[dict]:
     out, page = [], 1
     while True:
@@ -286,7 +306,7 @@ def main(target: str | None) -> int:
     st = commands.load(run_dir)
     st["published_at"] = max(mine["created_at"], commit_at) if mine else commit_at
     commands.save(run_dir, st)
-    log, mine_replies = [], []
+    log, mine_replies, names = [], [], {}
     for c in sorted(comments + rcomments, key=lambda c: c["created_at"]):
         body = c.get("body") or ""
         if c["user"]["type"] == "Bot" or MARK in body or "earned-trust-finding" in body:
@@ -303,7 +323,12 @@ def main(target: str | None) -> int:
             continue
         for l in lines:
             ok = c["author_association"] in SIGNERS
-            _, reply = commands.apply(report, run_dir, c["user"]["login"], l, at=c["created_at"], can_sign=ok)
+            signed_as = with_name(l, c["user"]["login"], names)
+            if signed_as is None:
+                reply = "Your GitHub profile has no name, so write it: `/sign \"Your Full Name\"`."
+            else:
+                l = signed_as
+                _, reply = commands.apply(report, run_dir, c["user"]["login"], l, at=c["created_at"], can_sign=ok)
             if not l.lower().startswith("/explain"):
                 log.append(f"- @{c['user']['login']}: `{l[:70]}`  \n  {reply}")
             if is_trigger:
