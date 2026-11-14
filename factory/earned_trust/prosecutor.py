@@ -163,8 +163,11 @@ def numbered(change: Change, classification: dict, limit: int = 60000) -> str:
 
 
 def ask_llm(change: Change, classification: dict, offline: bool) -> tuple[list[dict], dict]:
+    diff = numbered(change, classification)
+    if not diff:
+        return [], {"status": "SKIPPED", "why": "this PR changes no code or tests, so there is nothing to ask it"}
     user = (f"Issue #{change.issue}: {change.issue_title}\n\n{change.issue_body[:3000]}\n\n"
-            f"Commit: {change.subject}\n\nDiff (semantic files only):\n{numbered(change, classification)}")
+            f"Commit: {change.subject}\n\nDiff (semantic files only):\n{diff}")
     cache = FACTORY / "cache" / change.branch / "llm"
     try:
         r = llm.chat(SYSTEM, user, prompt_version=PROMPT_VERSION, cache_dir=cache, offline=offline)

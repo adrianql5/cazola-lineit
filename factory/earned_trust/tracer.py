@@ -197,9 +197,15 @@ def propose(change: Change, offline: bool) -> tuple[list[dict], str]:
     return reqs, f"proposed by {r['model']}"
 
 
-def run(change: Change, run_dir: Path, facts: list[dict] | None = None, offline: bool = True) -> dict:
+def run(change: Change, run_dir: Path, facts: list[dict] | None = None, offline: bool = True,
+        docs_only: bool = False) -> dict:
+    """DOCS_ONLY: the PR changes documentation only, so there are no requirements
+    to confirm, no tests to run and no code for its docs' claims to match."""
     req_file = FACTORY / "requirements" / f"{change.issue}.json"
-    if req_file.exists():
+    if docs_only:
+        spec = {"requirements": [], "alternatives": []}
+        req_status, req_note = "not needed", "the PR changes documentation only"
+    elif req_file.exists():
         spec = json.loads(req_file.read_text())
         req_status, req_note = "written", spec.get("curated_by", "")
     else:
@@ -207,7 +213,8 @@ def run(change: Change, run_dir: Path, facts: list[dict] | None = None, offline:
         spec = {"requirements": proposed, "alternatives": []}
         req_status, req_note = ("proposed", why) if proposed else ("missing", why)
     tests = test_methods(change)
-    exe = execution(change, run_dir)
+    exe = ({"status": "NOT NEEDED", "why": "the PR changes documentation only"} if docs_only
+           else execution(change, run_dir))
     names = diagnostic_names(change)
     facts = facts or []
     rows = []
@@ -222,7 +229,7 @@ def run(change: Change, run_dir: Path, facts: list[dict] | None = None, offline:
         rows.append({"id": r["id"], "kind": r["kind"], "claim": r["text"], "quote": r.get("quote", ""),
                      "implementation": impl, "tests": cov, "execution": exe["status"],
                      "contradictions": contra, "status": st, "why": why})
-    for i, c in enumerate(doc_claims(change, names), 1):
+    for i, c in enumerate([] if docs_only else doc_claims(change, names), 1):
         cov = matching_tests(c["tokens"], tests)
         contra = []
         for fact in facts:

@@ -126,6 +126,13 @@ class AnyIssueTests(unittest.TestCase):
             state, _ = commands.apply(rep, Path(d), "demo-owner", '/requirements ok "compared with the issue"')
             self.assertNotIn("Say what this PR must do", [t["what"] for t in commands.todo(rep, state)])
 
+    def test_reqs_is_short_for_requirements(self):
+        with tempfile.TemporaryDirectory() as d, unittest.mock.patch.dict("os.environ", {"ET_LEDGER_DIR": d}):
+            rep = pipeline.review(self.change(), use_llm=False, run_dir=Path(d))
+            state, msg = commands.apply(rep, Path(d), "demo-owner", '/reqs ok "compared with the issue"')
+            self.assertEqual(msg, "Requirements confirmed.")
+            self.assertEqual(state["requirements"]["verdict"], "ok")
+
     def test_the_ai_proposes_requirements_for_a_person_to_confirm(self):
         from earned_trust import llm
         answer = {"model": "fake-model", "prompt_version": "t", "input_sha256": "0", "cached": False, "content": '[{"text": "No crash", "quote": "It crashes.", '
@@ -172,3 +179,38 @@ class GateTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+README_PATCH = """diff --git a/README.md b/README.md
+index 1..2 100644
+--- a/README.md
++++ b/README.md
+@@ -1,2 +1,2 @@
+ # Project
+-Old words.
++Run `make demo` to try `/accept` on a PR.
+"""
+
+
+class DocsOnlyTests(unittest.TestCase):
+    def change(self):
+        return sources.make("pr-docs", {"issue": 0, "sha": "c" * 40, "subject": "README", "author": "x"},
+                            {"title": "", "body": "", "url": ""}, README_PATCH, "test")
+
+    def test_a_docs_only_pr_asks_only_for_a_signature(self):
+        with tempfile.TemporaryDirectory() as d, unittest.mock.patch.dict("os.environ", {"ET_LEDGER_DIR": d}):
+            rep = pipeline.review(self.change(), use_llm=False, run_dir=Path(d))
+            tr = rep["tracer"]
+            self.assertEqual((tr["requirements_status"], tr["execution"]["status"], tr["claims"]),
+                             ("not needed", "NOT NEEDED", []))
+            self.assertEqual([t["what"] for t in commands.todo(rep, commands.load(Path(d)))], ["Signature from an owner"])
+            self.assertNotIn("Tests", [x["item"] for x in rep["not_checked"]])
+            _, msg = commands.apply(rep, Path(d), "demo-owner", '/requirements ok "x"')
+            self.assertIn("documentation only", msg)
+
+    def test_the_ai_is_not_asked_about_a_diff_with_no_code(self):
+        from earned_trust import llm, prosecutor
+        c = self.change()
+        with unittest.mock.patch.object(llm, "chat", side_effect=AssertionError("asked the AI")):
+            accs, meta = prosecutor.ask_llm(c, classifier.run(c), offline=False)
+        self.assertEqual((accs, meta["status"]), ([], "SKIPPED"))

@@ -84,7 +84,7 @@ def todo(report: dict, state: dict) -> list[dict]:
     out = []
     tr = report["tracer"]
     rs = tr.get("requirements_status", "written")
-    if rs != "written" and not state.get("requirements"):
+    if rs in ("missing", "proposed") and not state.get("requirements"):
         if rs == "proposed":
             out.append({"what": "Check the requirements the AI proposed",
                         "how": 'compare them with the issue, then reply `/requirements ok`, or `/requirements wrong "what is missing"`'})
@@ -120,7 +120,7 @@ def todo(report: dict, state: dict) -> list[dict]:
             what = f"{extra} more signature{'s' if extra > 1 else ''} (each from a different person)"
         else:
             what = f"{need} signatures, each from a different person"
-        out.append({"what": what, "how": 'reply `/sign "Your Full Name"`'})
+        out.append({"what": what, "how": 'reply `/sign "Your Full Name"` (on GitHub, `/sign` alone uses the name on your profile)'})
     return out
 
 
@@ -152,6 +152,7 @@ USAGE = {
     "verify": '`/verify "your answer"`',
     "sign": '`/sign "Your Full Name"`',
 }
+SHORT = {"reqs": "requirements"}  # shorter names for the long commands
 
 
 def apply(report: dict, run_dir: Path, actor: str, text: str, *, at: str | None = None,
@@ -169,6 +170,7 @@ def apply(report: dict, run_dir: Path, actor: str, text: str, *, at: str | None 
     if not argv or not argv[0].startswith("/"):
         return state, "Not a command. Commands start with `/`."
     cmd, args = argv[0][1:].lower(), argv[1:]
+    cmd = SHORT.get(cmd, cmd)
     ids_abs = {a["id"]: a for a in report["abstentions"]}
     ids_find = {f["id"]: f for f in report["judge"]["accepted"]}
     finds = ", ".join(ids_find) or "none"
@@ -179,8 +181,11 @@ def apply(report: dict, run_dir: Path, actor: str, text: str, *, at: str | None 
     if cmd not in USAGE:
         return state, f"I don't know `/{cmd}`. Commands: " + ", ".join(f"`/{c}`" for c in USAGE) + "."
     if cmd == "requirements":
-        if report["tracer"].get("requirements_status", "written") == "written":
+        rs = report["tracer"].get("requirements_status", "written")
+        if rs == "written":
             return state, "This PR's requirements are already written down, so there is nothing to confirm."
+        if rs == "not needed":
+            return state, "This PR changes documentation only, so there are no requirements to confirm."
         if not args or args[0] not in ("ok", "wrong"):
             return state, f"Say whether they are right: {USAGE['requirements']}."
         if args[0] == "wrong" and len(args) < 2:
