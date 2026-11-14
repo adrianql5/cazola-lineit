@@ -34,6 +34,28 @@ API = os.environ.get("GITHUB_API_URL", "https://api.github.com")
 CHECK = "earned-trust/human-accountability-gate"
 MARK = "<!-- earned-trust-brief -->"
 EVIDENCE = re.compile(r"<!-- earned-trust-evidence (.*?) -->", re.S)
+LLM_ANSWERS = re.compile(r"<!-- earned-trust-llm (.*?) -->", re.S)
+
+
+def restore_llm(old_body: str, sha: str, cache: Path) -> None:
+    """Comment runs reuse the LLM answers of the pull_request run for the same
+    commit: the same findings, no new cost."""
+    m = LLM_ANSWERS.search(old_body or "")
+    if not m:
+        return
+    saved = json.loads(m.group(1))
+    if saved.get("sha") != sha:
+        return
+    cache.mkdir(parents=True, exist_ok=True)
+    for name, record in saved["answers"].items():
+        (cache / name).write_text(json.dumps(record))
+
+
+def save_llm(cache: Path, sha: str) -> str:
+    if not cache.exists():
+        return ""
+    answers = {p.name: json.loads(p.read_text()) for p in sorted(cache.glob("*.json"))}
+    return f"<!-- earned-trust-llm {json.dumps({'sha': sha, 'answers': answers}).replace('--', '- -')} -->" if answers else ""
 SIGNERS = {"OWNER", "MEMBER", "COLLABORATOR"}
 
 
@@ -220,11 +242,16 @@ def main(target: str | None) -> int:
     comments = [dict(c, _kind="issue") for c in all_comments(repo, number)]
     rcomments = [dict(c, _kind="review") for c in review_comments(repo, number)]
     mine = next((c for c in comments if MARK in (c.get("body") or "")), None)
+    llm_cache = sources.CACHE / change.branch / "llm"
+    shutil.rmtree(llm_cache, ignore_errors=True)
+    if trigger:
+        restore_llm(mine["body"] if mine else "", sha, llm_cache)
     ev = evidence(change, run_dir, Path(target).resolve() if target else None, mine["body"] if mine else "")
     if ev:
         (run_dir / "tests.json").write_text(json.dumps(ev, indent=1))
 
-    report = pipeline.review(change, offline=not llm.configured(), run_dir=run_dir)
+    # on comment runs, only the saved answers count: offline=True never calls the LLM again
+    report = pipeline.review(change, offline=bool(trigger) or not llm.configured(), run_dir=run_dir)
 
     # Replay the PR's slash commands (PR comments and line comments) written since its last commit.
     commit_at = gh("GET", f"/repos/{repo}/commits/{sha}")["commit"]["committer"]["date"]
@@ -269,7 +296,7 @@ def main(target: str | None) -> int:
     text = brief.render(report, state)
     if log:
         text += "\n<details><summary>Replies so far</summary>\n\n" + "\n".join(log[-30:]) + "\n\n</details>\n"
-    body = f"{MARK}\n{hidden}\n{text}"
+    body = f"{MARK}\n{hidden}\n{save_llm(llm_cache, sha)}\n{text}"
     if mine:
         gh("PATCH", f"/repos/{repo}/issues/comments/{mine['id']}", {"body": body})
     else:
