@@ -16,12 +16,8 @@ COMMIT_AT = "2026-11-14T10:00:00Z"
 class FakeGitHub:
     def __init__(self, comments, names=None):
         self.comments = comments
-<<<<<<< Updated upstream
-        self.posted, self.checks, self.reviews, self.replies = [], [], [], []
-=======
         self.names = names or {}  # login -> the name on the GitHub profile
-        self.posted, self.checks, self.reviews, self.replies, self.reactions = [], [], [], [], []
->>>>>>> Stashed changes
+        self.posted, self.checks, self.reviews, self.replies = [], [], [], []
         self.diff = sources.load("ju26-issue-2283").diff_text
 
     def __call__(self, method, path, body=None, accept=""):
