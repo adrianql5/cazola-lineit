@@ -1,4 +1,4 @@
-# Concept card: Earned-Trust PR Factory
+# Concept card: Sancho
 
 **Recommendation in one sentence.** Let AI review AI-written code, but only
 let it *point*: every finding must cite lines a deterministic judge has
@@ -18,10 +18,10 @@ pull request ─▶ classify ─┬─▶ trace ─▶ audit ─┐
 PR comments: /spotcheck /decide /accept /refute /sign ─▶ gate ─▶ check run green + receipt
 ```
 
-`templates/earned-trust.yml` in a repository calls the reusable workflow
-`.github/workflows/earned-trust.yml`. On `pull_request` it reviews the diff,
+`templates/sancho.yml` in a repository calls the reusable workflow
+`.github/workflows/sancho.yml`. On `pull_request` it reviews the diff,
 runs the tests the PR adds, posts the brief and opens the check
-`earned-trust/human-accountability-gate` as *action required*. On each PR
+`sancho/human-accountability-gate` as *action required*. On each PR
 comment it re-runs and replays every slash command written since the last
 commit, so the PR's comments are the state. GitHub's `author_association`
 decides who may sign. When the gate is met, the check turns green with the
@@ -72,7 +72,7 @@ OpenAI-compatible client; comment runs reuse its saved answer.
 | #2234 SuppressSourceGeneration | T1 | 36 of 266 | first-wins on duplicate keys in the shared path; README claims MsgPack012 is checked, no test does |
 | #2129 formatter for external types | **T2** | 1,035 of 1,043 | new public API, contractless default, 4 new *Error* rules, tests excluded from map mode → 4 abstentions. The factory saves no time here, on purpose |
 
-Measured numbers are on https://adrianql5.github.io/cazola-lineit/, and each
+Measured numbers are on https://adrianql5.github.io/sancho/, and each
 one names its source: the benchmark (seeded recall, judge rejections, the
 shape-preserving sweep, precision) and live numbers read from this
 repository's pull requests (share of lines read by a person, findings accepted

@@ -1,6 +1,6 @@
-# Earned-Trust settings for this repository: the factory's own code.
+# Sancho settings for this repository: the factory's own code.
 # They are read from the pull request's base branch, so a PR cannot change the
-# rules it is reviewed by. Every setting and its default: factory/earned_trust/config.py
+# rules it is reviewed by. Every setting and its default: factory/sancho/config.py
 
 [gate]
 merge_on_sign = true        # merge a PR into main as soon as an owner signs it
@@ -10,7 +10,7 @@ merge_method = "merge"
 generated = []                          # nothing here is generated
 tests = ['(^|/)tests?/']
 public_api = []                         # no published package
-source = ['^factory/earned_trust/']     # where unsafe code and wire-format changes would count
+source = ['^factory/sancho/']     # where unsafe code and wire-format changes would count
 analyzer_releases = []
 test_projects = []
 
@@ -22,6 +22,6 @@ ai = true
 # signed by its owner, whatever else the change is.
 [[critical]]
 name = "signing and merging"
-paths = ['^factory/earned_trust/(commands|github|protect|receipt|config)\.py$', '^\.github/workflows/', '^\.earned-trust\.toml$']
+paths = ['^factory/sancho/(commands|github|protect|receipt|config)\.py$', '^\.github/workflows/', '^\.sancho\.toml$']
 owners = ["adrianql5"]
 signatures = 1

@@ -8,7 +8,7 @@ import unittest
 import unittest.mock
 from pathlib import Path
 
-from earned_trust import github, live
+from sancho import github, live
 
 SIGNED = {
     "v": 1, "pr": 8, "title": "Add ExcludeFromCodeCoverage", "sha": "a" * 40,
@@ -20,7 +20,7 @@ SIGNED = {
     "decisions": [], "abstentions": 1, "gate": "success", "signed_at": "2026-11-14T10:12:00Z", "signers": ["owner"],
 }
 
-OLD_BRIEF = """### 🔎 Earned-Trust review · full read needed (1,043 lines)
+OLD_BRIEF = """### 🔎 Sancho review · full read needed (1,043 lines)
 
 **Read:** everything (1,035 lines), because it adds public API.
 
@@ -46,7 +46,7 @@ class FakeGitHub:
         if path.startswith("/repos/me/r/pulls?state=all"):
             return [pr(8, merged="2026-11-14T11:00:00Z"), pr(2), pr(5)]
         if "/issues/8/comments" in path:
-            return [comment(f"{github.MARK}\n<!-- earned-trust-metrics {json.dumps(SIGNED)} -->\nbrief", "2026-11-14T10:00:00Z", "bot", "NONE", "Bot")]
+            return [comment(f"{github.MARK}\n<!-- sancho-metrics {json.dumps(SIGNED)} -->\nbrief", "2026-11-14T10:00:00Z", "bot", "NONE", "Bot")]
         if "/issues/2/comments" in path:
             return [comment(f"{github.MARK}\n{OLD_BRIEF}", "2026-11-14T10:00:00Z", "bot", "NONE", "Bot"),
                     comment("/accept P-TEST-EXCLUDED", "2026-11-14T10:20:00Z"),

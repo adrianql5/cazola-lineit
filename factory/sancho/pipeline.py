@@ -1,5 +1,5 @@
 """Runs the stages in order; each writes runs/<branch>/<stage>.json and the
-next one reads it. In CI, factory/earned_trust/github.py runs it on every
+next one reads it. In CI, factory/sancho/github.py runs it on every
 pull request."""
 
 from __future__ import annotations
@@ -13,7 +13,7 @@ from .sources import FACTORY, Change
 
 RUNS = FACTORY.parent / "runs"
 # the routing policy is these files: their hash goes into every receipt
-POLICY_FILES = [FACTORY / "earned_trust" / "gate.py", FACTORY / "earned_trust" / "classifier.py"]
+POLICY_FILES = [FACTORY / "sancho" / "gate.py", FACTORY / "sancho" / "classifier.py"]
 STAGES = ["classifier", "tracer", "auditor", "prosecutor", "judge", "sensitivity", "abstention", "router", "sampler"]
 
 
@@ -162,7 +162,7 @@ def load_report(branch: str) -> dict:
     if not p.exists() and branch not in sources.branches():
         raise SystemExit(f"Unknown branch `{branch}`. Known branches: {', '.join(sources.branches())}.")
     if not p.exists():
-        raise SystemExit(f"There is no review of `{branch}` yet. Run first:\n  python3 factory/et.py review --offline --branch {branch}")
+        raise SystemExit(f"There is no review of `{branch}` yet. Run first:\n  python3 factory/sancho.py review --offline --branch {branch}")
     return json.loads(p.read_text())
 
 

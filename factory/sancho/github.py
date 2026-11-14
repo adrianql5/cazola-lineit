@@ -2,7 +2,7 @@
 
 On `pull_request`: review the PR's diff, run the tests it adds (`dotnet
 test`), post the Evidence Brief as one comment (updated in place), and open
-the check run `earned-trust/human-accountability-gate` as action_required.
+the check run `sancho/human-accountability-gate` as action_required.
 
 On `issue_comment` (a PR comment): review again and replay every slash
 command written on the PR since its last commit, in order. Nothing is stored
@@ -14,7 +14,7 @@ Only OWNER, MEMBER or COLLABORATOR comments can /sign (GitHub's
 author_association). A new commit starts a new gate: commands written
 before it are ignored.
 
-    python3 factory/et.py github --target target/   (inside the workflow)
+    python3 factory/sancho.py github --target target/   (inside the workflow)
 """
 
 from __future__ import annotations
@@ -32,12 +32,13 @@ from . import brief, commands, config, ledger, llm, pipeline, sensitivity, sourc
 from .sources import FACTORY
 
 API = os.environ.get("GITHUB_API_URL", "https://api.github.com")
-CHECK = "earned-trust/human-accountability-gate"
-MARK = "<!-- earned-trust-brief -->"
-EVIDENCE = re.compile(r"<!-- earned-trust-evidence (.*?) -->", re.S)
-LLM_ANSWERS = re.compile(r"<!-- earned-trust-llm (.*?) -->", re.S)
-METRICS = re.compile(r"<!-- earned-trust-metrics (.*?) -->", re.S)
-RESET_MARK = "<!-- earned-trust-reset -->"
+CHECK = "sancho/human-accountability-gate"
+OLD_CHECK = "earned-trust/human-accountability-gate"  # the project's name before it was Sancho
+MARK = "<!-- sancho-brief -->"
+EVIDENCE = re.compile(r"<!-- sancho-evidence (.*?) -->", re.S)
+LLM_ANSWERS = re.compile(r"<!-- sancho-llm (.*?) -->", re.S)
+METRICS = re.compile(r"<!-- sancho-metrics (.*?) -->", re.S)
+RESET_MARK = "<!-- sancho-reset -->"
 
 
 def finding_source(f: dict) -> str:
@@ -90,7 +91,7 @@ def save_llm(cache: Path, sha: str) -> str:
     if not cache.exists():
         return ""
     answers = {p.name: json.loads(p.read_text()) for p in sorted(cache.glob("*.json"))}
-    return f"<!-- earned-trust-llm {json.dumps({'sha': sha, 'answers': answers}).replace('--', '- -')} -->" if answers else ""
+    return f"<!-- sancho-llm {json.dumps({'sha': sha, 'answers': answers}).replace('--', '- -')} -->" if answers else ""
 SIGNERS = {"OWNER", "MEMBER", "COLLABORATOR"}
 
 
@@ -105,10 +106,19 @@ def gh(method: str, path: str, body: dict | None = None, accept: str = "applicat
     return data.decode() if accept.endswith("diff") else (json.loads(data) if data else {})
 
 
+def renamed(items: list[dict]) -> list[dict]:
+    """Comments written before the project was renamed carry `earned-trust-`
+    hidden marks; read them as Sancho's, so saved answers and evidence still count."""
+    for i in items:
+        if i.get("body") and "<!-- earned-trust-" in i["body"]:
+            i["body"] = i["body"].replace("<!-- earned-trust-", "<!-- sancho-")
+    return items
+
+
 def all_comments(repo: str, number: int) -> list[dict]:
     out, page = [], 1
     while True:
-        batch = gh("GET", f"/repos/{repo}/issues/{number}/comments?per_page=100&page={page}")
+        batch = renamed(gh("GET", f"/repos/{repo}/issues/{number}/comments?per_page=100&page={page}"))
         out += batch
         if len(batch) < 100:
             return out
@@ -131,7 +141,7 @@ def issue_text(n: int, repo: str) -> dict:
             return {"title": i["title"], "body": i.get("body") or "", "url": i.get("url", "")}
     if not n:
         return {"title": "", "body": "", "url": ""}
-    upstream = os.environ.get("ET_ISSUE_REPO") or repo
+    upstream = os.environ.get("SANCHO_ISSUE_REPO") or repo
     try:
         i = gh("GET", f"/repos/{upstream}/issues/{n}")
         return {"title": i["title"], "body": i.get("body") or "", "url": i["html_url"]}
@@ -169,9 +179,9 @@ def evidence(change: sources.Change, run_dir: Path, target: Path | None, old_bod
     return res
 
 
-LEDGER_MARK = "<!-- earned-trust-ledger -->"
-FINDING_MARK = "<!-- earned-trust-finding {id} {sha} -->"
-FINDING_RE = re.compile(r"<!-- earned-trust-finding (\S+) ")
+LEDGER_MARK = "<!-- sancho-ledger -->"
+FINDING_MARK = "<!-- sancho-finding {id} {sha} -->"
+FINDING_RE = re.compile(r"<!-- sancho-finding (\S+) ")
 ABOUT_ONE_FINDING = ("/accept", "/refute", "/explain")
 
 
@@ -214,7 +224,7 @@ def with_name(line: str, login: str, seen: dict[str, str | None]) -> str | None:
 def review_comments(repo: str, number: int) -> list[dict]:
     out, page = [], 1
     while True:
-        batch = gh("GET", f"/repos/{repo}/pulls/{number}/comments?per_page=100&page={page}")
+        batch = renamed(gh("GET", f"/repos/{repo}/pulls/{number}/comments?per_page=100&page={page}"))
         out += batch
         if len(batch) < 100:
             return out
@@ -223,7 +233,7 @@ def review_comments(repo: str, number: int) -> list[dict]:
 
 def ledger_issue(repo: str) -> dict | None:
     for page in (1, 2, 3):
-        for i in gh("GET", f"/repos/{repo}/issues?state=all&per_page=100&page={page}"):
+        for i in renamed(gh("GET", f"/repos/{repo}/issues?state=all&per_page=100&page={page}")):
             if LEDGER_MARK in (i.get("body") or ""):
                 return i
     return None
@@ -239,7 +249,7 @@ def load_trust_events(repo: str) -> tuple[dict | None, list[dict]]:
 
 def save_trust_event(repo: str, issue: dict | None, events: list[dict], new: dict) -> None:
     events = events + [new]
-    body = (f"{LEDGER_MARK}\nThe Earned-Trust factory keeps here what it has learned about this repository. "
+    body = (f"{LEDGER_MARK}\nSancho keeps here what it has learned about this repository. "
             "When a spot-check finds a problem the pattern check missed, the folders involved lose a level of "
             "trust for 90 days, so their files are read in full again. Edit with care.\n\n"
             f"```json\n{json.dumps(events, indent=1)}\n```\n")
@@ -247,7 +257,7 @@ def save_trust_event(repo: str, issue: dict | None, events: list[dict], new: dic
         gh("PATCH", f"/repos/{repo}/issues/{issue['number']}", {"body": body})
         num = issue["number"]
     else:
-        num = gh("POST", f"/repos/{repo}/issues", {"title": "Earned-Trust trust ledger", "body": body})["number"]
+        num = gh("POST", f"/repos/{repo}/issues", {"title": "Sancho trust ledger", "body": body})["number"]
     gh("POST", f"/repos/{repo}/issues/{num}/comments",
        {"body": f"Trust lowered for {', '.join(f'`{m}`' for m in new['modules'])}: the spot-check on #{new['pr']} "
                 f"found a problem (\"{new['reason']}\", @{new['by']}). Their files will be read in full until {new['until']}."})
@@ -272,13 +282,13 @@ def inline_findings(repo: str, number: int, sha: str, report: dict, existing: li
         try:
             gh("POST", f"/repos/{repo}/pulls/{number}/reviews",
                {"commit_id": sha, "event": "COMMENT", "comments": comments,
-                "body": f"Earned-Trust: {len(comments)} finding{'s' if len(comments) != 1 else ''} on the lines they are about."})
+                "body": f"Sancho: {len(comments)} finding{'s' if len(comments) != 1 else ''} on the lines they are about."})
         except Exception as e:  # a line GitHub won't comment on must not stop the review
             print(f"inline comments skipped: {e}")
 
 
 def load_settings(repo: str, pr: dict) -> None:
-    """The repository's .earned-trust.toml as it is on the PR's *base* branch:
+    """The repository's .sancho.toml as it is on the PR's *base* branch:
     a pull request cannot change the rules it is reviewed by."""
     import base64
     base = (pr.get("base") or {}).get("ref")
@@ -292,7 +302,10 @@ def load_settings(repo: str, pr: dict) -> None:
             return None
     owners = next((t for t in (read(p) for p in (".github/CODEOWNERS", "CODEOWNERS", "docs/CODEOWNERS")) if t), None)
     text = read(config.FILE)
-    cfg = config.use(text, f"{config.FILE} on {base}" if text else "", owners)
+    name = config.FILE
+    if text is None and (text := read(".earned-trust.toml")) is not None:  # its name before the project was Sancho
+        name = ".earned-trust.toml"
+    cfg = config.use(text, f"{name} on {base}" if text else "", owners)
     # the code inside declared critical areas, so helpers they call count as critical too
     files = {}
     if cfg["critical"]:
@@ -415,7 +428,7 @@ def main(target: str | None, reset_pr: int | None = None) -> int:
     log, mine_replies, names = [], [], {}
     for c in sorted(comments + rcomments, key=lambda c: c["created_at"]):
         body = c.get("body") or ""
-        if c["user"]["type"] == "Bot" or MARK in body or "earned-trust-finding" in body:
+        if c["user"]["type"] == "Bot" or MARK in body or "sancho-finding" in body:
             continue
         lines = [l.strip() for l in body.splitlines() if l.strip().startswith("/")]
         if not lines:
@@ -456,12 +469,12 @@ def main(target: str | None, reset_pr: int | None = None) -> int:
         save_trust_event(repo, ledger_i, trust_events, {"kind": "escape", "pr": number, "by": sc["by"], "at": sc["at"],
                                                          "reason": sc.get("quote", ""), "modules": mods, "until": until})
 
-    hidden = f"<!-- earned-trust-evidence {json.dumps({k: v for k, v in ev.items() if k != 'log_tail'})} -->" if ev else ""
+    hidden = f"<!-- sancho-evidence {json.dumps({k: v for k, v in ev.items() if k != 'log_tail'})} -->" if ev else ""
     text = brief.render(report, state)
     if log:
         text += "\n<details><summary>Replies so far</summary>\n\n" + "\n".join(log[-30:]) + "\n\n</details>\n"
     m = json.dumps(metrics(pr, sha, report, state, gate)).replace("--", "- -")
-    body = f"{MARK}\n{hidden}\n{save_llm(llm_cache, sha)}\n<!-- earned-trust-metrics {m} -->\n{text}"
+    body = f"{MARK}\n{hidden}\n{save_llm(llm_cache, sha)}\n<!-- sancho-metrics {m} -->\n{text}"
     if mine:
         gh("PATCH", f"/repos/{repo}/issues/comments/{mine['id']}", {"body": body})
     else:

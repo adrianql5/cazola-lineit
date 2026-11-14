@@ -48,10 +48,10 @@ def build() -> str:
     r = json.loads((FACTORY / "bench" / "report.json").read_text())
     s, j, h, p, sw = r["seeded"], r["judge"], r["hallucinations_real"], r["precision"], r["shape_preserving_sweep"]
     P = [f"<!doctype html><html lang=en><head><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'>"
-         f"<title>Earned-Trust Dashboard</title><style>{CSS}</style></head><body><main>",
-         "<h1>Earned-Trust Dashboard</h1>",
+         f"<title>Sancho Dashboard</title><style>{CSS}</style></head><body><main>",
+         "<h1>Sancho Dashboard</h1>",
          f"<p class=sub>AI reviews. Humans sign. Evidence decides. Generated {r['generated_at']} by "
-         "<code>python -m earned_trust bench</code>; every number names where it comes from.</p>",
+         "<code>python -m sancho bench</code>; every number names where it comes from.</p>",
          "<div class=grid>",
          tile(f"{s['caught']}/{s['total']}", "seeded defects that reached a human", s["source"]),
          tile(f"{s['flagged']}/{s['total']}", "…flagged by name (finding, outlier, trigger, tracer)", s["source"]),
@@ -138,7 +138,7 @@ def build() -> str:
     for x in p["rows"]:
         P.append(f"<tr><td>#{x['branch'][-4:]}</td><td>{x['finding']}</td><td>{x['label']}</td><td>{html.escape(x['note'])}</td></tr>")
     P += [f"</table></div>{chip(p['source'])}</div>",
-          "<p class=desc>Earned-Trust PR Factory · runs on every pull request with GitHub Actions</p>",
+          "<p class=desc>Sancho · runs on every pull request with GitHub Actions</p>",
           "</main></body></html>"]
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text("\n".join(P))
@@ -150,7 +150,7 @@ def live_section() -> list[str]:
     p = FACTORY / "bench" / "live.json"
     if not p.exists():
         return ["<div class=card><h2>Live: this repository's pull requests</h2><p class=desc>Not collected in this build "
-                "(run <code>python3 factory/et.py live</code> with a GITHUB_TOKEN).</p></div>"]
+                "(run <code>python3 factory/sancho.py live</code> with a GITHUB_TOKEN).</p></div>"]
     d = json.loads(p.read_text())
     s = d["summary"]
     src = f"{d['source']}, collected {d['collected_at']}"

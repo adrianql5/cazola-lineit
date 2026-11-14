@@ -6,7 +6,7 @@ import unittest
 import unittest.mock
 from pathlib import Path
 
-from earned_trust import commands, config, pipeline, sensitivity, sources
+from sancho import commands, config, pipeline, sensitivity, sources
 
 DIFF = """diff --git a/src/Bank/Payments/TransferService.cs b/src/Bank/Payments/TransferService.cs
 --- a/src/Bank/Payments/TransferService.cs
@@ -56,7 +56,7 @@ class SensitivityTests(unittest.TestCase):
     def review(self, settings=SETTINGS, codeowners=None, diff=DIFF):
         config.use(settings, "test", codeowners)
         d = Path(tempfile.mkdtemp())
-        with unittest.mock.patch.dict("os.environ", {"ET_LEDGER_DIR": str(d)}):
+        with unittest.mock.patch.dict("os.environ", {"SANCHO_LEDGER_DIR": str(d)}):
             return pipeline.review(change(diff), use_llm=False, run_dir=d), d
 
     def test_declared_area_forces_a_full_read_and_names_its_owner(self):

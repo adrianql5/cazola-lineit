@@ -8,7 +8,7 @@ import unittest
 import unittest.mock
 from pathlib import Path
 
-from earned_trust import github, pipeline, sources
+from sancho import github, pipeline, sources
 
 COMMIT_AT = "2026-11-14T10:00:00Z"
 
@@ -45,7 +45,7 @@ class FakeGitHub:
             return {"login": path[len("/users/"):], "name": self.names.get(path[len("/users/"):])}
         if "/commits/" in path:
             return {"commit": {"committer": {"date": COMMIT_AT}}}
-        if "/contents/.earned-trust.toml" in path:
+        if "/contents/.sancho.toml" in path:
             if self.settings is None:
                 raise RuntimeError("404")
             import base64
@@ -77,6 +77,10 @@ def comment(login, text, at, assoc="OWNER"):
 
 
 class GitHubActionTests(unittest.TestCase):
+    def test_comments_from_before_the_rename_still_count(self):
+        old = [{"body": "<!-- earned-trust-brief -->\n<!-- earned-trust-llm {} -->"}, {"body": None}]
+        self.assertEqual(github.renamed(old)[0]["body"], f"{github.MARK}\n<!-- sancho-llm {{}} -->")
+
     def run_event(self, name, event, comments, settings=None, names=None):
         fake = FakeGitHub(comments, names)
         fake.settings = settings
@@ -84,7 +88,7 @@ class GitHubActionTests(unittest.TestCase):
             ev = Path(d) / "event.json"
             ev.write_text(json.dumps(event))
             env = {"GITHUB_EVENT_PATH": str(ev), "GITHUB_EVENT_NAME": name, "GITHUB_REPOSITORY": "me/mp",
-                   "GITHUB_TOKEN": "t", "ET_LEDGER_DIR": d}
+                   "GITHUB_TOKEN": "t", "SANCHO_LEDGER_DIR": d}
             with unittest.mock.patch.object(github, "gh", fake), \
                     unittest.mock.patch.object(pipeline, "RUNS", Path(d) / "runs"), \
                     unittest.mock.patch.dict(os.environ, env):
@@ -94,7 +98,7 @@ class GitHubActionTests(unittest.TestCase):
 
     def test_pull_request_posts_brief_and_blocks(self):
         fake = self.run_event("pull_request", {"pull_request": PR}, [])
-        self.assertIn("Earned-Trust review", fake.posted[0])
+        self.assertIn("Sancho review", fake.posted[0])
         # each finding also lands on its line in "Files changed"
         self.assertEqual([c["body"].split("**")[1] for c in fake.reviews[0]["comments"]], ["P-GLOBAL-WRAP"])
         self.assertEqual(fake.reviews[0]["comments"][0]["side"], "RIGHT")
@@ -179,7 +183,7 @@ class GitHubActionTests(unittest.TestCase):
         ]
         fake = FakeGitHub(signed)
         with tempfile.TemporaryDirectory() as d:
-            env = {"GITHUB_EVENT_NAME": "workflow_dispatch", "GITHUB_REPOSITORY": "me/mp", "GITHUB_TOKEN": "t", "ET_LEDGER_DIR": d}
+            env = {"GITHUB_EVENT_NAME": "workflow_dispatch", "GITHUB_REPOSITORY": "me/mp", "GITHUB_TOKEN": "t", "SANCHO_LEDGER_DIR": d}
             with unittest.mock.patch.object(github, "gh", fake), \
                     unittest.mock.patch.object(pipeline, "RUNS", Path(d) / "runs"), \
                     unittest.mock.patch.dict(os.environ, env):
@@ -192,13 +196,13 @@ class GitHubActionTests(unittest.TestCase):
 
     def test_saved_ai_answers_are_found_without_llm_model_set(self):
         import hashlib
-        from earned_trust import llm, prosecutor
+        from sancho import llm, prosecutor
         with tempfile.TemporaryDirectory() as d, unittest.mock.patch.dict(os.environ, {}, clear=False):
             os.environ.pop("LLM_MODEL", None)
             cache = Path(d) / "llm"
             record = {"model": "qwen3.8-27b", "prompt_version": "v", "input_sha256": "x", "content": "[]"}
             key = hashlib.sha256(b"v\nqwen3.8-27b\nS\nU").hexdigest()
-            body = '<!-- earned-trust-llm ' + json.dumps({"sha": "s", "answers": {f"{key[:16]}-v.json": record}}) + ' -->'
+            body = '<!-- sancho-llm ' + json.dumps({"sha": "s", "answers": {f"{key[:16]}-v.json": record}}) + ' -->'
             github.restore_llm(body, "s", cache)
             self.assertEqual(llm.chat("S", "U", prompt_version="v", cache_dir=cache, offline=True)["content"], "[]")
 
@@ -206,7 +210,7 @@ class GitHubActionTests(unittest.TestCase):
     def test_pull_request_target_reviews_without_the_prs_code(self):
         # PRs to main from forks: no checkout (target is None), still the brief, the line comments and the gate
         fake = self.run_event("pull_request_target", {"pull_request": PR}, [])
-        self.assertIn("Earned-Trust review", fake.posted[0])
+        self.assertIn("Sancho review", fake.posted[0])
         self.assertTrue(fake.reviews and fake.reviews[0]["comments"])
         self.assertEqual(fake.checks[-1]["conclusion"], "action_required")
         self.assertIn("never runs the PR's code", fake.posted[0])

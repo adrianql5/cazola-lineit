@@ -107,8 +107,8 @@ def render(r: dict, state: dict | None = None) -> str:
     state = state or commands.load_empty()
     rt, cl = r["router"], r["classifier"]
     rd = rt["read"]
-    head = (f"### 🔎 Earned-Trust review · read **{rd['lines_must_read']:,}** of {rd['lines_total']:,} lines"
-            if rt["tier"] != "T2" else f"### 🔎 Earned-Trust review · full read needed ({rd['lines_total']:,} lines)")
+    head = (f"### 🔎 Sancho review · read **{rd['lines_must_read']:,}** of {rd['lines_total']:,} lines"
+            if rt["tier"] != "T2" else f"### 🔎 Sancho review · full read needed ({rd['lines_total']:,} lines)")
     L = [head, ""]
     L += [f"{line}  " for line in summary(r)]
     L.append("")
@@ -120,7 +120,7 @@ def render(r: dict, state: dict | None = None) -> str:
         L += [f"- [ ] **{t['what']}** → {t['how']}" for t in todo]
     else:
         names = " and ".join(s["name"] for s in state.get("signatures", []))
-        L += [f"**✅ Signed by {names}.** The receipt is in the `earned-trust/human-accountability-gate` check."]
+        L += [f"**✅ Signed by {names}.** The receipt is in the `sancho/human-accountability-gate` check."]
     L.append("")
 
     # findings, short
@@ -219,5 +219,5 @@ def render(r: dict, state: dict | None = None) -> str:
           f"- Settings: {p.get('settings', 'defaults')}",
           f"- Module trust: {p['trust']}",
           "", "</details>", "",
-          "<sub>Earned-Trust PR Factory · AI reviews. Humans sign. Evidence decides.</sub>"]
+          "<sub>Sancho · AI reviews. Humans sign. Evidence decides.</sub>"]
     return "\n".join(L) + "\n"

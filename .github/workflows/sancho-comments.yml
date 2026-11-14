@@ -2,7 +2,7 @@
 # replies on a finding's line for PRs to main. Comment workflows run from the
 # default branch, so this one lives on main; the example PRs into ju26-base
 # have their own pull_request workflow on that branch.
-name: earned-trust (PR comments)
+name: sancho (PR comments)
 
 on:
   issue_comment:
@@ -11,13 +11,13 @@ on:
     types: [created]
 
 permissions:
-  contents: write     # to merge a signed PR when .earned-trust.toml asks for it (merge_on_sign)
+  contents: write     # to merge a signed PR when .sancho.toml asks for it (merge_on_sign)
   pull-requests: write
   issues: write
   checks: write
   actions: write      # to start ci after that merge (a merge made by the bot starts no workflow by itself)
 
 jobs:
-  earned-trust:
-    uses: ./.github/workflows/earned-trust.yml
+  sancho:
+    uses: ./.github/workflows/sancho.yml
     secrets: inherit
