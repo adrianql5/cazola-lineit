@@ -167,7 +167,7 @@ def evidence(change: sources.Change, run_dir: Path, target: Path | None, old_bod
             if ev.get("sha") == change.sha:
                 return ev
         if never_run:
-            return {"status": "NOT RUN", "sha": change.sha, "why": NOT_RUN_HERE}
+            return {"status": "NOT RUN", "sha": change.sha, "why": NOT_RUN_HERE, "elsewhere": True}
         return None
     facts = json.loads((FACTORY / "knowledge" / "facts.json").read_text())["facts"]
     added = tracer.run(change, run_dir, facts)["tests_added"]

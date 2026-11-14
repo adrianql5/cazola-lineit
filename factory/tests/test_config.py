@@ -37,5 +37,26 @@ class ConfigTests(unittest.TestCase):
         self.assertNotEqual(config.digest(), empty)
 
 
+class UpstreamHistoryTests(unittest.TestCase):
+    """MessagePack-CSharp's history sets folder trust only for MessagePack."""
+
+    def tearDown(self):
+        config.use(None, "")
+
+    def test_defaults_use_it_another_repository_does_not(self):
+        from sancho import ledger
+        config.use(None, "")
+        self.assertEqual(ledger.states_for(["README.md"], ledger.trust_table())["README.md"]["state"], "REVOKED")
+        config.use("[gate]\nmerge_on_sign = true\n", "test")
+        self.assertFalse(config.upstream_history())
+        self.assertEqual(ledger.states_for(["README.md"], ledger.trust_table())["README.md"]["state"], "PROBATION")
+        config.use("[trust]\nupstream_history = \"on\"\n", "test")
+        self.assertTrue(config.upstream_history())
+
+    def test_a_bad_value_is_an_error(self):
+        with self.assertRaisesRegex(ValueError, "auto, on or off"):
+            config.parse("[trust]\nupstream_history = \"yes\"\n")
+
+
 if __name__ == "__main__":
     unittest.main()

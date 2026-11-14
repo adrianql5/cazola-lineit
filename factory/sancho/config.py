@@ -53,6 +53,10 @@ DEFAULTS: dict = {
     },
     "sensitivity": {"detectors": ["money", "security", "data", "untrusted-input"], "extra": [], "ai": True},
     "critical": [],
+    # The folder trust learned from git history comes from MessagePack-CSharp's
+    # history. "auto": used only with these defaults (no settings file), which are
+    # MessagePack's too; "on" / "off" force it.
+    "trust": {"upstream_history": "auto"},
 }
 
 CRITICAL_KEYS = {"name": str, "paths": list, "owners": list, "signatures": int}
@@ -92,6 +96,8 @@ def parse(text: str) -> dict:
     for x in cfg["sensitivity"]["extra"]:
         if set(x) - set(EXTRA_KEYS) or not x.get("name") or not x.get("pattern"):
             raise ValueError(f"{FILE}: each sensitivity.extra needs name and pattern (and optionally why)")
+    if cfg["trust"]["upstream_history"] not in ("auto", "on", "off"):
+        raise ValueError(f"{FILE}: trust.upstream_history must be auto, on or off")
     if cfg["gate"]["merge_method"] not in ("merge", "squash", "rebase"):
         raise ValueError(f"{FILE}: gate.merge_method must be merge, squash or rebase")
     return cfg
@@ -126,6 +132,12 @@ def get() -> dict:
 
 def source() -> str:
     return _source
+
+
+def upstream_history() -> bool:
+    """Whether MessagePack-CSharp's git history sets the folders' trust."""
+    v = _current["trust"]["upstream_history"]
+    return not _text if v == "auto" else v == "on"
 
 
 def digest() -> str:
