@@ -1,118 +1,142 @@
-# cazola-lineit · Earned-Trust PR Factory
+# cazola-lineit
 
-**The AI reviews AI-written code, and a named human signs for every change.**
-Junction 2026 · Tieto challenge *Earned Trust in AI Code*.
+A GitHub Action that reviews every pull request, writes a short evidence
+brief, and keeps the PR blocked until a named person answers its findings and
+signs for the change. The AI points at problems; a human decides and signs.
 
-On every pull request a GitHub Action, with nobody pressing anything:
-
-1. reads the diff and writes an **Evidence Brief**: five lines first, then
-   the details folded below;
-2. keeps a finding only if its file, line and symbol **really exist** in the
-   diff (a deterministic *judge*, no AI);
-3. **abstains out loud** on decisions that are not the AI's to make: public
-   API, wire format, compatibility, security;
-4. runs the tests the PR adds, and tells the reviewer exactly which lines
-   they must read and which ones it summarized;
-5. puts each finding on its line in *Files changed*, and answers every
-   command where it was written;
-6. keeps the check `earned-trust/human-accountability-gate` blocked until an
-   owner answers (`/decide`, `/accept`, `/sign`), and then publishes a signed
-   **Accountability Receipt**;
-7. learns: when a spot-check finds something the pattern check missed, that
-   folder is read in full for 90 days (kept in the *Earned-Trust trust ledger* issue).
-
-*AI reviews. Humans sign. Evidence decides.*
+## See it work
 
 | | |
 |---|---|
-| The concept on one page | [docs/CONCEPT_CARD.md](docs/CONCEPT_CARD.md) |
-| How the code is organised | [factory/README.md](factory/README.md) |
-| The measurements, live | **https://adrianql5.github.io/cazola-lineit/**: the benchmark, and live numbers from this repository's PRs (share read by a person, findings accepted or refuted by rules and AI, time to signature and to merge), rebuilt after every review and every hour |
-| **See it work** | the [pull requests](../../pulls) of this repository: the four AI-written changes of the challenge, each reviewed by the Action |
+| [#2](../../pull/2) [#4](../../pull/4) [#6](../../pull/6) [#8](../../pull/8) | The challenge's four AI-written changes to MessagePack-CSharp, against `ju26-base` |
+| [#19](../../pull/19) | Critical code: a transfer fee in a declared `payments` area |
+| [#22](../../pull/22) | Harder critical code: retries in a helper that `payments` calls, with no word about money in the diff |
+| [Live numbers](https://adrianql5.github.io/cazola-lineit/) | Share of lines read by a person, findings accepted or refuted (rules vs. AI), time to signature and to merge |
 
-## Try it in one minute (offline, Python 3 only)
+To show a PR again from the start, run *Actions → reset demo PR*: it takes
+several PR numbers (default: the six above). Earlier commands stop counting;
+nothing is deleted.
 
-```sh
-make demo                              # 4 reviews, example receipts, benchmark, dashboard (~15 s)
-open dashboard/index.html              # the measurements, each with its source
-open runs/ju26-issue-2297/brief.md     # the brief of the 237-file change
+## Set it up
+
+1. Copy [`templates/earned-trust.yml`](templates/earned-trust.yml) to your
+   repository's `.github/workflows/`.
+2. Set up the merge gate once, as an owner of the repository:
+
+   ```sh
+   python3 factory/et.py protect --repo owner/name
+   ```
+
+   It adds a branch ruleset: the default branch takes changes only through
+   PRs, merged once `earned-trust/human-accountability-gate` is green, with no
+   bypass, admins included. `--branch B` protects another branch too;
+   `--dry-run` prints the ruleset and changes nothing.
+
+That's it. Every new PR gets a brief, its findings on their lines in
+*Files changed*, and a blocked check until someone signs.
+
+### Optional: add an LLM
+
+Without an LLM it runs on fixed rules only, and says so in the brief. To add
+one (any OpenAI-compatible endpoint), set these repository secrets:
+
+| Secret | What it is |
+|---|---|
+| `LLM_BASE_URL` | The endpoint, e.g. `https://api.example.com/v1` |
+| `LLM_API_KEY` | Its API key |
+| `LLM_MODEL` | The model name |
+| `LLM_EXTRA_BODY` | Optional. Extra JSON for each request. For models that think out loud: `{"chat_template_kwargs": {"enable_thinking": false}}` |
+
+### Optional: settings for your repository
+
+Put a `.earned-trust.toml` at the root of the default branch. It is read from
+the PR's base branch, never from the PR, so a change can't loosen its own
+rules. Without it, the defaults (written for MessagePack-CSharp) apply.
+
+```toml
+[gate]
+merge_on_sign = true          # merge the PR as soon as it is signed
+
+[review]
+public_api = ['^src/MyLib/']  # a new `public` here forces a full read
+tests = ['(^|/)tests?/']
+
+[[critical]]                  # always read in full, signed by its owners
+name = "payments"
+paths = ['^src/payments/']
+owners = ["ana", "luis"]      # GitHub logins; empty = CODEOWNERS
+signatures = 2
 ```
 
-## Commands, as PR comments or replies on a finding's line
+Every setting and its default: [`factory/earned_trust/config.py`](factory/earned_trust/config.py).
+This repository's own: [`.earned-trust.toml`](.earned-trust.toml).
 
-The bot reacts 👍 to every comment with a command as soon as it reads it, and
-then answers below it.
+### Optional: workflow inputs
 
-| Command | Means |
+Add them under `with:` in the copied file.
+
+| Input | Default | What it does |
+|---|---|---|
+| `issue_repo` | this repository | Where the issues your PRs implement live (`owner/name`) |
+| `factory_repo` | `adrianql5/cazola-lineit` | Where to get the reviewer from (for a fork of it) |
+| `factory_ref` | `main` | Which branch or tag of it to use |
+
+## Use it
+
+Answer the bot with commands, as a PR comment or as a reply on a finding's
+line. The bot reacts 👍 when it reads a command, then replies below it.
+
+| Command | Meaning |
 |---|---|
-| `/spotcheck clean "<a line from one sample file>"` | I opened the random sample; it's fine. The quote proves the file was opened |
-| `/spotcheck escape "<what looks wrong>"` | Something slipped through: read every file, and trust that folder less |
-| `/decide ABS-1 <option> "<why>"` | My decision on something the AI won't decide |
-| `/accept <id>` · `/refute <id> "<why>"` | This finding is real · it isn't, because… |
-| `/requirements ok "<what I checked>"` | Only when the issue has no written requirements |
-| `/reqs ...` | Short for `/requirements ...` |
+| `/accept <id>` | This finding is real. It goes in the receipt as a known issue |
+| `/accept all` | Accept every finding not answered yet |
+| `/refute <id> "why"` | This finding is wrong, because… |
 | `/explain <id>` | Tell me more about a finding, decision or claim |
-| `/sign "<Full Name>"` | I take responsibility for this change (write access needed) |
+| `/decide <ABS-id> <option> "why"` | My call on something the AI won't decide (public API, wire format, compatibility, security) |
+| `/spotcheck clean "<a line from a sample file>"` | I opened the sample files and they look fine. The quoted line proves I opened one |
+| `/spotcheck escape "what looks wrong"` | Something slipped through: read every file in full from now on |
+| `/requirements ok "what I checked"` | The PR does what the issue asks (only asked when the issue has no written requirements) |
+| `/requirements wrong "what is missing"` | It doesn't |
+| `/reqs ...` | Short for `/requirements ...` |
+| `/verify "answer"` | Optional answer to the question on changes that need a full read |
+| `/sign "Full Name"` | I take responsibility for this change |
 | `/sign` | The same, with the name on your GitHub profile |
 
-To review the same PR again (for repeated demos), run *Actions → reset demo PR*: a
-marker comment makes earlier commands stop counting, and the findings stay the same.
+In a reply on a finding's line you can leave out the id: `/accept`,
+`/refute "why"` and `/explain` are about that finding.
 
-## Put it on a repository
+The brief lists what is left to do. When it is all done, `/sign` turns the
+check green and attaches a signed receipt. Only owners, members and
+collaborators of the repository can sign; some changes need two signatures.
+A PR that changes only documentation needs only a signature: no requirements
+to confirm, no tests to run, no AI call.
 
-Copy [`templates/earned-trust.yml`](templates/earned-trust.yml) to the
-repository's `.github/workflows/`, then set up the merge gate once, as an
-owner:
+**Critical code** (moving money, credentials, deleting data, reading
+untrusted input) is always read in full, its owners decide whether it is
+correct, and only they can sign it. It is found in five ways, and each can only
+raise the level of review, never lower it:
 
-```sh
-python3 factory/et.py protect --repo owner/name   # add --branch B for other branches, --dry-run to see it first
-```
+| How | What it catches |
+|---|---|
+| Declared | Files in a `[[critical]]` area; owners from the area, or from `CODEOWNERS` |
+| Reach | A file outside the area whose types the area's code uses (read from the base branch). Changing a helper changes its callers |
+| Patterns | Changed lines, deleted ones too, about money (also money in floating point), credentials, cryptography, data deletion, untrusted input |
+| AI | Lines the model calls sensitive, each citing file, line and symbol, checked by the judge |
+| Situation | Critical and untested: the owner decides. In a folder whose trust was revoked: one more signature. Inside generated files: never hidden |
 
-It creates (or brings up to date) a branch ruleset: the default branch takes
-changes only through pull requests, merged once
-`earned-trust/human-accountability-gate` is green, with no bypass, admins
-included. That's all: every new PR gets its brief. To add an LLM (any OpenAI-compatible endpoint, for example
-Vultr Serverless Inference), set the repository secrets `LLM_BASE_URL`,
-`LLM_API_KEY` and `LLM_MODEL` (and, for models that think out loud,
-`LLM_EXTRA_BODY` = `{"chat_template_kwargs": {"enable_thinking": false}}`).
-Without them the factory runs on its deterministic rules and says so.
+## Run it locally
 
-## Settings for each repository
+Python 3 only, nothing to install.
 
-A `.earned-trust.toml` at the root of the default branch adapts the review to
-the repository: which files are generated, where the published API lives, the
-spot-check rate, and whether a signed PR is merged at once (`merge_on_sign`).
-It is read from the PR's base branch, never from the PR itself, so a change
-cannot loosen its own rules; its hash goes into every receipt. Without it, the
-defaults written for MessagePack-CSharp apply. Every setting:
-[`factory/earned_trust/config.py`](factory/earned_trust/config.py). This
-repository's own: [`.earned-trust.toml`](.earned-trust.toml).
+| Command | What it does |
+|---|---|
+| `make demo` | Offline demo: reviews of the example changes, receipts, benchmark and dashboard |
+| `make test` | The factory's own tests |
+| `python3 factory/et.py review [--branch B] [--offline] [--no-llm]` | Review the cached branches (`--offline`: no git, no network) |
+| `python3 factory/et.py cmd --branch B --as LOGIN "/accept LLM-1"` | Run a command on a review as LOGIN |
+| `python3 factory/et.py status --branch B` | Show what is left on a review |
+| `python3 factory/et.py test --branch B` | Run the tests a change adds (`dotnet`, or the .NET SDK image through Docker) |
+| `python3 factory/et.py protect --repo R [--branch B] [--dry-run]` | Set up the merge gate on a repository (needs admin rights) |
+| `python3 factory/et.py github --reset PR` | Start a PR's review again (earlier commands stop counting); in Actions: *reset demo PR* |
 
-## Critical code
-
-Some code must always be read in full and signed by a specific person: moving
-money, credentials, deleting data, reading untrusted input. The review finds it
-in five ways, each of which can only raise the level of review, never lower it:
-
-1. **Declared**: `[[critical]]` areas in `.earned-trust.toml`, each with its paths,
-   its owners (or the file's owners in `CODEOWNERS`) and how many signatures it needs.
-2. **Reach**: a file outside a declared area whose types the area's code uses (on the
-   base branch) is critical too, owned by the area: changing a helper changes its callers.
-3. **Detected**: built-in patterns over the changed lines, deleted lines included
-   (removing a balance check is as critical as adding one): money (including money in
-   floating point), security, data, untrusted input, and your own patterns.
-4. **AI**: the model is asked which changed lines are sensitive; each answer must cite
-   file, line and symbol, and goes through the judge.
-5. **Situation**: critical and untested is a decision for the owner; critical in a folder
-   whose trust was revoked needs one more signature; critical generated files are never hidden.
-
-A critical change is a full read, its owner decides whether it is correct, and only
-its owners can sign it. The bank demo PRs show it (#19: a fee in payments; #22: retries in a helper that payments uses): see [pull requests](../../pulls).
-
-## The example pull requests
-
-The [issues](../../issues) and [pull requests](../../pulls) of this repository
-are copies of the challenge's: four upstream MessagePack-CSharp issues and the
-four AI-written changes for them (branches `ju26-issue-*`, opened against
-`ju26-base`, a snapshot of MessagePack-CSharp at the commit the changes start
-from). The Action reviews each one on its own.
+`python3 factory/et.py --help` lists the rest.
