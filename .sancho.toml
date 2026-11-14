@@ -1,4 +1,4 @@
-# Earned-Trust settings for the bank demo. Read from this branch (the base of
+# Sancho settings for the bank demo. Read from this branch (the base of
 # the demo PRs), so a PR cannot change the rules it is reviewed by.
 
 [gate]
