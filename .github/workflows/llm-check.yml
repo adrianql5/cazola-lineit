@@ -20,4 +20,4 @@ jobs:
         run: |
           echo "endpoint: $LLM_BASE_URL"
           [ -n "$LLM_API_KEY" ] && echo "key: set (${#LLM_API_KEY} characters)" || echo "key: NOT SET"
-          python3 factory/et.py models
+          python3 factory/sancho.py models

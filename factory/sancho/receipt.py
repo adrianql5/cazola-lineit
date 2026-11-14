@@ -116,6 +116,6 @@ def markdown(rc: dict) -> str:
 def write(rc: dict, run_dir: Path) -> None:
     (run_dir / "receipt.json").write_text(json.dumps(rc, indent=1))
     (run_dir / "receipt.md").write_text(markdown(rc))
-    led = Path(os.environ.get("ET_LEDGER_DIR") or FACTORY.parent / "ledger") / "receipts"
+    led = Path(os.environ.get("SANCHO_LEDGER_DIR") or FACTORY.parent / "ledger") / "receipts"
     led.mkdir(parents=True, exist_ok=True)
     (led / f"{rc['branch']}-{rc['commit_sha'][:10]}-{rc['hash'][:12]}.json").write_text(json.dumps(rc, indent=1))

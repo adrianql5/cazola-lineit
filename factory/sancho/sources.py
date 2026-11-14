@@ -57,7 +57,7 @@ def load(branch: str, offline: bool = True, repo: str | None = None) -> Change:
     if offline:
         text, source = (d / "diff.patch").read_text(), "replay cache (factory/cache)"
     else:
-        repo = repo or os.environ.get("ET_REPO") or str(DEFAULT_REPO)
+        repo = repo or os.environ.get("SANCHO_REPO") or str(DEFAULT_REPO)
         ref = f"origin/{branch}"
         text = subprocess.run(
             ["git", "-C", repo, "diff", "--no-color", "--no-ext-diff", f"{ref}~1", ref],
