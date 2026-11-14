@@ -127,6 +127,26 @@ class GitHubActionTests(unittest.TestCase):
         self.assertIn("Who raised it", fake.replies[-1])
         self.assertEqual(fake.reactions, [(f"/repos/me/mp/pulls/comments/{c['id']}/reactions", "+1")])
 
+    def test_in_a_findings_thread_the_id_can_be_left_out(self):
+        root = {**comment("github-actions", github.FINDING_MARK.format(id="P-GLOBAL-WRAP", sha="b" * 12) + "\n**P-GLOBAL-WRAP**",
+                          "2026-11-14T10:01:00Z", assoc="NONE"), "user": {"login": "github-actions[bot]", "type": "Bot"}}
+        explain = {**comment("owner", "/explain", "2026-11-14T10:05:00Z"), "in_reply_to_id": root["id"]}
+        refute = {**comment("owner", '/refute "the guard is on purpose"', "2026-11-14T10:06:00Z"), "in_reply_to_id": root["id"]}
+        for c in (root, explain, refute):
+            c["kind"] = "review"
+        fake = self.run_event("pull_request_review_comment", {"pull_request": PR, "comment": explain}, [root, explain, refute])
+        self.assertIn("Who raised it", fake.replies[-1])
+        brief_text = next(p for p in reversed(fake.posted) if github.MARK in p)
+        self.assertIn("P-GLOBAL-WRAP refuted by @owner", brief_text)
+
+    def test_with_finding_fills_in_only_what_is_missing(self):
+        ids = {"SCOPE-1", "SCOPE-3"}
+        self.assertEqual(github.with_finding("/accept", "SCOPE-3", ids), "/accept SCOPE-3")
+        self.assertEqual(github.with_finding('/refute "why"', "SCOPE-3", ids), '/refute SCOPE-3 "why"')
+        self.assertEqual(github.with_finding("/accept SCOPE-1", "SCOPE-3", ids), "/accept SCOPE-1")
+        self.assertEqual(github.with_finding("/accept all", "SCOPE-3", ids), "/accept all")
+        self.assertEqual(github.with_finding('/sign "Me"', "SCOPE-3", ids), '/sign "Me"')
+        self.assertEqual(github.with_finding("/accept", None, ids), "/accept")  # not in a finding's thread
 
     def test_reset_makes_earlier_commands_stop_counting(self):
         signed = [
