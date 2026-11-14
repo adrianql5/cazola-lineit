@@ -197,8 +197,8 @@ def profile_name(login: str, seen: dict[str, str | None]) -> str | None:
     if login not in seen:
         try:
             seen[login] = (gh("GET", f"/users/{login}").get("name") or "").strip() or None
-        except OSError:
-            seen[login] = None
+        except OSError:  # not cached: the next bare /sign tries again
+            return None
     return seen[login]
 
 
@@ -436,7 +436,7 @@ def main(target: str | None, reset_pr: int | None = None) -> int:
             ok = c["author_association"] in SIGNERS
             signed_as = with_name(l, c["user"]["login"], names)
             if signed_as is None:
-                reply = "Your GitHub profile has no name, so write it: `/sign \"Your Full Name\"`."
+                reply = "I couldn't read a name on your GitHub profile, so write it: `/sign \"Your Full Name\"`."
             else:
                 l = signed_as
                 _, reply = commands.apply(report, run_dir, c["user"]["login"], l, at=c["created_at"], can_sign=ok)

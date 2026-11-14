@@ -140,7 +140,7 @@ class GitHubActionTests(unittest.TestCase):
         ev = {"issue": {"number": 7, "pull_request": {}}, "comment": comments[-1]}
         fake = self.run_event("issue_comment", ev, comments)
         self.assertEqual(fake.checks[-1]["conclusion"], "action_required")
-        self.assertIn("Your GitHub profile has no name", fake.posted[-1])
+        self.assertIn("couldn't read a name on your GitHub profile", fake.posted[-1])
 
     def test_command_in_a_line_comment_gets_a_reply_in_its_thread(self):
         c = comment("owner", "/explain P-GLOBAL-WRAP", "2026-11-14T10:05:00Z")
