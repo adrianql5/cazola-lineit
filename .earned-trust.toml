@@ -1,0 +1,23 @@
+# Earned-Trust settings for the bank demo. Read from this branch (the base of
+# the demo PRs), so a PR cannot change the rules it is reviewed by.
+
+[gate]
+merge_on_sign = false       # demo PRs stay open after signing, so the demo can be shown again
+
+[review]
+generated = []
+tests = ['^tests/']
+public_api = []
+source = ['^src/']
+analyzer_releases = []
+test_projects = ['^tests/.*\.csproj$']
+
+[sensitivity]
+detectors = ["money", "security", "data", "untrusted-input"]
+ai = true
+
+[[critical]]
+name = "payments"
+paths = ['^src/Bank/Payments/']
+owners = ["adrianql5"]      # only this person can sign a change to payments
+signatures = 1

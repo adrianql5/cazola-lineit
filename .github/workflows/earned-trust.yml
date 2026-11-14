@@ -1,0 +1,24 @@
+# Copy this file to .github/workflows/earned-trust.yml in the repository to review.
+# Then set up the merge gate once, as an owner:
+#   python3 factory/et.py protect --repo owner/name
+# Optional: a .earned-trust.toml at the root of the default branch (see factory/earned_trust/config.py).
+name: earned-trust
+
+on:
+  pull_request:
+  issue_comment:                 # commands in PR comments
+    types: [created]
+  pull_request_review_comment:   # commands in replies on a finding's line
+    types: [created]
+
+permissions:
+  contents: write     # only used to merge a signed PR when .earned-trust.toml sets merge_on_sign = true
+  pull-requests: write
+  issues: write
+  checks: write
+  actions: write      # only used to start ci after such a merge
+
+jobs:
+  earned-trust:
+    uses: adrianql5/cazola-lineit/.github/workflows/earned-trust.yml@main
+    secrets: inherit
