@@ -155,6 +155,19 @@ class GateTests(unittest.TestCase):
             self.assertEqual(commands.gate(rep, state)["conclusion"], "success")
             self.assertTrue((d / "receipt.json").exists())
 
+    def test_accept_all_answers_every_open_finding_and_keeps_refutes(self):
+        with tempfile.TemporaryDirectory() as d, unittest.mock.patch.dict("os.environ", {"ET_LEDGER_DIR": d}):
+            d = Path(d)
+            rep = pipeline.review(sources.load("ju26-issue-2297"), use_llm=False, run_dir=d)
+            commands.apply(rep, d, "demo-owner", '/refute DRIFT-2 "the issue asks for it"')
+            state, msg = commands.apply(rep, d, "demo-owner", "/accept all")
+            self.assertEqual(msg, "SCOPE-1, DRIFT-1, DRIFT-3 accepted. They go in the receipt as known issues.")
+            self.assertEqual({k: v["verdict"] for k, v in state["findings"].items()},
+                             {"SCOPE-1": "accepted", "DRIFT-1": "accepted", "DRIFT-2": "refuted", "DRIFT-3": "accepted"})
+            self.assertFalse(any(i["what"].startswith("Answer") for i in commands.todo(rep, state)))
+            _, msg = commands.apply(rep, d, "demo-owner", "/accept all")
+            self.assertEqual(msg, "Every finding on this PR is already answered.")
+
 
 if __name__ == "__main__":
     unittest.main()
