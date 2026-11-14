@@ -8,13 +8,13 @@ import hashlib
 import json
 from pathlib import Path
 
-from . import auditor, brief, classifier, config, gate, judge, ledger, prosecutor, sources, tracer, worker
+from . import auditor, brief, classifier, config, gate, judge, ledger, prosecutor, sensitivity, sources, tracer, worker
 from .sources import FACTORY, Change
 
 RUNS = FACTORY.parent / "runs"
 # the routing policy is these files: their hash goes into every receipt
 POLICY_FILES = [FACTORY / "earned_trust" / "gate.py", FACTORY / "earned_trust" / "classifier.py"]
-STAGES = ["classifier", "tracer", "auditor", "prosecutor", "judge", "abstention", "router", "sampler"]
+STAGES = ["classifier", "tracer", "auditor", "prosecutor", "judge", "sensitivity", "abstention", "router", "sampler"]
 
 
 def dedupe(accepted: list[dict]) -> list[dict]:
@@ -99,10 +99,15 @@ class Run:
             jd = judge.run(self.get("auditor")["findings"] + self.get("prosecutor")["accusations"], c.files)
             jd["accepted"] = dedupe(jd["accepted"])
             self.put(name, jd)
+        elif name == "sensitivity":
+            self.put(name, sensitivity.run(c, self.get("classifier"), self.get("tracer"),
+                                           offline=self.offline, use_llm=self.use_llm))
         elif name == "abstention":
-            self.put(name, gate.abstentions(c, self.get("classifier"), self.get("tracer"), self.get("judge")))
+            self.put(name, gate.abstentions(c, self.get("classifier"), self.get("tracer"), self.get("judge"),
+                                            self.get("sensitivity")))
         elif name == "router":
-            self.put(name, gate.route(c, self.get("classifier"), ledger.trust_table(), self.get("abstention")))
+            self.put(name, gate.route(c, self.get("classifier"), ledger.trust_table(), self.get("abstention"),
+                                      self.get("sensitivity")))
         elif name == "sampler":
             self.put(name, gate.sample(c, self.get("router")["hidden"]))
         elif name == "brief":

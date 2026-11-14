@@ -86,6 +86,25 @@ defaults written for MessagePack-CSharp apply. Every setting:
 [`factory/earned_trust/config.py`](factory/earned_trust/config.py). This
 repository's own: [`.earned-trust.toml`](.earned-trust.toml).
 
+## Critical code
+
+Some code must always be read in full and signed by a specific person: moving
+money, credentials, deleting data, reading untrusted input. The review finds it
+in four ways, each of which can only raise the level of review, never lower it:
+
+1. **Declared**: `[[critical]]` areas in `.earned-trust.toml`, each with its paths,
+   its owners (or the file's owners in `CODEOWNERS`) and how many signatures it needs.
+2. **Detected**: built-in patterns over the changed lines, deleted lines included
+   (removing a balance check is as critical as adding one): money (including money in
+   floating point), security, data, untrusted input, and your own patterns.
+3. **AI**: the model is asked which changed lines are sensitive; each answer must cite
+   file, line and symbol, and goes through the judge.
+4. **Situation**: critical and untested is a decision for the owner; critical in a folder
+   whose trust was revoked needs one more signature; critical generated files are never hidden.
+
+A critical change is a full read, its owner decides whether it is correct, and only
+its owners can sign it. The bank demo PR shows it: see [pull requests](../../pulls).
+
 ## The example pull requests
 
 The [issues](../../issues) and [pull requests](../../pulls) of this repository

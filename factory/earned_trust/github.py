@@ -59,6 +59,7 @@ def metrics(pr: dict, sha: str, report: dict, state: dict, gate: dict) -> dict:
                     for i, v in state["findings"].items()],
         "decisions": [{"id": i, "option": d["option"], "by": d["by"], "at": d["at"]} for i, d in state["decisions"].items()],
         "abstentions": len(report["abstentions"]), "gate": gate["conclusion"],
+        "critical": sorted({z["name"] for z in (report.get("sensitivity") or {}).get("zones", [])}),
         "signed_at": signs[-1]["at"] if gate["conclusion"] == "success" and signs else None,
         "signers": [x["by"] for x in state["signatures"]],
         "llm": report["prosecutor"]["llm"].get("model") if report["prosecutor"]["llm"]["status"] == "RAN" else None,
@@ -264,13 +265,14 @@ def load_settings(repo: str, pr: dict) -> None:
     if not base:
         config.use(None, "")
         return
-    try:
-        f = gh("GET", f"/repos/{repo}/contents/{config.FILE}?ref={base}")
-        text = base64.b64decode(f["content"]).decode()
-    except Exception:  # no file on that branch: the defaults
-        config.use(None, "")
-        return
-    config.use(text, f"{config.FILE} on {base}")
+    def read(path: str) -> str | None:
+        try:
+            return base64.b64decode(gh("GET", f"/repos/{repo}/contents/{path}?ref={base}")["content"]).decode()
+        except Exception:
+            return None
+    owners = next((t for t in (read(p) for p in (".github/CODEOWNERS", "CODEOWNERS", "docs/CODEOWNERS")) if t), None)
+    text = read(config.FILE)
+    config.use(text, f"{config.FILE} on {base}" if text else "", owners)
 
 
 def merge_signed(repo: str, pr: dict, state: dict) -> str:

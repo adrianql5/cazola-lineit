@@ -30,6 +30,7 @@ Each stage writes `runs/<branch>/<stage>.json` and reads the stages before it.
 | 3 | Spec-drift & Scope Auditor: out-of-scope hunks, contradictions, checked facts | `auditor.py` | no (optional) |
 | 4a | Adversarial Prosecutor: rules, our draft's hallucinations, and the LLM if configured | `prosecutor.py`, `llm.py` | optional |
 | 4b | Deterministic Diff Judge: file + lines + symbol must be in the diff | `judge.py` | no |
+| 4c | Sensitivity: critical areas (declared, detected, AI, situation) and their owners | `sensitivity.py` | optional |
 | 5 | Abstention Gate | `gate.py` | no |
 | 6 | Risk Router (T0 / T1 / T2, as rules) | `gate.py` | no |
 | 7 | Spot-check sampler, seeded by the commit SHA | `gate.py` | no |

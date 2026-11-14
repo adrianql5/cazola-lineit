@@ -13,3 +13,15 @@ public_api = []                         # no published package
 source = ['^factory/earned_trust/']     # where unsafe code and wire-format changes would count
 analyzer_releases = []
 test_projects = []
+
+[sensitivity]
+detectors = ["security", "data", "untrusted-input"]   # no "money": words like "ledger" mean something else here
+ai = true
+
+# The code that decides who signs and when a PR is merged: always a full read,
+# signed by its owner, whatever else the change is.
+[[critical]]
+name = "signing and merging"
+paths = ['^factory/earned_trust/(commands|github|protect|receipt|config)\.py$', '^\.github/workflows/', '^\.earned-trust\.toml$']
+owners = ["adrianql5"]
+signatures = 1
