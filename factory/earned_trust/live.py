@@ -12,6 +12,7 @@ is read from its text, the PR's comments and the gate check instead.
 
 from __future__ import annotations
 
+import calendar
 import json
 import os
 import re
@@ -27,7 +28,7 @@ CMD = re.compile(r"^/(accept|refute)\s+(\S+)", re.I)
 
 
 def ts(s: str | None) -> float | None:
-    return time.mktime(time.strptime(s, "%Y-%m-%dT%H:%M:%SZ")) if s else None
+    return calendar.timegm(time.strptime(s, "%Y-%m-%dT%H:%M:%SZ")) if s else None
 
 
 def minutes(a: str | None, b: str | None) -> float | None:

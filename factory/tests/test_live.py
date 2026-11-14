@@ -4,6 +4,7 @@ the gate check."""
 
 import json
 import tempfile
+import time
 import unittest
 import unittest.mock
 from pathlib import Path
@@ -83,6 +84,14 @@ class LiveTests(unittest.TestCase):
         self.assertEqual((r["tier"], r["lines_must_read"], r["lines_total"]), ("T2", 1035, 1043))
         self.assertEqual({a["id"]: a["verdict"] for a in r["answers"]}, {"P-TEST-EXCLUDED": "accepted", "LLM-1": "refuted"})
         self.assertEqual(r["minutes_to_sign"], 40.0)  # brief at 10:00, gate green at 10:40
+
+    def test_minutes_are_utc_whatever_the_local_timezone(self):
+        # 4 hours across the end of summer time in Europe; mktime read them as local time
+        with unittest.mock.patch.dict("os.environ", {"TZ": "Europe/Madrid"}):
+            time.tzset()
+            got = live.minutes("2026-10-25T00:00:00Z", "2026-10-25T04:00:00Z")
+        time.tzset()
+        self.assertEqual(got, 240.0)
 
     def test_summary_splits_rules_and_ai(self):
         s = self.d["summary"]
