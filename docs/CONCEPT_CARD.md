@@ -61,7 +61,7 @@ receipt in its output, and the stage outputs are kept as an artifact.
 | #2129 formatter for external types | **T2** | 1,035 of 1,043 | new public API, contractless default, 4 new *Error* rules, tests excluded from map mode → 4 abstentions. The factory saves no time here, on purpose |
 
 Measured numbers (seeded recall, judge rejections, the shape-preserving sweep,
-precision) are in `dashboard/index.html`, and each one names its source.
+precision) are on https://adrianql5.github.io/cazola-lineit/, and each one names its source.
 
 ## Trade-offs
 
@@ -95,7 +95,7 @@ precision) are in `dashboard/index.html`, and each one names its source.
 - **Small numbers.** Four real branches, 14 seeded defects and nine labelled
   findings. The labels were made by the build engineer (an AI) and must be
   re-labelled by a person before anyone quotes them.
-- **Simulated sessions are not users.** The receipts in `runs/` come from
+- **Simulated sessions are not users.** The example receipts that `make demo` writes come from
   scripted sessions and carry no timing. There is no review-minutes number
   until real people sign real PRs.
 - **If the pattern is the bug, the factory is blind.** 220 snapshots that are
