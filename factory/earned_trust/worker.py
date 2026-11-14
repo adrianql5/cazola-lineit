@@ -66,8 +66,13 @@ def execute(workdir: Path, tests_added: list[dict], sha: str, *, image: str = IM
         return {"status": "NOT RUN", "sha": sha, "why": "the change adds no tests"}
     deviations, env = [], {}
     if ignore_global_json:
-        (workdir / "global.json").unlink(missing_ok=True)
-        deviations.append(f"global.json (SDK 8.0.402) removed to build with {image if docker else 'the installed SDK'}")
+        if docker:
+            (workdir / "global.json").unlink(missing_ok=True)
+            deviations.append(f"global.json (SDK 8.0.402) removed to build with {image}")
+        else:
+            # pin the newer SDK rather than whatever the machine has
+            (workdir / "global.json").write_text('{"sdk": {"version": "9.0.100", "rollForward": "latestFeature"}}\n')
+            deviations.append("global.json (SDK 8.0.402) replaced by SDK 9.0 (latest feature band)")
         deviations.append("DOTNET_ROLL_FORWARD=Major: the net8.0 test host runs on a newer runtime")
         env["DOTNET_ROLL_FORWARD"] = "Major"
     inner = script(projs, filt)
