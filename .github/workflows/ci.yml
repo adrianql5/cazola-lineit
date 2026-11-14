@@ -20,7 +20,25 @@ jobs:
         run: python3 -m unittest discover -s factory/tests -t factory -v
       - name: Offline demo (4 reviews, scripted receipts, benchmark, dashboard)
         run: python3 factory/et.py demo
-      - uses: actions/upload-artifact@v7
+      - name: Keep the dashboard for GitHub Pages
+        uses: actions/upload-pages-artifact@v5
         with:
-          name: dashboard
-          path: dashboard/index.html
+          path: dashboard
+
+  # The dashboard, public at https://<owner>.github.io/<repo>/, refreshed on every push to main
+  pages:
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    needs: test
+    runs-on: ubuntu-latest
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - id: deploy
+        uses: actions/deploy-pages@v5

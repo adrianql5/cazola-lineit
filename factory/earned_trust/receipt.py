@@ -33,7 +33,11 @@ def build(report: dict, state: dict) -> dict:
         checked.append({"item": f"Ran the {tr['execution']['passed']} tests this PR adds: all passed", "by": "machine"})
     if state.get("spotcheck"):
         s = state["spotcheck"]
-        checked.append({"item": f"Opened {len(s['sample'])} random hidden files: {'all fine' if s['result'] == 'clean' else 'found a problem'}", "by": f"human:{s['by']}"})
+        if s["result"] == "clean":
+            item = f"Spot-checked the random sample of {len(s['sample'])} hidden files: fine (quoted a line from `{(s.get('opened') or '').rsplit('/', 1)[-1]}`)"
+        else:
+            item = f"Spot-check found a problem: \"{s.get('quote', '')}\""
+        checked.append({"item": item, "by": f"human:{s['by']}"})
     checked.append({"item": f"Read {rt['read']['lines_must_read']} lines in {rt['read']['files_must_read']} files",
                     "by": "human:" + ",".join(s["by"] for s in state["signatures"])})
     findings = []
@@ -47,6 +51,13 @@ def build(report: dict, state: dict) -> dict:
     residual += [f"Contradicted: {c['claim'][:120]}" for c in tr["claims"] if c["status"] == "CONTRADICTED"]
     if tr["execution"]["status"] != "PASS":
         residual.append("Signed without a passing test run")
+    req = state.get("requirements")
+    if tr.get("requirements_status", "written") != "written":
+        if req and req["verdict"] == "wrong":
+            residual.append(f"Requirements incomplete: \"{req['note']}\" (@{req['by']})")
+        elif tr.get("requirements_status") == "missing":
+            residual.append("No written requirements: checked against the issue by @" + (req["by"] if req else "?")
+                            + (f": \"{req['note']}\"" if req and req.get("note") else ""))
     if state.get("summary_disabled"):
         residual.append("The spot-check found a problem, so every file was read")
     h = hashlib.sha256((brief_text + ch["diff_sha"] + json.dumps(decisions, sort_keys=True)).encode()).hexdigest()

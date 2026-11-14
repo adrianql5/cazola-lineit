@@ -1,6 +1,6 @@
 """Slash commands on the PR (issue_comment) and the gate they open.
 
-    /spotcheck clean|escape
+    /spotcheck clean "<a line from one sample file>" | /spotcheck escape "<what looks wrong>"
     /decide <ABS-id> <option> "<reason>"
     /accept <finding-id>
     /refute <finding-id> "<evidence>"
@@ -40,13 +40,63 @@ def save(run_dir: Path, state: dict) -> None:
     (run_dir / "state.json").write_text(json.dumps(state, indent=1))
 
 
+def explain(report: dict, ident: str) -> str:
+    """A longer answer about one finding, decision or claim. Changes nothing."""
+    ids = ([f["id"] for f in report["judge"]["accepted"]] + [a["id"] for a in report["abstentions"]]
+           + [c["id"] for c in report["tracer"]["claims"]])
+    if not ident:
+        return f"Say what to explain: `/explain <id>`. Ids on this PR: {', '.join(ids)}."
+    f = next((x for x in report["judge"]["accepted"] if x["id"] == ident), None)
+    if f:
+        L = [f"**{f['id']}** · `{f['file']}:{f['line_start']}`", "", f["claim"], ""]
+        ev = f.get("evidence", [])
+        if ev:
+            L += ["```diff"] + [f"{e['kind']}{e['text']}" for e in ev] + ["```", ""]
+        src = f["source"]
+        how = ("a fixed rule that looks for this pattern in every diff" if "rules" in src or "auditor" in src
+               else f"the AI reviewer ({src})")
+        L += [f"**Who raised it:** {how}. A plain-code check confirmed that `{f['symbol']}` is on that changed line, "
+              "so the finding points at real code. Whether it is a real problem is your call."]
+        if f.get("also_raised_by"):
+            L.append(f"Also raised by: {', '.join(f['also_raised_by'])}.")
+        L += ["", f'**Answer:** `/accept {f["id"]}` if it is real, or `/refute {f["id"]} "why"` if not.']
+        return "\n".join(L)
+    a = next((x for x in report["abstentions"] if x["id"] == ident), None)
+    if a:
+        opts = " or ".join(f'`/decide {a["id"]} {o} "why"`' for o in a["options"])
+        return "\n".join([f"**{a['id']}** · {a['decision']}", "",
+                          f"**Why the AI won't decide:** {a['why_not_ai']}",
+                          f"**Who usually decides:** {a['who_decides']}.",
+                          f"**What would help:** {'; '.join(a['missing_evidence'])}.",
+                          f"**Where:** `{a['cite']}`", "", f"**Answer:** {opts}."])
+    c = next((x for x in report["tracer"]["claims"] if x["id"] == ident), None)
+    if c:
+        impl = ", ".join(f"`{i['file']}:{i['line']}`" for i in c["implementation"][:3]) or "none found"
+        tests = ", ".join(f"`{t['test']}`" for t in c["tests"][:5]) or "none"
+        return "\n".join([f"**{c['id']}** · {c['claim']}", "", f"**Status:** {c['status'].lower()}: {c['why']}.",
+                          f"**Code:** {impl}", f"**Tests that mention it:** {tests}",
+                          f"**Tests ran:** {c['execution']}"])
+    return f"There is nothing called `{ident}` on this PR. Ids here: {', '.join(ids)}."
+
+
 def todo(report: dict, state: dict) -> list[dict]:
     """What is left before the PR can merge: each item says what and how."""
     out = []
+    tr = report["tracer"]
+    rs = tr.get("requirements_status", "written")
+    if rs != "written" and not state.get("requirements"):
+        if rs == "proposed":
+            out.append({"what": "Check the requirements the AI proposed",
+                        "how": 'compare them with the issue, then reply `/requirements ok`, or `/requirements wrong "what is missing"`'})
+        else:
+            out.append({"what": "Say what this PR must do",
+                        "how": 'no requirements are written for this issue, so only the change\'s own claims were checked. '
+                               'Compare the change with the issue, then reply `/requirements ok "what you checked"`'})
     s = report["sampler"]
     if s["population"] and not state["spotcheck"]:
         out.append({"what": f"Spot-check {s['n']} sample file{'' if s['n'] == 1 else 's'}",
-                    "how": f"open {'it' if s['n'] == 1 else 'them'} (list below), then reply `/spotcheck clean`, or `/spotcheck escape` if something looks wrong"})
+                    "how": f"open {'it' if s['n'] == 1 else 'them'} (list below), then reply "
+                           '`/spotcheck clean "<copy one line from any of them>"`, or `/spotcheck escape "<what looks wrong>"`'})
     for a in report["abstentions"]:
         if a["id"] not in state["decisions"]:
             opts = " or ".join(f'`/decide {a["id"]} {o} "why"`' for o in a["options"])
@@ -69,7 +119,9 @@ def gate(report: dict, state: dict) -> dict:
 
 
 USAGE = {
-    "spotcheck": "`/spotcheck clean` or `/spotcheck escape`",
+    "requirements": '`/requirements ok "what you checked"` or `/requirements wrong "what is missing"`',
+    "explain": "`/explain <id>` (a finding, a decision or a claim)",
+    "spotcheck": '`/spotcheck clean "<a line from one sample file>"` or `/spotcheck escape "<what looks wrong>"`',
     "decide": '`/decide ABS-1 <option> "why"`',
     "accept": "`/accept <finding-id>`",
     "refute": '`/refute <finding-id> "why"`',
@@ -102,12 +154,44 @@ def apply(report: dict, run_dir: Path, actor: str, text: str, *, at: str | None 
 
     if cmd not in USAGE:
         return state, f"I don't know `/{cmd}`. Commands: " + ", ".join(f"`/{c}`" for c in USAGE) + "."
+    if cmd == "requirements":
+        if report["tracer"].get("requirements_status", "written") == "written":
+            return state, "This PR's requirements are already written down, so there is nothing to confirm."
+        if not args or args[0] not in ("ok", "wrong"):
+            return state, f"Say whether they are right: {USAGE['requirements']}."
+        if args[0] == "wrong" and len(args) < 2:
+            return state, 'Say what is missing or wrong: `/requirements wrong "what is missing"`.'
+        state["requirements"] = {"verdict": args[0], "note": " ".join(args[1:]), "by": actor, "at": at}
+        state["events"].append({"at": at, "actor": actor, "command": text.strip(), "simulated": simulated})
+        save(run_dir, state)
+        return state, ("Requirements confirmed." if args[0] == "ok"
+                       else "Noted. The receipt will say the requirements were incomplete, and why.")
+    if cmd == "explain":
+        return state, explain(report, args[0] if args else "")
     if cmd == "spotcheck":
         if not args or args[0] not in ("clean", "escape"):
             return state, f"Say how the sample looked: {USAGE['spotcheck']}."
         if not report["sampler"]["population"]:
             return state, "Nothing was hidden on this PR, so there is nothing to spot-check."
-        state["spotcheck"] = {"result": args[0], "by": actor, "at": at, "sample": report["sampler"].get("sample", [])}
+        quote = " ".join(args[1:])
+        opened = None
+        if args[0] == "clean":
+            if not quote:
+                return state, ('Copy one line from any of the sample files, to show you opened it: '
+                               '`/spotcheck clean "<the line>"`.')
+            q = "".join(quote.split())
+            proof = report["sampler"].get("proof_lines", {})
+            if len(q) < 8:
+                return state, 'That quote is too short to show anything. Copy a whole line, or a class or method name from it.'
+            opened = next((p for p, lines in proof.items() if any(q in t or (len(q) >= 12 and t in q) for t in lines)), None)
+            if not opened:
+                return state, ("That line doesn't show which sample file you opened: it isn't in them, or almost every "
+                               "hidden file has it (like the new attribute). Copy a line that only one of the sample "
+                               "files has; a class or method name works well.")
+        elif not quote:
+            return state, 'Say what looks wrong, so it can be fixed: `/spotcheck escape "<what looks wrong>"`.'
+        state["spotcheck"] = {"result": args[0], "by": actor, "at": at, "sample": report["sampler"].get("sample", []),
+                              "quote": quote, "opened": opened}
         if args[0] == "escape":
             state["summary_disabled"] = True
             reply = "Thanks. Summary mode is now off for this PR: please read every file. The miss is recorded."

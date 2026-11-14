@@ -59,6 +59,8 @@ def run() -> None:
     for br, cmds in SESSIONS.items():
         rep = pipeline.load_report(br)
         run_dir = pipeline.RUNS / br
+        proof = next(iter(rep["sampler"].get("proof_lines", {}).values()), [""])
+        cmds = [f'/spotcheck clean "{proof[0]}"' if c == "/spotcheck clean" else c for c in cmds]
         for c in cmds:
             state, reply = commands.apply(rep, run_dir, "demo-owner", c, simulated=True)
         print(f"   {br}: {reply}")

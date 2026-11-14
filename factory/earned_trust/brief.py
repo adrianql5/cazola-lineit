@@ -72,7 +72,12 @@ def summary(r: dict) -> list[str]:
     if ab:
         more = f" (+{len(ab) - 1} more below)" if len(ab) > 1 else ""
         out.append(f"**Your call:** {ab[0]['decision']}{more} *The AI won't decide this.*")
-    out.append(f"**Tests:** {tests_line(r['tracer']['execution'])}")
+    tr = r["tracer"]
+    if tr.get("requirements_status") == "missing":
+        out.append("**Requirements:** none written for this issue, so only the change's own claims were checked.")
+    elif tr.get("requirements_status") == "proposed":
+        out.append(f"**Requirements:** proposed by the AI from the issue; please confirm them ({tr['requirements_note']}).")
+    out.append(f"**Tests:** {tests_line(tr['execution'])}")
     return out
 
 

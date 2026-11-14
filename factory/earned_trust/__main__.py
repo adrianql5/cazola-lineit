@@ -64,6 +64,13 @@ def main(argv: list[str] | None = None) -> int:
     if a.cmd == "cmd":
         rep = pipeline.load_report(a.branch)
         state, reply = commands.apply(rep, pipeline.RUNS / a.branch, a.actor, a.text, simulated=a.simulated)
+        sc = state.get("spotcheck") or {}
+        if a.text.strip().startswith("/spotcheck escape") and sc.get("result") == "escape" and not a.simulated:
+            from datetime import datetime, timedelta
+            ledger.record_local({"kind": "escape", "pr": a.branch, "by": a.actor, "at": sc["at"], "reason": sc.get("quote", ""),
+                                 "modules": sorted({ledger.module_of(p) for p in rep["router"]["hidden"]}),
+                                 "until": (datetime.utcnow() + timedelta(days=90)).strftime("%Y-%m-%d")})
+            reply += f"\nRecorded in {ledger.LOCAL_EVENTS.relative_to(ledger.ROOT)}: the next reviews read these folders in full."
         print(reply)
         print(status_line(rep, state))
         return 0

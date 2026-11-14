@@ -166,9 +166,46 @@ def claim(l, path: str, names: dict[str, list[str]]) -> dict | None:
 CS_WORDS = {"partial", "public", "internal", "sealed", "static", "abstract", "class", "struct", "record"}
 
 
-def run(change: Change, run_dir: Path, facts: list[dict] | None = None) -> dict:
+PROPOSE_VERSION = "requirements-v1"
+PROPOSE_SYSTEM = """You turn a GitHub issue into the requirements a pull request for it must meet.
+Answer ONLY with a JSON array of at most 5 items:
+{"text": "one short sentence a reviewer can check", "quote": "the words of the issue it comes from",
+ "code": ["identifiers or short strings the implementing code would contain"],
+ "tests": ["words a test for it would have in its name or body"]}
+Only what the issue asks for. If the issue is too vague to say, answer []."""
+
+
+def propose(change: Change, offline: bool) -> tuple[list[dict], str]:
+    """Requirements the LLM proposes from the issue, for a person to confirm."""
+    if not change.issue_title:
+        return [], "no issue is linked to this PR"
+    from . import llm
+    user = f"Issue #{change.issue}: {change.issue_title}\n\n{change.issue_body[:6000]}"
+    try:
+        r = llm.chat(PROPOSE_SYSTEM, user, prompt_version=PROPOSE_VERSION,
+                     cache_dir=FACTORY / "cache" / change.branch / "llm", offline=offline)
+        items = llm.extract_json(r["content"])
+    except (llm.LLMUnavailable, ValueError) as e:
+        return [], str(e)
+    reqs = []
+    for i, it in enumerate(items if isinstance(items, list) else [], 1):
+        code = [c for c in it.get("code", []) if isinstance(c, str) and len(c) >= 3][:5]
+        reqs.append({"id": f"REQ-{change.issue}-{i}", "kind": f"proposed by the AI ({r['model']}), not yet confirmed",
+                     "text": str(it.get("text", ""))[:200], "quote": str(it.get("quote", ""))[:200],
+                     "implements": [{"path": ".", "added": re.escape(c)} for c in code],
+                     "tests": [t for t in it.get("tests", []) if isinstance(t, str) and len(t) >= 4][:5]})
+    return reqs, f"proposed by {r['model']}"
+
+
+def run(change: Change, run_dir: Path, facts: list[dict] | None = None, offline: bool = True) -> dict:
     req_file = FACTORY / "requirements" / f"{change.issue}.json"
-    spec = json.loads(req_file.read_text()) if req_file.exists() else {"requirements": [], "alternatives": []}
+    if req_file.exists():
+        spec = json.loads(req_file.read_text())
+        req_status, req_note = "written", spec.get("curated_by", "")
+    else:
+        proposed, why = propose(change, offline)
+        spec = {"requirements": proposed, "alternatives": []}
+        req_status, req_note = ("proposed", why) if proposed else ("missing", why)
     tests = test_methods(change)
     exe = execution(change, run_dir)
     names = diagnostic_names(change)
@@ -207,5 +244,6 @@ def run(change: Change, run_dir: Path, facts: list[dict] | None = None) -> dict:
     for r in rows:
         counts[r["status"]] = counts.get(r["status"], 0) + 1
     return {"stage": "tracer", "requirements_source": str(req_file.relative_to(FACTORY)), "curated_by": spec.get("curated_by"),
+            "requirements_status": req_status, "requirements_note": req_note,
             "execution": exe, "tests_added": [{"name": t["name"], "file": t["file"], "line": t["line"]} for t in tests],
             "claims": rows, "alternatives": alts, "counts": counts}

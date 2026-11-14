@@ -106,6 +106,12 @@ def route(change: Change, cl: dict, trust: dict, abst: list[dict]) -> dict:
         tier = "T0"
         reasons.append("only mechanical, test and docs changes")
     mech = [p for p, f in files.items() if f["category"] == "mechanical"]
+    lowered = sorted({states[p]["module"] for p in mech if states[p].get("lowered_by")})
+    if lowered:
+        why = trust["modules"][lowered[0]]["lowered_by"][-1]
+        reasons.append(f"generated files in {', '.join(lowered)} are read in full: trust was lowered after a {why}")
+        if tier == "T0":
+            tier = "T1"
     if tier == "T0" and any(states[p]["state"] != "EARNED" for p in mech):
         tier = "T1"
         reasons.append("mechanical files are in a module that has not EARNED summary review")
@@ -121,7 +127,7 @@ def route(change: Change, cl: dict, trust: dict, abst: list[dict]) -> dict:
         st = states[p]["state"]
         if f["category"] == "mechanical" and st != "REVOKED":
             hidden.append(p)
-        elif tier == "T2" or f["category"] in ("semantic", "public-contract", "docs") or p.endswith(".csproj"):
+        elif tier == "T2" or f["category"] in ("semantic", "public-contract", "docs", "mechanical") or p.endswith(".csproj"):
             must.append(p)
     lines_total = sum(f["added"] + f["deleted"] for f in files.values())
     lines_must = sum(files[p]["added"] + files[p]["deleted"] for p in must)
@@ -147,4 +153,28 @@ def sample(change: Change, hidden: list[str], rate: float = 0.05) -> dict:
     picked = sorted(random.Random(seed).sample(pop, n))
     return {"stage": "sampler", "population": len(pop), "rate": rate, "n": n, "seed": change.sha[:16],
             "method": f"random.Random(int(commit_sha[:16], 16)).sample(sorted(hidden files), max(1, ceil({rate} x N)))",
-            "sample": picked}
+            "sample": picked, "proof_lines": proof_lines(change, pop, picked)}
+
+
+def squash(text: str) -> str:
+    return "".join(text.split())
+
+
+def proof_lines(change: Change, hidden: list[str], picked: list[str]) -> dict[str, list[str]]:
+    """Lines shown in each sampled file's diff that few other hidden files
+    have: quoting one proves the reviewer opened that file."""
+    files = {f.path: f for f in change.files}
+    seen: dict[str, int] = {}
+    for p in hidden:
+        if p not in files:
+            continue
+        for t in {squash(l.text) for h in files[p].hunks for l in h.lines if l.kind != "-"}:
+            seen[t] = seen.get(t, 0) + 1
+    limit = max(1, len(hidden) // 20)
+    out = {}
+    for p in picked:
+        if p not in files:
+            continue
+        lines = {squash(l.text) for h in files[p].hunks for l in h.lines if l.kind != "-"}
+        out[p] = sorted(t for t in lines if len(t) >= 12 and seen.get(t, 0) <= limit)
+    return out

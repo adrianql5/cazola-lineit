@@ -34,3 +34,10 @@ and why.
 | 2026-11-14 | If the pinned SDK fails with CS9057, the job retries on SDK 9 with `DOTNET_ROLL_FORWARD=Major`, and the brief records it as a deviation | Failing the evidence step | The same environment problem we hit locally, handled the same way and said out loud |
 | 2026-11-14 | The receipt pins the hash of the routing rules (`gate.py` + `classifier.py`) | The hash of the policy canvas | The rules that decide the tier are still pinned to every signature |
 | 2026-11-14 | LLM through repository secrets (`LLM_BASE_URL`, `LLM_API_KEY`, `LLM_MODEL`); Vultr Serverless Inference works as is | A hosted service | Same OpenAI-compatible client as before; without secrets, the factory says `NOT RUN` and runs on its deterministic rules |
+| 2026-11-14 | `/spotcheck clean` must quote a line only one sampled file has (a class or method name) | A bare "clean" | It shows the file was opened; quoting the new attribute does not count, since every file has it |
+| 2026-11-14 | Findings also posted on their line in *Files changed*; commands work in those threads; every command gets an answer where it was written | Only the summary comment | That's where people review code, and an answer next to the question is easier to follow |
+| 2026-11-14 | Trust learns from escapes: the hidden files' folders drop a level for 90 days; kept as JSON in a repository issue, with a comment per change | A file committed by the bot | Needs no write access to the code, and every change of trust is visible and can be discussed |
+| 2026-11-14 | Issues without written requirements: the AI proposes them (if configured) and a person confirms with `/requirements ok`; without AI, the person says what they checked | Refusing to review | Works on any repository, and the receipt still says where the requirements came from |
+| 2026-11-14 | `/explain <id>` answers from the stage data, no LLM | An LLM explanation | It cannot add anything the checks did not find |
+| 2026-11-14 | The dashboard is published with GitHub Pages on every push to main | A file in the repo | One public link that is always current |
+

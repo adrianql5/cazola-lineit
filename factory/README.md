@@ -60,8 +60,8 @@ the pipeline continues with the deterministic stages only.
 
 ## Slash commands
 
-`/spotcheck clean|escape` · `/decide <ABS-id> <option> "<reason>"` ·
-`/accept <id>` · `/refute <id> "<evidence>"` · `/verify "<answer>"` (T2,
-optional) · `/sign "<Full Name>"` (owner only: OWNER, MEMBER or
+`/spotcheck clean "<line>"|escape "<what>"` · `/decide <ABS-id> <option> "<reason>"` ·
+`/accept <id>` · `/refute <id> "<evidence>"` · `/requirements ok|wrong "<note>"` ·
+`/explain <id>` · `/verify "<answer>"` (T2, optional) · `/sign "<Full Name>"` (owner only: OWNER, MEMBER or
 COLLABORATOR on GitHub, `owners.json` offline). On GitHub they are PR
 comments; offline you run them with `et.py cmd --branch B --as LOGIN '<command>'`.

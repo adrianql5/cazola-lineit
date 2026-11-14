@@ -16,14 +16,24 @@ COMMIT_AT = "2026-11-14T10:00:00Z"
 class FakeGitHub:
     def __init__(self, comments):
         self.comments = comments
-        self.posted, self.checks = [], []
+        self.posted, self.checks, self.reviews, self.replies = [], [], [], []
         self.diff = sources.load("ju26-issue-2283").diff_text
 
     def __call__(self, method, path, body=None, accept=""):
         if accept.endswith("diff"):
             return self.diff
         if "/issues/7/comments?" in path:
-            return self.comments
+            return [c for c in self.comments if c.get("kind") != "review"]
+        if "/pulls/7/comments?" in path:
+            return [c for c in self.comments if c.get("kind") == "review"]
+        if "/issues?state=all" in path:
+            return []
+        if path.endswith("/reviews"):
+            self.reviews.append(body)
+            return {}
+        if path.endswith("/replies"):
+            self.replies.append(body["body"])
+            return {}
         if path.endswith("/pulls/7"):
             return PR
         if "/commits/" in path:
@@ -64,6 +74,9 @@ class GitHubActionTests(unittest.TestCase):
     def test_pull_request_posts_brief_and_blocks(self):
         fake = self.run_event("pull_request", {"pull_request": PR}, [])
         self.assertIn("Earned-Trust review", fake.posted[0])
+        # each finding also lands on its line in "Files changed"
+        self.assertEqual([c["body"].split("**")[1] for c in fake.reviews[0]["comments"]], ["P-GLOBAL-WRAP"])
+        self.assertEqual(fake.reviews[0]["comments"][0]["side"], "RIGHT")
         self.assertEqual(fake.checks[-1]["conclusion"], "action_required")
         self.assertEqual(fake.checks[-1]["name"], github.CHECK)
 
@@ -79,10 +92,19 @@ class GitHubActionTests(unittest.TestCase):
         self.assertEqual(fake.checks[-1]["conclusion"], "success")
         self.assertIn("Receipt ·", fake.checks[-1]["output"]["text"])
         self.assertEqual(fake.checks[-1]["output"]["title"], "Signed by The Owner")
-        log = fake.posted[-1]
-        self.assertIn("written before the latest commit", log)
-        self.assertIn("@drive-by can't sign", log)
-        self.assertIn("Signed by The Owner", log)
+        brief_text = next(p for p in reversed(fake.posted) if github.MARK in p)
+        self.assertIn("written before the latest commit", brief_text)
+        self.assertIn("@drive-by can't sign", brief_text)
+        # the comment that triggered the run gets its own answer
+        self.assertIn("Signed by The Owner", fake.posted[-1])
+        self.assertTrue(fake.posted[-1].startswith('> /sign "The Owner"'))
+
+    def test_command_in_a_line_comment_gets_a_reply_in_its_thread(self):
+        c = comment("owner", "/explain P-GLOBAL-WRAP", "2026-11-14T10:05:00Z")
+        c["kind"] = "review"
+        ev = {"pull_request": PR, "comment": c}
+        fake = self.run_event("pull_request_review_comment", ev, [c])
+        self.assertIn("Who raised it", fake.replies[-1])
 
 
 if __name__ == "__main__":

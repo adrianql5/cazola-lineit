@@ -13,9 +13,9 @@ on:
         type: string
         default: main
       issue_repo:
-        description: where the issues the PRs implement live
+        description: where the issues the PRs implement live (empty = this repository)
         type: string
-        default: MessagePack-CSharp/MessagePack-CSharp
+        default: ""
     secrets:
       LLM_BASE_URL:
         required: false
@@ -26,8 +26,11 @@ on:
 
 jobs:
   review:
-    # PRs, and PR comments with a slash command in them
-    if: github.event_name == 'pull_request' || (github.event.issue.pull_request && contains(github.event.comment.body, '/'))
+    # PRs, and PR or line comments with a slash command in them
+    if: >-
+      github.event_name == 'pull_request' ||
+      (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '/')) ||
+      (github.event.issue.pull_request && contains(github.event.comment.body, '/'))
     runs-on: ubuntu-latest
     timeout-minutes: 30
     concurrency:

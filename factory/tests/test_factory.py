@@ -87,6 +87,57 @@ class SamplerTests(unittest.TestCase):
         self.assertEqual(gate.sample(sources.load("ju26-issue-2297"), ["only"])["n"], 1)
 
 
+class SpotcheckTests(unittest.TestCase):
+    def test_clean_needs_a_line_only_one_sample_file_has(self):
+        with tempfile.TemporaryDirectory() as d, unittest.mock.patch.dict("os.environ", {"ET_LEDGER_DIR": d}):
+            d = Path(d)
+            rep = pipeline.review(sources.load("ju26-issue-2297"), use_llm=False, run_dir=d)
+            _, msg = commands.apply(rep, d, "demo-owner", "/spotcheck clean")
+            self.assertIn("Copy one line", msg)
+            _, msg = commands.apply(rep, d, "demo-owner", '/spotcheck clean "[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]"')
+            self.assertIn("doesn't show which sample file", msg)
+            state, msg = commands.apply(rep, d, "demo-owner", '/spotcheck clean "class MyEnumFormatter"')
+            self.assertEqual(state["spotcheck"]["result"], "clean", msg)
+
+
+class LearningTests(unittest.TestCase):
+    def test_an_escape_makes_the_next_review_read_the_folder(self):
+        from earned_trust import ledger
+        mod = "tests/MessagePack.SourceGenerator.Tests/Resources"
+        with unittest.mock.patch.object(ledger, "EVENTS", [{"kind": "escape", "pr": 8, "modules": [mod], "until": "2999-01-01"}]):
+            with tempfile.TemporaryDirectory() as d:
+                r = pipeline.review(sources.load("ju26-issue-2297"), use_llm=False, run_dir=Path(d), write=False)
+        self.assertGreater(r["router"]["read"]["lines_must_read"], 1000)
+
+
+class AnyIssueTests(unittest.TestCase):
+    def change(self):
+        c = sources.load("ju26-issue-2283")
+        return sources.make("pr-99", {"issue": 99, "sha": c.sha, "subject": "fix", "author": "x"},
+                            {"title": "Crash on generic structs", "body": "It crashes.", "url": ""}, c.diff_text, "test")
+
+    def test_no_requirements_and_no_ai_asks_the_human(self):
+        with tempfile.TemporaryDirectory() as d, unittest.mock.patch.dict("os.environ", {"ET_LEDGER_DIR": d}):
+            rep = pipeline.review(self.change(), use_llm=False, run_dir=Path(d))
+            self.assertEqual(rep["tracer"]["requirements_status"], "missing")
+            todo = [t["what"] for t in commands.todo(rep, commands.load(Path(d)))]
+            self.assertIn("Say what this PR must do", todo)
+            state, _ = commands.apply(rep, Path(d), "demo-owner", '/requirements ok "compared with the issue"')
+            self.assertNotIn("Say what this PR must do", [t["what"] for t in commands.todo(rep, state)])
+
+    def test_the_ai_proposes_requirements_for_a_person_to_confirm(self):
+        from earned_trust import llm
+        answer = {"model": "fake-model", "prompt_version": "t", "input_sha256": "0", "cached": False, "content": '[{"text": "No crash", "quote": "It crashes.", '
+                  '"code": ["GetPropertyIdentifierLocation"], "tests": ["FromMetadataReference"]}]'}
+        with tempfile.TemporaryDirectory() as d, unittest.mock.patch.object(llm, "chat", lambda *a, **k: answer):
+            rep = pipeline.review(self.change(), use_llm=True, offline=False, run_dir=Path(d), write=False)
+        tr = rep["tracer"]
+        self.assertEqual(tr["requirements_status"], "proposed")
+        req = tr["claims"][0]
+        self.assertEqual((req["id"], req["status"] in ("PARTIAL", "VERIFIED")), ("REQ-99-1", True))
+        self.assertIn("not yet confirmed", req["kind"])
+
+
 class GateTests(unittest.TestCase):
     def test_cannot_sign_before_deciding_and_non_owner_cannot_sign(self):
         with tempfile.TemporaryDirectory() as d, unittest.mock.patch.dict("os.environ", {"ET_LEDGER_DIR": d}):

@@ -32,6 +32,27 @@ HISTORY = FACTORY / "cache" / "upstream_history.json"
 REVERT_RE = re.compile(r"\brevert", re.I)
 FIX_RE = re.compile(r"\b(fix(es|ed)?|bug|regression|hotfix)\b", re.I)
 WINDOW_DAYS = 730
+DEMOTE = {"EARNED": "PROBATION", "PROBATION": "REVOKED", "REVOKED": "REVOKED"}
+
+# What the factory has learned on this repository: spot-check escapes. Filled
+# from the repo's trust-ledger issue in GitHub Actions, or from
+# ledger/trust-events.json locally.
+EVENTS: list[dict] = []
+LOCAL_EVENTS = ROOT / "ledger" / "trust-events.json"
+
+
+def events() -> list[dict]:
+    out = list(EVENTS)
+    if not out and LOCAL_EVENTS.exists():
+        out = json.loads(LOCAL_EVENTS.read_text())
+    today = datetime.utcnow().strftime("%Y-%m-%d")
+    return [e for e in out if e.get("until", "9999") >= today]
+
+
+def record_local(event: dict) -> None:
+    LOCAL_EVENTS.parent.mkdir(parents=True, exist_ok=True)
+    old = json.loads(LOCAL_EVENTS.read_text()) if LOCAL_EVENTS.exists() else []
+    LOCAL_EVENTS.write_text(json.dumps(old + [event], indent=1))
 
 
 def module_of(path: str) -> str:
@@ -68,6 +89,12 @@ def trust_table() -> dict:
         table[m] = {"state": state, "commits": n, "reverts": len(reverts), "fix_followups": len(fixes),
                     "fix_ratio": round(ratio, 2),
                     "evidence": [f"{c['sha'][:10]} {c['subject'][:70]}" for c in (reverts + fixes)[:3]]}
+    for e in events():
+        for m in e.get("modules", []):
+            row = table.setdefault(m, {"state": "PROBATION", "commits": 0, "reverts": 0, "fix_followups": 0,
+                                       "fix_ratio": 0, "evidence": []})
+            row["state"] = DEMOTE[row["state"]]
+            row.setdefault("lowered_by", []).append(f"spot-check escape on PR #{e.get('pr')} ({e.get('at', '')[:10]})")
     return {"source": h["source"], "window": f"{WINDOW_DAYS} days up to {latest.date()}",
             "commits_in_window": len(window), "modules": table}
 

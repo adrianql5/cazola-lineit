@@ -13,9 +13,13 @@ On every pull request a GitHub Action, with nobody pressing anything:
    API, wire format, compatibility, security;
 4. runs the tests the PR adds, and tells the reviewer exactly which lines
    they must read and which ones it summarized;
-5. keeps the check `earned-trust/human-accountability-gate` blocked until an
-   owner answers in PR comments (`/decide`, `/accept`, `/sign`), and then
-   publishes a signed **Accountability Receipt**.
+5. puts each finding on its line in *Files changed*, and answers every
+   command where it was written;
+6. keeps the check `earned-trust/human-accountability-gate` blocked until an
+   owner answers (`/decide`, `/accept`, `/sign`), and then publishes a signed
+   **Accountability Receipt**;
+7. learns: when a spot-check finds something the pattern check missed, that
+   folder is read in full for 90 days (kept in the *Earned-Trust trust ledger* issue).
 
 *AI reviews. Humans sign. Evidence decides.*
 
@@ -24,6 +28,7 @@ On every pull request a GitHub Action, with nobody pressing anything:
 | The concept on one page | [docs/CONCEPT_CARD.md](docs/CONCEPT_CARD.md) |
 | Decisions, lessons | [docs/DECISION_LOG.md](docs/DECISION_LOG.md) · [docs/LESSONS_AND_FAILURE_MODES.md](docs/LESSONS_AND_FAILURE_MODES.md) |
 | How the code is organised | [factory/README.md](factory/README.md) |
+| The measurements, live | **https://adrianql5.github.io/cazola-lineit/** (rebuilt on every push) |
 | **See it work** | the [pull requests](../../pulls) of this repository: the four AI-written changes of the challenge, each reviewed by the Action |
 
 ## Try it in one minute (offline, Python 3 only)
@@ -33,6 +38,18 @@ make demo                              # 4 reviews, example receipts, benchmark,
 open dashboard/index.html              # the measurements, each with its source
 open runs/ju26-issue-2297/brief.md     # the brief of the 237-file change
 ```
+
+## Commands, as PR comments or replies on a finding's line
+
+| Command | Means |
+|---|---|
+| `/spotcheck clean "<a line from one sample file>"` | I opened the random sample; it's fine. The quote proves the file was opened |
+| `/spotcheck escape "<what looks wrong>"` | Something slipped through: read every file, and trust that folder less |
+| `/decide ABS-1 <option> "<why>"` | My decision on something the AI won't decide |
+| `/accept <id>` · `/refute <id> "<why>"` | This finding is real · it isn't, because… |
+| `/requirements ok "<what I checked>"` | Only when the issue has no written requirements |
+| `/explain <id>` | Tell me more about a finding, decision or claim |
+| `/sign "<Full Name>"` | I take responsibility for this change (write access needed) |
 
 ## Put it on a repository
 

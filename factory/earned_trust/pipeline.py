@@ -90,7 +90,7 @@ class Run:
             self.put(name, classifier.run(c))
         elif name == "tracer":
             facts = json.loads((FACTORY / "knowledge" / "facts.json").read_text())["facts"]
-            self.put(name, tracer.run(c, self.dir, facts))
+            self.put(name, tracer.run(c, self.dir, facts, offline=self.offline or not self.use_llm))
         elif name == "auditor":
             self.put(name, auditor.run(c, self.get("classifier"), self.get("tracer")))
         elif name == "prosecutor":
