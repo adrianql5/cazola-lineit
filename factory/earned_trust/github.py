@@ -78,6 +78,10 @@ def restore_llm(old_body: str, sha: str, cache: Path) -> None:
     cache.mkdir(parents=True, exist_ok=True)
     for name, record in saved["answers"].items():
         (cache / name).write_text(json.dumps(record))
+    # the cache is keyed by model too: look the answers up under the model that gave them
+    models = {r.get("model") for r in saved["answers"].values() if r.get("model")}
+    if len(models) == 1:
+        os.environ["LLM_MODEL"] = models.pop()
 
 
 def save_llm(cache: Path, sha: str) -> str:

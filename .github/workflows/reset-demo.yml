@@ -26,4 +26,5 @@ jobs:
       - name: Start the review again
         env:
           GITHUB_TOKEN: ${{ github.token }}
+          LLM_MODEL: ${{ secrets.LLM_MODEL }}
         run: python3 factory/et.py github --reset "${{ inputs.pr }}"

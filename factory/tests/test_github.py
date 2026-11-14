@@ -126,5 +126,18 @@ class GitHubActionTests(unittest.TestCase):
         self.assertIn("To merge, reply to this PR with", brief)
 
 
+    def test_saved_ai_answers_are_found_without_llm_model_set(self):
+        import hashlib
+        from earned_trust import llm, prosecutor
+        with tempfile.TemporaryDirectory() as d, unittest.mock.patch.dict(os.environ, {}, clear=False):
+            os.environ.pop("LLM_MODEL", None)
+            cache = Path(d) / "llm"
+            record = {"model": "qwen3.8-27b", "prompt_version": "v", "input_sha256": "x", "content": "[]"}
+            key = hashlib.sha256(b"v\nqwen3.8-27b\nS\nU").hexdigest()
+            body = '<!-- earned-trust-llm ' + json.dumps({"sha": "s", "answers": {f"{key[:16]}-v.json": record}}) + ' -->'
+            github.restore_llm(body, "s", cache)
+            self.assertEqual(llm.chat("S", "U", prompt_version="v", cache_dir=cache, offline=True)["content"], "[]")
+
+
 if __name__ == "__main__":
     unittest.main()
