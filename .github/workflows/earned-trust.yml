@@ -28,9 +28,12 @@ on:
 
 jobs:
   review:
-    # PRs, and PR or line comments with a slash command in them
+    # PRs, and PR or line comments with a slash command in them. On
+    # pull_request_target (PRs from forks, which need the secrets) the PR's code
+    # is never checked out or run: only its diff is read, through the API.
     if: >-
       github.event_name == 'pull_request' ||
+      github.event_name == 'pull_request_target' ||
       (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '/')) ||
       (github.event.issue.pull_request && contains(github.event.comment.body, '/'))
     runs-on: ubuntu-latest
