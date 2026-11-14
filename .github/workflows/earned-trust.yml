@@ -47,6 +47,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           path: target
+          fetch-depth: 0  # MessagePack versions itself from git history (Nerdbank.GitVersioning)
 
       - name: .NET for the tests
         if: github.event_name == 'pull_request'

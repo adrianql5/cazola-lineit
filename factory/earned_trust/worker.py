@@ -88,6 +88,8 @@ def execute(workdir: Path, tests_added: list[dict], sha: str, *, image: str = IM
     why = (f"{r['passed']} passed, {r['failed']} failed ({how})" if r["status"] != "ERROR" else
            "; ".join(f"{x['project'].split('/')[1]}: {x['status']} {', '.join(x['errors'])}" for x in r["per_project"])
            or "build or run error, see log_tail")
+    if "ThrowShallowClone" in out:
+        why += " — the checkout is shallow and the build versions itself from git history (fetch-depth: 0 fixes it)"
     if deviations:
         why += f" — deviation: {'; '.join(deviations)}"
     return {**r, "sha": sha, "how": how, "command": inner, "projects": projs, "deviations": deviations,
