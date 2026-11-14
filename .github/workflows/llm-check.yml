@@ -1,0 +1,23 @@
+# Run by hand (Actions > llm-check > Run workflow): checks the LLM secrets
+# work and lists the models the endpoint offers. Prints model names only.
+name: llm-check
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: List the models
+        env:
+          LLM_BASE_URL: ${{ secrets.LLM_BASE_URL || 'https://api.vultrinference.com/v1' }}
+          LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
+        run: |
+          echo "endpoint: $LLM_BASE_URL"
+          [ -n "$LLM_API_KEY" ] && echo "key: set (${#LLM_API_KEY} characters)" || echo "key: NOT SET"
+          python3 factory/et.py models

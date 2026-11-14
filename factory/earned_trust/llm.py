@@ -18,6 +18,7 @@ import hashlib
 import json
 import os
 import time
+import urllib.error
 import urllib.request
 from pathlib import Path
 
@@ -42,12 +43,20 @@ def _request(path: str, payload: dict | None = None, timeout: int = 120) -> dict
     try:
         with urllib.request.urlopen(req, data=data, timeout=timeout) as r:
             return json.loads(r.read())
-    except Exception as e:  # network, HTTP, JSON: all mean "no LLM this run"
-        raise LLMUnavailable(f"{type(e).__name__}: {e}") from e
+    except urllib.error.HTTPError as e:  # say what the server answered (never the key)
+        body = e.read().decode(errors="replace")[:300]
+        raise LLMUnavailable(f"{base}{path} answered HTTP {e.code}: {body}") from e
+    except Exception as e:  # network, JSON: all mean "no LLM this run"
+        raise LLMUnavailable(f"{base}{path}: {type(e).__name__}: {e}") from e
 
 
 def models() -> list[str]:
-    return [m["id"] for m in _request("/models").get("data", [])]
+    r = _request("/models")
+    items = r.get("data") or r.get("models") or (r if isinstance(r, list) else [])
+    ids = [m.get("id") or m.get("name") for m in items if isinstance(m, dict)]
+    if not ids:
+        raise LLMUnavailable(f"no models in the answer: {json.dumps(r)[:300]}")
+    return ids
 
 
 def chat(system: str, user: str, *, prompt_version: str, cache_dir: Path, offline: bool) -> dict:
