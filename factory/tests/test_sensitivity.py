@@ -155,6 +155,19 @@ class SensitivityTests(unittest.TestCase):
         self.assertEqual(r["sensitivity"]["required"]["owner_groups"][0]["owners"], ["ana"])
         self.assertNotIn("critical-untested", [a["kind"] for a in r["abstentions"]])
 
+    def test_the_first_of_two_signatures_is_accepted(self):
+        r, d = self.review(settings=SETTINGS.replace('owners = ["ana"]', 'owners = ["ana", "luis"]')
+                           .replace("signatures = 1", "signatures = 2"))
+        commands.apply(r, d, "ana", '/requirements ok "read it"', can_sign=True)
+        for a in r["abstentions"]:
+            commands.apply(r, d, "ana", f"/decide {a['id']} {a['options'][1]} \"x\"", can_sign=True)
+        commands.apply(r, d, "ana", "/accept all", can_sign=True)
+        state, msg = commands.apply(r, d, "ana", '/sign "Ana"', can_sign=True)
+        self.assertEqual(len(state["signatures"]), 1, msg)
+        self.assertFalse(state.get("signed_complete"))
+        state, msg = commands.apply(r, d, "luis", '/sign "Luis"', can_sign=True)
+        self.assertTrue(state["signed_complete"], msg)
+
     def test_one_signature_line_per_set_of_owners(self):
         r, _ = self.review(codeowners="* @ana\n", diff=DIFF.replace('+var text = "Hi";', '+var password = "Hi";'))
         self.assertGreater(len(r["sensitivity"]["required"]["owner_groups"]), 1)

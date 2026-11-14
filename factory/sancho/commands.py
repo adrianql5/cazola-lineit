@@ -114,7 +114,7 @@ def todo(report: dict, state: dict) -> list[dict]:
             zones = missing.setdefault(tuple(g["owners"]), [])
             zones += [g["zone"]] if g["zone"] not in zones else []
     for owners, zones in missing.items():
-        out.append({"what": f"Signature from an owner of {', '.join(zones)} ({owners_text(list(owners))})",
+        out.append({"what": f"Signature from an owner of {', '.join(zones)} ({owners_text(list(owners))})", "signature": True,
                     "how": f'{owners_text(list(owners))} replies `/sign "Full Name"`'})
     extra = need - len(state["signatures"]) - len(missing)
     if extra > 0:
@@ -124,7 +124,8 @@ def todo(report: dict, state: dict) -> list[dict]:
             what = f"{extra} more signature{'s' if extra > 1 else ''} (each from a different person)"
         else:
             what = f"{need} signatures, each from a different person"
-        out.append({"what": what, "how": 'reply `/sign "Your Full Name"` (on GitHub, `/sign` alone uses the name on your profile)'})
+        out.append({"what": what, "signature": True,
+                    "how": 'reply `/sign "Your Full Name"` (on GitHub, `/sign` alone uses the name on your profile)'})
     return out
 
 
@@ -288,7 +289,7 @@ def apply(report: dict, run_dir: Path, actor: str, text: str, *, at: str | None 
             return state, (f"@{actor} can't sign: this change touches a critical area ({areas}), and only its owners "
                            f"can sign it: {owners_text(allowed_owners)}. Ask one of them to review and sign.")
         left = [i for i in todo(report, {**state, "signatures": state["signatures"] + [{"by": actor}]})
-                if not i["what"].startswith("Signature")]
+                if not i.get("signature")]
         if left:
             return state, "You can't sign yet. Still to do:\n" + "\n".join(f"- {i['what']} → {i['how']}" for i in left)
         state["signatures"].append({"name": " ".join(args), "by": actor, "at": at})
