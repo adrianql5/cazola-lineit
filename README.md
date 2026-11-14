@@ -40,6 +40,9 @@ open runs/ju26-issue-2297/brief.md     # the brief of the 237-file change
 
 ## Commands, as PR comments or replies on a finding's line
 
+The bot reacts 👍 to every comment with a command as soon as it reads it, and
+then answers below it.
+
 | Command | Means |
 |---|---|
 | `/spotcheck clean "<a line from one sample file>"` | I opened the random sample; it's fine. The quote proves the file was opened |

@@ -232,6 +232,15 @@ def inline_findings(repo: str, number: int, sha: str, report: dict, existing: li
             print(f"inline comments skipped: {e}")
 
 
+def acknowledge(repo: str, comment: dict, kind: str) -> None:
+    """A 👍 on the comment as soon as its commands are read, before the review runs."""
+    where = "pulls" if kind == "review" else "issues"
+    try:
+        gh("POST", f"/repos/{repo}/{where}/comments/{comment['id']}/reactions", {"content": "+1"})
+    except Exception as e:  # a missing reaction must not stop the review
+        print(f"could not react to the comment: {e}")
+
+
 def reply_to(repo: str, number: int, comment: dict, kind: str, replies: list[str]) -> None:
     text = "\n\n".join(replies)
     if kind == "review":
@@ -264,6 +273,7 @@ def main(target: str | None, reset_pr: int | None = None) -> int:
         if trigger["user"]["type"] == "Bot" or not any(l.strip().startswith("/") for l in (trigger["body"] or "").splitlines()):
             print("no slash command in the comment")
             return 0
+        acknowledge(repo, trigger, trigger_kind)
         num = event["issue"]["number"] if name == "issue_comment" else event["pull_request"]["number"]
         pr = gh("GET", f"/repos/{repo}/pulls/{num}")
         target = None  # tests ran on the pull_request event; reuse that result

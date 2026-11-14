@@ -16,7 +16,7 @@ COMMIT_AT = "2026-11-14T10:00:00Z"
 class FakeGitHub:
     def __init__(self, comments):
         self.comments = comments
-        self.posted, self.checks, self.reviews, self.replies = [], [], [], []
+        self.posted, self.checks, self.reviews, self.replies, self.reactions = [], [], [], [], []
         self.diff = sources.load("ju26-issue-2283").diff_text
 
     def __call__(self, method, path, body=None, accept=""):
@@ -30,6 +30,9 @@ class FakeGitHub:
             return []
         if path.endswith("/reviews"):
             self.reviews.append(body)
+            return {}
+        if path.endswith("/reactions"):
+            self.reactions.append((path, body["content"]))
             return {}
         if path.endswith("/replies"):
             self.replies.append(body["body"])
@@ -98,6 +101,8 @@ class GitHubActionTests(unittest.TestCase):
         # the comment that triggered the run gets its own answer
         self.assertIn("Signed by The Owner", fake.posted[-1])
         self.assertTrue(fake.posted[-1].startswith('> /sign "The Owner"'))
+        # the comment with the commands got a 👍 as soon as it was read
+        self.assertEqual(fake.reactions, [(f"/repos/me/mp/issues/comments/{comments[-1]['id']}/reactions", "+1")])
 
     def test_command_in_a_line_comment_gets_a_reply_in_its_thread(self):
         c = comment("owner", "/explain P-GLOBAL-WRAP", "2026-11-14T10:05:00Z")
@@ -105,6 +110,7 @@ class GitHubActionTests(unittest.TestCase):
         ev = {"pull_request": PR, "comment": c}
         fake = self.run_event("pull_request_review_comment", ev, [c])
         self.assertIn("Who raised it", fake.replies[-1])
+        self.assertEqual(fake.reactions, [(f"/repos/me/mp/pulls/comments/{c['id']}/reactions", "+1")])
 
 
     def test_reset_makes_earlier_commands_stop_counting(self):
