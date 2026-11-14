@@ -187,7 +187,7 @@ def inline_findings(repo: str, number: int, sha: str, report: dict, existing: li
             continue
         side = "LEFT" if ev["kind"] == "-" else "RIGHT"
         comments.append({"path": f["file"], "line": ev["line"], "side": side,
-                         "body": f"{mark}\n**{f['id']}** · {f['claim']}\n\n"
+                         "body": f"{mark}\n**{f['id']}** · {brief.short(f['claim'], f['id'])}\n\n"
                                  f"Reply here with `/accept {f['id']}` if it is real, or `/refute {f['id']} \"why\"` if not. "
                                  f"`/explain {f['id']}` for more."})
     if comments:

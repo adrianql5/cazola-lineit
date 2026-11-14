@@ -36,6 +36,16 @@ def plural(n: int, word: str) -> str:
     return f"{n} {word}{'' if n == 1 else 's'}"
 
 
+def short(claim: str, fid: str, limit: int = 280) -> str:
+    """A finding in at most a couple of sentences; the rest is one /explain away."""
+    if len(claim) <= limit:
+        return claim
+    cut = claim[:limit]
+    end = max(cut.rfind(". "), cut.rfind("; "))
+    cut = cut[:end + 1] if end > 80 else cut.rsplit(" ", 1)[0] + "…"
+    return f"{cut} *(`/explain {fid}` for the rest)*"
+
+
 def tests_line(ex: dict) -> str:
     if ex["status"] == "PASS":
         line = f"✅ {ex['passed']} of {ex['passed']} passed"
@@ -68,7 +78,7 @@ def summary(r: dict) -> list[str]:
         out.append(f"**Heads-up:** `{name(o['file'])}:{o['line']}` has {what} the issue didn't ask for.")
     elif r["judge"]["accepted"]:
         f = r["judge"]["accepted"][0]
-        out.append(f"**Heads-up:** {f['claim']}")
+        out.append(f"**Heads-up:** {short(f['claim'], f['id'], 160)}")
     if ab:
         more = f" (+{len(ab) - 1} more below)" if len(ab) > 1 else ""
         out.append(f"**Your call:** {ab[0]['decision']}{more} *The AI won't decide this.*")
@@ -108,7 +118,7 @@ def render(r: dict, state: dict | None = None) -> str:
         for f in acc:
             v = state.get("findings", {}).get(f["id"])
             mark = f" · {v['verdict']} by @{v['by']}" if v else ""
-            L += [f"**{f['id']}** · `{name(f['file'])}:{f['line_start']}`{mark}  ", f"{f['claim']}"]
+            L += [f"**{f['id']}** · `{name(f['file'])}:{f['line_start']}`{mark}  ", short(f["claim"], f["id"])]
             ev = [e for e in f.get("evidence", []) if e["kind"] != " "][:2]
             if ev:
                 L += ["```diff"] + [f"{e['kind']}{e['text'].strip()}" for e in ev] + ["```"]

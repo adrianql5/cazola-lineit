@@ -20,11 +20,12 @@ from pathlib import Path
 from . import llm
 from .sources import FACTORY, Change
 
-PROMPT_VERSION = "prosecutor-v1"
+PROMPT_VERSION = "prosecutor-v2"
 
 SYSTEM = """You are the prosecutor in a code review of an AI-written change to MessagePack-CSharp.
 Find ways the change is wrong, unsafe, or does more or less than its issue asks.
-Answer ONLY with a JSON array. Each item: {"claim": str, "file": str, "line_start": int, "line_end": int,
+Answer ONLY with a JSON array. Each item: {"claim": str (one or two short sentences in plain English,
+at most 40 words: what is wrong and why it matters), "file": str, "line_start": int, "line_end": int,
 "symbol": str (an identifier or token written on those lines), "severity": "low"|"medium"|"high",
 "phantom_test": str (an xUnit test, as text, that would expose the problem) or null}.
 Cite line numbers of the NEW file exactly as given (the number after L). Do not give confidence percentages.
