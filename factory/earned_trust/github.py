@@ -163,6 +163,25 @@ def evidence(change: sources.Change, run_dir: Path, target: Path | None, old_bod
 
 LEDGER_MARK = "<!-- earned-trust-ledger -->"
 FINDING_MARK = "<!-- earned-trust-finding {id} {sha} -->"
+FINDING_RE = re.compile(r"<!-- earned-trust-finding (\S+) ")
+ABOUT_ONE_FINDING = ("/accept", "/refute", "/explain")
+
+
+def thread_finding(c: dict, rcomments: list[dict]) -> str | None:
+    """The finding a line comment answers, when it is a reply in a finding's thread."""
+    root = next((r for r in rcomments if r["id"] == c.get("in_reply_to_id")), None)
+    m = FINDING_RE.search((root or {}).get("body") or "")
+    return m.group(1) if m else None
+
+
+def with_finding(line: str, fid: str | None, ids: set[str]) -> str:
+    """In a finding's thread `/accept`, `/refute "why"` and `/explain` are about
+    that finding, so its id can be left out."""
+    cmd, _, rest = line.partition(" ")
+    first = rest.split(maxsplit=1)[0] if rest.strip() else ""
+    if not fid or cmd.lower() not in ABOUT_ONE_FINDING or first in ids or first.lower() == "all":
+        return line
+    return f"{cmd} {fid} {rest}".rstrip()
 
 
 def review_comments(repo: str, number: int) -> list[dict]:
@@ -221,8 +240,7 @@ def inline_findings(repo: str, number: int, sha: str, report: dict, existing: li
         side = "LEFT" if ev["kind"] == "-" else "RIGHT"
         comments.append({"path": f["file"], "line": ev["line"], "side": side,
                          "body": f"{mark}\n**{f['id']}** · {brief.short(f['claim'], f['id'])}\n\n"
-                                 f"Reply here with `/accept {f['id']}` if it is real, or `/refute {f['id']} \"why\"` if not. "
-                                 f"`/explain {f['id']}` for more."})
+                                 "Reply here with `/accept` if it is real, or `/refute \"why\"` if not. `/explain` for more."})
     if comments:
         try:
             gh("POST", f"/repos/{repo}/pulls/{number}/reviews",
@@ -330,7 +348,10 @@ def main(target: str | None, reset_pr: int | None = None) -> int:
             if is_trigger:
                 mine_replies.append(msg)
             continue
+        fid = thread_finding(c, rcomments) if c.get("_kind") == "review" else None
+        ids = {f["id"] for f in report["judge"]["accepted"]}
         for l in lines:
+            l = with_finding(l, fid, ids)
             ok = c["author_association"] in SIGNERS
             _, reply = commands.apply(report, run_dir, c["user"]["login"], l, at=c["created_at"], can_sign=ok)
             if not l.lower().startswith("/explain"):
