@@ -142,6 +142,19 @@ class SensitivityTests(unittest.TestCase):
                            .replace("Balance", "Width").replace("amount", "size").replace("double", "int"))
         self.assertEqual(r["sensitivity"]["zones"], [])
 
+    def test_docs_in_a_critical_area_need_their_owner_but_no_tests(self):
+        docs = """diff --git a/src/Bank/Payments/README.md b/src/Bank/Payments/README.md
+--- a/src/Bank/Payments/README.md
++++ b/src/Bank/Payments/README.md
+@@ -1,1 +1,1 @@
+-Fees are charged to the sender.
++Fees are charged to the receiver.
+"""
+        r, _ = self.review(diff=docs)
+        self.assertEqual(r["tracer"]["execution"]["status"], "NOT NEEDED")
+        self.assertEqual(r["sensitivity"]["required"]["owner_groups"][0]["owners"], ["ana"])
+        self.assertNotIn("critical-untested", [a["kind"] for a in r["abstentions"]])
+
     def test_a_bad_critical_area_is_an_error(self):
         with self.assertRaisesRegex(ValueError, "needs a name and paths"):
             config.parse("[[critical]]\nname = \"x\"\n")

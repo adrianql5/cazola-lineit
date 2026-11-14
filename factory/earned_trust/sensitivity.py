@@ -276,7 +276,7 @@ def run(change: Change, cl: dict, trace: dict, offline: bool = True, use_llm: bo
     escalations = []
     if zones:
         ex = trace["execution"]
-        if ex.get("status") != "PASS":
+        if ex.get("status") not in ("PASS", "NOT NEEDED"):  # docs only: nothing to test
             escalations.append({"rule": "CRITICAL-UNTESTED", "effect": "decision",
                                 "why": "critical code without a passing test run: a person decides whether to merge anyway"})
         trust = ledger.trust_table()
