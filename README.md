@@ -26,7 +26,6 @@ On every pull request a GitHub Action, with nobody pressing anything:
 | | |
 |---|---|
 | The concept on one page | [docs/CONCEPT_CARD.md](docs/CONCEPT_CARD.md) |
-| Decisions, lessons | [docs/DECISION_LOG.md](docs/DECISION_LOG.md) · [docs/LESSONS_AND_FAILURE_MODES.md](docs/LESSONS_AND_FAILURE_MODES.md) |
 | How the code is organised | [factory/README.md](factory/README.md) |
 | The measurements, live | **https://adrianql5.github.io/cazola-lineit/** (rebuilt on every push) |
 | **See it work** | the [pull requests](../../pulls) of this repository: the four AI-written changes of the challenge, each reviewed by the Action |

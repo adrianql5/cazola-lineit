@@ -2,8 +2,8 @@
 review, from upstream history, plus a SQLite record of every run, finding,
 human command, LLM call and receipt.
 
-Heuristic (documented in docs/DECISION_LOG.md, limits in
-docs/LESSONS_AND_FAILURE_MODES.md):
+Heuristic (its limits: it reads commit subjects, so a revert or a fix not
+called that is invisible to it):
 - a module is a directory, at most three levels deep;
 - window: the commits of the last 730 days of the cached master history;
 - REVOKED: a commit whose subject says "revert" touched it in the window,

@@ -1,4 +1,0 @@
-# For the MessagePack-CSharp fork the factory reviews: GitHub collapses
-# generated snapshots in PR diffs by itself. The factory still checks every one
-# of them (pattern + text) and samples them for a human.
-tests/**/Resources/**/*.g.cs linguist-generated=true
