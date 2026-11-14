@@ -79,8 +79,9 @@ def chat(system: str, user: str, *, prompt_version: str, cache_dir: Path, offlin
     resp = _request("/chat/completions", {
         "model": model,
         "temperature": 0,
+        "max_tokens": int(os.environ.get("LLM_MAX_TOKENS", "3000")),  # keeps an answer from running on
         "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}],
-    })
+    }, timeout=int(os.environ.get("LLM_TIMEOUT", "300")))
     content = resp["choices"][0]["message"]["content"]
     record = {
         "model": resp.get("model", model),
