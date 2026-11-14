@@ -66,6 +66,10 @@ name = "payments"
 paths = ['^src/payments/']
 owners = ["ana", "luis"]      # GitHub logins; empty = CODEOWNERS
 signatures = 2
+
+[trust]
+upstream_history = "auto"     # folder trust from MessagePack-CSharp's history:
+                              # auto = only without a settings file; on / off
 ```
 
 Every setting and its default: [`factory/sancho/config.py`](factory/sancho/config.py).
@@ -107,7 +111,10 @@ In a reply on a finding's line you can leave out the id: `/accept`,
 
 The brief lists what is left to do. When it is all done, `/sign` turns the
 check green and attaches a signed receipt. Only owners, members and
-collaborators of the repository can sign; some changes need two signatures.
+collaborators of the repository can sign; some changes need two signatures
+(the owner of a critical area first, then anyone with write access). Answering
+`request-changes`, `reject` or `wait-for-tests` blocks the signature until a
+new commit or a different answer.
 A PR that changes only documentation needs only a signature: no requirements
 to confirm, no tests to run, no AI call.
 
@@ -122,7 +129,7 @@ raise the level of review, never lower it:
 | Reach | A file outside the area whose types the area's code uses (read from the base branch). Changing a helper changes its callers |
 | Patterns | Changed lines, deleted ones too, about money (also money in floating point), credentials, cryptography, data deletion, untrusted input |
 | AI | Lines the model calls sensitive, each citing file, line and symbol, checked by the judge |
-| Situation | Critical and untested: the owner decides. In a folder whose trust was revoked: one more signature. Inside generated files: never hidden |
+| Situation | Critical and untested: the owner decides (on PRs to the default branch the tests run in your CI: the brief says to check it). In a folder whose trust was revoked: one more signature. Inside generated files: never hidden |
 
 ## Run it locally
 
@@ -140,3 +147,16 @@ Python 3 only, nothing to install.
 | `python3 factory/sancho.py github --reset PR` | Start a PR's review again (earlier commands stop counting); in Actions: *reset demo PR* |
 
 `python3 factory/sancho.py --help` lists the rest.
+
+## Known gaps
+
+Found in review and not fixed yet. Fine for a demo repository; worth fixing
+before trusting it on a public one.
+
+| Gap | What can happen |
+|---|---|
+| Only `/sign` checks write access | Anyone can `/decide`, `/accept`, `/refute`, `/requirements` or `/spotcheck`: answer for the owner, block a PR with `request-changes`, or undo the owner's answer. The receipt shows who did it |
+| A stranger's `/spotcheck escape` counts | It lowers the trust of the folders involved for 90 days, on every PR |
+| The trust ledger is any issue with its mark | The newest issue or PR containing `<!-- sancho-ledger -->` is taken as the ledger, whoever wrote it: an empty one erases the real escapes, a broken one makes every review fail. Only the 300 newest issues and PRs are searched |
+| `merge_on_sign` ignores CI | A signed PR is merged even if its `ci` checks fail: the ruleset only requires the Sancho gate. Add your CI check to the ruleset, or merge by hand |
+| *reset demo PR* stops at the first failure | With several numbers, the PRs after a failing one are not reset |
