@@ -35,7 +35,9 @@ def dedupe(accepted: list[dict]) -> list[dict]:
 def not_checked(r: dict) -> list[dict]:
     out = []
     ex = r["tracer"]["execution"]
-    if ex["status"] != "PASS":
+    if ex["status"] == "NOT NEEDED":
+        pass
+    elif ex["status"] != "PASS":
         problem, fix = worker.explain(ex)
         out.append({"item": "Tests", "why": f"{problem} {fix}"})
     else:
@@ -46,7 +48,7 @@ def not_checked(r: dict) -> list[dict]:
             out.append({"item": "Tests this PR switches off", "why": "they were not run in the project that excludes them"})
     out.append({"item": "Deep code analysis", "why": "files are sorted by text patterns, not by compiling them (no Roslyn)"})
     llm = r["prosecutor"]["llm"]
-    if llm["status"] != "RAN":
+    if llm["status"] not in ("RAN", "SKIPPED"):
         out.append({"item": "AI reviewer", "why": "turned off, because no LLM key is set, so findings come from rules only. "
                     "To turn it on, add the secrets LLM_BASE_URL, LLM_API_KEY and LLM_MODEL"})
     un = [c["id"] for c in r["tracer"]["claims"] if c["status"] == "UNVERIFIED"]
@@ -90,7 +92,9 @@ class Run:
             self.put(name, classifier.run(c))
         elif name == "tracer":
             facts = json.loads((FACTORY / "knowledge" / "facts.json").read_text())["facts"]
-            self.put(name, tracer.run(c, self.dir, facts, offline=self.offline or not self.use_llm))
+            files = self.get("classifier")["files"]
+            docs_only = bool(files) and all(f["category"] == "docs" for f in files)
+            self.put(name, tracer.run(c, self.dir, facts, offline=self.offline or not self.use_llm, docs_only=docs_only))
         elif name == "auditor":
             self.put(name, auditor.run(c, self.get("classifier"), self.get("tracer")))
         elif name == "prosecutor":

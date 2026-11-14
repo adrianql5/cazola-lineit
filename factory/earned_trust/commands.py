@@ -84,7 +84,7 @@ def todo(report: dict, state: dict) -> list[dict]:
     out = []
     tr = report["tracer"]
     rs = tr.get("requirements_status", "written")
-    if rs != "written" and not state.get("requirements"):
+    if rs in ("missing", "proposed") and not state.get("requirements"):
         if rs == "proposed":
             out.append({"what": "Check the requirements the AI proposed",
                         "how": 'compare them with the issue, then reply `/requirements ok`, or `/requirements wrong "what is missing"`'})
@@ -179,8 +179,11 @@ def apply(report: dict, run_dir: Path, actor: str, text: str, *, at: str | None 
     if cmd not in USAGE:
         return state, f"I don't know `/{cmd}`. Commands: " + ", ".join(f"`/{c}`" for c in USAGE) + "."
     if cmd == "requirements":
-        if report["tracer"].get("requirements_status", "written") == "written":
+        rs = report["tracer"].get("requirements_status", "written")
+        if rs == "written":
             return state, "This PR's requirements are already written down, so there is nothing to confirm."
+        if rs == "not needed":
+            return state, "This PR changes documentation only, so there are no requirements to confirm."
         if not args or args[0] not in ("ok", "wrong"):
             return state, f"Say whether they are right: {USAGE['requirements']}."
         if args[0] == "wrong" and len(args) < 2:

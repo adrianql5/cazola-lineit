@@ -49,7 +49,7 @@ def build(report: dict, state: dict) -> dict:
                 for f in findings if f["verdict"] == "accepted"]
     residual += [f"No test for: {c['claim'][:120]}" for c in tr["claims"] if c["status"] == "UNVERIFIED"]
     residual += [f"Contradicted: {c['claim'][:120]}" for c in tr["claims"] if c["status"] == "CONTRADICTED"]
-    if tr["execution"]["status"] != "PASS":
+    if tr["execution"]["status"] not in ("PASS", "NOT NEEDED"):
         residual.append("Signed without a passing test run")
     sens = report.get("sensitivity") or {"zones": []}
     signers = [x["by"] for x in state["signatures"]]
