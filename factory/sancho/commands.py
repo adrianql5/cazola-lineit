@@ -98,9 +98,15 @@ def todo(report: dict, state: dict) -> list[dict]:
                     "how": f"open {'it' if s['n'] == 1 else 'them'} (list below), then reply "
                            '`/spotcheck clean "<copy one line from any of them>"`, or `/spotcheck escape "<what looks wrong>"`'})
     for a in report["abstentions"]:
-        if a["id"] not in state["decisions"]:
+        d = state["decisions"].get(a["id"])
+        if not d:
             opts = " or ".join(f'`/decide {a["id"]} {o} "why"`' for o in a["options"])
             out.append({"what": f"Decide {a['id']}", "how": f"{a['decision']} Reply {opts}"})
+        elif d["option"] in BLOCKING:
+            ok = next(o for o in a["options"] if o not in BLOCKING)
+            out.append({"what": f"{a['id']} was answered `{d['option']}` by @{d['by']}",
+                        "how": f"push a fix (a new commit starts the review again), or change the answer: "
+                               f'`/decide {a["id"]} {ok} "why"`'})
     open_ = [f["id"] for f in report["judge"]["accepted"] if f["id"] not in state["findings"]]
     if open_:
         out.append({"what": f"Answer {'finding' if len(open_) == 1 else 'findings'} {', '.join(open_)}",
@@ -121,12 +127,16 @@ def todo(report: dict, state: dict) -> list[dict]:
         if need == 1:
             what = "Signature from an owner"
         elif state["signatures"] or missing:
-            what = f"{extra} more signature{'s' if extra > 1 else ''} (each from a different person)"
+            what = f"{extra} more signature{'s' if extra > 1 else ''} (each from a different person with write access)"
         else:
             what = f"{need} signatures, each from a different person"
         out.append({"what": what, "signature": True,
                     "how": 'reply `/sign "Your Full Name"` (on GitHub, `/sign` alone uses the name on your profile)'})
     return out
+
+
+# answers that say "not like this": the PR can't be signed while one stands
+BLOCKING = {"request-changes", "reject", "wait-for-tests"}
 
 
 def owners_text(owners: list[str]) -> str:
@@ -283,11 +293,14 @@ def apply(report: dict, run_dir: Path, actor: str, text: str, *, at: str | None 
         if any(x["by"] == actor for x in state["signatures"]):
             return state, f"@{actor} has already signed."
         _, groups = required_signatures(report)
-        allowed_owners = sorted({o for g in groups for o in g["owners"]})
+        signers = {x["by"] for x in state["signatures"]}
+        unsigned = [g for g in groups if not signers & set(g["owners"])]
+        allowed_owners = sorted({o for g in unsigned for o in g["owners"]})
         if allowed_owners and actor not in allowed_owners:
-            areas = ", ".join(sorted({g["zone"] for g in groups}))
-            return state, (f"@{actor} can't sign: this change touches a critical area ({areas}), and only its owners "
-                           f"can sign it: {owners_text(allowed_owners)}. Ask one of them to review and sign.")
+            # an owner of every critical area signs first; extra signatures can come from anyone with write access
+            areas = ", ".join(sorted({g["zone"] for g in unsigned}))
+            return state, (f"@{actor} can't sign yet: this change touches a critical area ({areas}), and its owner "
+                           f"signs first: {owners_text(allowed_owners)}. Ask one of them to review and sign.")
         left = [i for i in todo(report, {**state, "signatures": state["signatures"] + [{"by": actor}]})
                 if not i.get("signature")]
         if left:

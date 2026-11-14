@@ -6,7 +6,7 @@ import unittest
 import unittest.mock
 from pathlib import Path
 
-from sancho import commands, config, pipeline, sensitivity, sources
+from sancho import classifier, commands, config, pipeline, sensitivity, sources
 
 DIFF = """diff --git a/src/Bank/Payments/TransferService.cs b/src/Bank/Payments/TransferService.cs
 --- a/src/Bank/Payments/TransferService.cs
@@ -83,10 +83,10 @@ class SensitivityTests(unittest.TestCase):
         r, d = self.review()
         commands.apply(r, d, "ana", "/requirements ok \"read it\"", can_sign=True)
         for a in r["abstentions"]:
-            commands.apply(r, d, "ana", f"/decide {a['id']} {a['options'][1]} \"x\"", can_sign=True)
+            commands.apply(r, d, "ana", f"/decide {a['id']} {a['options'][0]} \"x\"", can_sign=True)
         commands.apply(r, d, "ana", "/accept all", can_sign=True)
         _, msg = commands.apply(r, d, "bob", '/sign "Bob"', can_sign=True)
-        self.assertIn("only its owners can sign it: @ana", msg)
+        self.assertIn("its owner signs first: @ana", msg)
         state, msg = commands.apply(r, d, "ana", '/sign "Ana"', can_sign=True)
         self.assertTrue(state["signed_complete"], msg)
 
@@ -160,13 +160,57 @@ class SensitivityTests(unittest.TestCase):
                            .replace("signatures = 1", "signatures = 2"))
         commands.apply(r, d, "ana", '/requirements ok "read it"', can_sign=True)
         for a in r["abstentions"]:
-            commands.apply(r, d, "ana", f"/decide {a['id']} {a['options'][1]} \"x\"", can_sign=True)
+            commands.apply(r, d, "ana", f"/decide {a['id']} {a['options'][0]} \"x\"", can_sign=True)
         commands.apply(r, d, "ana", "/accept all", can_sign=True)
         state, msg = commands.apply(r, d, "ana", '/sign "Ana"', can_sign=True)
         self.assertEqual(len(state["signatures"]), 1, msg)
         self.assertFalse(state.get("signed_complete"))
         state, msg = commands.apply(r, d, "luis", '/sign "Luis"', can_sign=True)
         self.assertTrue(state["signed_complete"], msg)
+
+    def sign_ready(self, r, d, option=0):
+        commands.apply(r, d, "ana", '/requirements ok "read it"', can_sign=True)
+        for ab in r["abstentions"]:
+            commands.apply(r, d, "ana", f'/decide {ab["id"]} {ab["options"][option]} "x"', can_sign=True)
+        commands.apply(r, d, "ana", "/accept all", can_sign=True)
+
+    def test_a_second_signature_can_come_from_anyone_with_write_access(self):
+        r, d = self.review()
+        r["router"]["second_reviewer"] = True  # e.g. T2 in a folder whose trust is revoked
+        self.sign_ready(r, d)
+        _, msg = commands.apply(r, d, "luis", '/sign "Luis"', can_sign=True)
+        self.assertIn("its owner signs first: @ana", msg)  # not before the owner
+        state, _ = commands.apply(r, d, "ana", '/sign "Ana"', can_sign=True)
+        self.assertFalse(state.get("signed_complete"))
+        state, msg = commands.apply(r, d, "luis", '/sign "Luis"', can_sign=True)
+        self.assertTrue(state["signed_complete"], msg)
+
+    def test_a_no_to_a_decision_blocks_the_signature(self):
+        r, d = self.review()
+        self.sign_ready(r, d, option=-1)  # request-changes, wait-for-tests
+        state, msg = commands.apply(r, d, "ana", '/sign "Ana"', can_sign=True)
+        self.assertEqual(state["signatures"], [])
+        self.assertIn("was answered `request-changes`", msg)
+        commands.apply(r, d, "ana", f'/decide {r["abstentions"][0]["id"]} approve "fixed by talking"', can_sign=True)
+        commands.apply(r, d, "ana", f'/decide {r["abstentions"][1]["id"]} merge-without-tests "x"', can_sign=True)
+        state, msg = commands.apply(r, d, "ana", '/sign "Ana"', can_sign=True)
+        self.assertTrue(state["signed_complete"], msg)
+
+    def test_tests_that_run_in_the_repositorys_ci_are_not_untested(self):
+        config.use(SETTINGS, "test")
+        c = change()
+        cl = classifier.run(c)
+        trace = {"execution": {"status": "NOT RUN", "why": "never run here", "elsewhere": True}}
+        out = sensitivity.run(c, cl, trace, use_llm=False)
+        self.assertEqual([e["rule"] for e in out["escalations"]], ["CRITICAL-TESTS-IN-CI"])
+
+    def test_no_ai_question_about_a_diff_with_no_code(self):
+        docs = sources.make("pr-d", {"issue": 0, "sha": "b" * 40, "subject": "docs", "author": "x"},
+                            {"title": "", "body": "", "url": ""},
+                            "diff --git a/README.md b/README.md\n--- a/README.md\n+++ b/README.md\n@@ -1 +1 @@\n-a\n+b\n", "t")
+        with unittest.mock.patch("sancho.llm.chat", side_effect=AssertionError("called")):
+            _, ai = sensitivity.ask_ai(docs, classifier.run(docs), offline=True)
+        self.assertEqual(ai["status"], "SKIPPED")
 
     def test_one_signature_line_per_set_of_owners(self):
         r, _ = self.review(codeowners="* @ana\n", diff=DIFF.replace('+var text = "Hi";', '+var password = "Hi";'))

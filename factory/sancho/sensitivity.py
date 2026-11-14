@@ -169,7 +169,10 @@ def owners_for(files: list[str], declared: list[str]) -> tuple[list[str], list[s
 
 def ask_ai(change: Change, cl: dict, offline: bool) -> tuple[list[dict], dict]:
     from .prosecutor import numbered
-    user = f"Change: {change.subject}\n\n{numbered(change, cl, limit=40000)}"
+    diff = numbered(change, cl, limit=40000)
+    if not diff:
+        return [], {"status": "SKIPPED", "why": "this PR changes no code, so there is nothing to ask"}
+    user = f"Change: {change.subject}\n\n{diff}"
     try:
         r = llm.chat(SYSTEM, user, prompt_version=PROMPT_VERSION,
                      cache_dir=FACTORY / "cache" / change.branch / "llm", offline=offline)
@@ -276,7 +279,11 @@ def run(change: Change, cl: dict, trace: dict, offline: bool = True, use_llm: bo
     escalations = []
     if zones:
         ex = trace["execution"]
-        if ex.get("status") not in ("PASS", "NOT NEEDED"):  # docs only: nothing to test
+        if ex.get("elsewhere"):  # PRs to the default branch: the repository's own CI runs the tests
+            escalations.append({"rule": "CRITICAL-TESTS-IN-CI", "effect": "note",
+                                "why": "critical code: its tests run in this repository's CI, not here. "
+                                       "Check that the PR's ci check passed before signing"})
+        elif ex.get("status") not in ("PASS", "NOT NEEDED"):  # docs only: nothing to test
             escalations.append({"rule": "CRITICAL-UNTESTED", "effect": "decision",
                                 "why": "critical code without a passing test run: a person decides whether to merge anyway"})
         trust = ledger.trust_table()

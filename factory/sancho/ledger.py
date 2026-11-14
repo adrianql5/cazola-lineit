@@ -25,6 +25,7 @@ from collections import defaultdict
 from datetime import datetime, timedelta
 from pathlib import Path, PurePosixPath
 
+from . import config
 from .sources import FACTORY
 
 ROOT = FACTORY.parent
@@ -62,10 +63,13 @@ def module_of(path: str) -> str:
 
 def trust_table() -> dict:
     h = json.loads(HISTORY.read_text())
+    if not config.upstream_history():  # another repository: its own spot-checks only
+        h = {"source": "none: the only history here is MessagePack-CSharp's, and this is another repository",
+             "commits": []}
     commits = h["commits"]
     for c in commits:
         c["dt"] = datetime.fromisoformat(c["date"])
-    latest = max(c["dt"] for c in commits)
+    latest = max((c["dt"] for c in commits), default=datetime.now().astimezone())
     window = [c for c in commits if c["dt"] >= latest - timedelta(days=WINDOW_DAYS)]
     per: dict[str, list[dict]] = defaultdict(list)
     for c in sorted(window, key=lambda c: c["dt"]):
