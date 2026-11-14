@@ -12,15 +12,15 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
       - name: Unit tests
         run: python3 -m unittest discover -s factory/tests -t factory -v
       - name: Offline demo (4 reviews, scripted receipts, benchmark, dashboard)
         run: python3 factory/et.py demo
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: dashboard
           path: dashboard/index.html

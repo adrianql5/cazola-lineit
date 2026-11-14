@@ -35,7 +35,7 @@ jobs:
       cancel-in-progress: false
     steps:
       - name: Get the factory
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: ${{ inputs.factory_repo }}
           ref: ${{ inputs.factory_ref }}
@@ -43,14 +43,14 @@ jobs:
 
       - name: Get the PR's code (to run the tests it adds)
         if: github.event_name == 'pull_request'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           path: target
 
       - name: .NET for the tests
         if: github.event_name == 'pull_request'
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v6
         with:
           dotnet-version: |
             8.0.x
@@ -68,7 +68,7 @@ jobs:
 
       - name: Keep the stage outputs and the receipt
         if: always() && steps.review.outputs.run_dir != ''
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: earned-trust-pr-${{ github.event.pull_request.number || github.event.issue.number }}-${{ github.run_id }}
           path: ${{ steps.review.outputs.run_dir }}
