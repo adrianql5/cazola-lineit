@@ -12,6 +12,7 @@ the AI refused to make, and what was not checked. A human then signs an
 python3 factory/et.py review --offline          # 4 briefs → runs/<branch>/brief.md
 python3 factory/et.py demo                      # + scripted receipts, bench, dashboard
 python3 factory/et.py github --target DIR       # what the GitHub Action runs on each PR event
+python3 factory/et.py live                      # live numbers from the repo's PRs (needs GITHUB_TOKEN)
 ```
 
 Python 3.10+, standard library only. `--offline` uses the cached diffs and
@@ -33,8 +34,9 @@ Each stage writes `runs/<branch>/<stage>.json` and reads the stages before it.
 | 7 | Spot-check sampler, seeded by the commit SHA | `gate.py` | no |
 | – | Brief, slash commands, receipt | `brief.py`, `commands.py`, `receipt.py` | no |
 | – | Worker: `dotnet test` of the tests a change adds | `worker.py` | no |
-| – | GitHub Actions: PR diff in, brief comment + check run + receipt out, commands replayed from PR comments | `github.py` | no |
-| – | Trust ledger from upstream history; SQLite schema | `ledger.py` | no |
+| – | GitHub Actions: PR diff in; brief comment, a comment on each finding's line, check run and receipt out; commands replayed from PR and line comments, each answered where it was written | `github.py` | no |
+| – | Trust ledger: upstream history, lowered for 90 days by a spot-check escape (kept in a repository issue) | `ledger.py` | no |
+| – | Live measurements from the repository's PRs for the dashboard | `live.py`, `dashboard.py` | no |
 
 ## Folders
 
@@ -43,20 +45,26 @@ cache/          replayed diffs, commits and issues of the 4 branches; upstream h
 requirements/   per-issue requirements, curated by people
 knowledge/      checked facts (with sources), diagnostic IDs, our draft's hallucinated findings
 bench/          seeded defects (mutate.py), the benchmark (run.py), labels, report.json
-tests/          unittest: diff parser, judge, classifier, sampler, gate, the GitHub Actions entry point
+tests/          unittest: diff parser, judge, classifier, sampler, spot-check, gate, learning, the GitHub Actions entry point, live measurements
 ```
 
 ## LLM
 
-Any OpenAI-compatible endpoint works: Vultr Serverless Inference, a vLLM
-of your own, or a partner model. Set `LLM_BASE_URL`, `LLM_API_KEY` and
-`LLM_MODEL` (as repository secrets for the Action); `et.py models` lists the models. Each call is cached by input
-hash, with the model and prompt version, under `cache/<branch>/llm/`, so
-it can be replayed offline. If the call fails, the brief says `NOT RUN` and
-the pipeline continues with the deterministic stages only.
+Any OpenAI-compatible endpoint works. On GitHub this repository uses
+`qwen3.8-27b` on **Vultr Serverless Inference**, configured with repository
+secrets: `LLM_BASE_URL`, `LLM_API_KEY`, `LLM_MODEL` and `LLM_EXTRA_BODY`
+(`{"chat_template_kwargs": {"enable_thinking": false}}`: without it, reasoning
+models spend the whole answer budget thinking and return nothing).
+`LLM_MAX_TOKENS` (3,000) and `LLM_TIMEOUT` (300 s) have defaults, and
+`et.py models` (or the `llm-check` workflow) lists the models.
 
-**The demo material was produced with no LLM key**, so every finding in
-`runs/` comes from the deterministic rules and the auditor.
+The model is called once per commit. Its answer is cached by model, prompt
+version and input hash, and kept hidden in the brief, so comment runs reuse
+it and the findings stay the same. If the call fails or the answer cannot be
+read, the brief says why and the deterministic stages still run.
+
+`make demo` runs offline, without the LLM: its findings come from the rules
+and the auditor only.
 
 ## Slash commands
 

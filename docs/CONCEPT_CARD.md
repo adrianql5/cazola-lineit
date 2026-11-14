@@ -27,6 +27,11 @@ commit, so the PR's comments are the state. GitHub's `author_association`
 decides who may sign. When the gate is met, the check turns green with the
 receipt in its output, and the stage outputs are kept as an artifact.
 
+Each finding is also posted on its line in *Files changed*, and every command
+gets its answer where it was written. The AI prosecutor is `qwen3.8-27b` on
+Vultr Serverless Inference, called once per commit through an
+OpenAI-compatible client; comment runs reuse its saved answer.
+
 ## Six principles
 
 1. **Deterministic evidence first.** No finding that blocks a merge comes from
@@ -41,9 +46,12 @@ receipt in its output, and the stage outputs are kept as an artifact.
    that is missing, and who decides. It gives no confidence percentages,
    ever.
 4. **Read less only where trust was earned.** A module's trust comes from its
-   upstream history (reverts and fix follow-ups) and is lost when a seeded
-   defect escapes. Only mechanical files that fit a pattern are hidden, and
-   a sample of them, seeded by the commit SHA, goes to a human anyway.
+   upstream history (reverts and fix follow-ups). When a spot-check finds
+   something the pattern check missed (`/spotcheck escape`), the folder loses a
+   level of trust for 90 days and is read in full; this is recorded in an issue
+   of the repository. Only mechanical files that fit a pattern are hidden, and
+   a sample of them, seeded by the commit SHA, goes to a human, who must quote
+   a line from one of them to show it was opened.
 5. **Name what was not checked.** Tests that were not run show as `NOT RUN`,
    never as passing. Every brief and every receipt has a *What was NOT
    checked* section.
@@ -60,8 +68,12 @@ receipt in its output, and the stage outputs are kept as an artifact.
 | #2234 SuppressSourceGeneration | T1 | 36 of 266 | first-wins on duplicate keys in the shared path; README claims MsgPack012 is checked, no test does |
 | #2129 formatter for external types | **T2** | 1,035 of 1,043 | new public API, contractless default, 4 new *Error* rules, tests excluded from map mode → 4 abstentions. The factory saves no time here, on purpose |
 
-Measured numbers (seeded recall, judge rejections, the shape-preserving sweep,
-precision) are on https://adrianql5.github.io/cazola-lineit/, and each one names its source.
+Measured numbers are on https://adrianql5.github.io/cazola-lineit/, and each
+one names its source: the benchmark (seeded recall, judge rejections, the
+shape-preserving sweep, precision) and live numbers read from this
+repository's pull requests (share of lines read by a person, findings accepted
+or refuted by rules and by the AI, time from brief to signature and to merge),
+rebuilt after every review.
 
 ## Trade-offs
 
@@ -95,9 +107,13 @@ precision) are on https://adrianql5.github.io/cazola-lineit/, and each one names
 - **Small numbers.** Four real branches, 14 seeded defects and nine labelled
   findings. The labels were made by the build engineer (an AI) and must be
   re-labelled by a person before anyone quotes them.
-- **Simulated sessions are not users.** The example receipts that `make demo` writes come from
-  scripted sessions and carry no timing. There is no review-minutes number
-  until real people sign real PRs.
+- **Simulated sessions are not users.** The example receipts that `make demo`
+  writes come from scripted sessions and carry no timing. The live dashboard
+  shows time to signature and acceptance rates only once real people answer
+  and sign real PRs.
+- **The rules are written for MessagePack.** The T2 triggers and the pattern of
+  generated files name MessagePack's paths; another repository would need them
+  adjusted before the factory reads less there.
 - **If the pattern is the bug, the factory is blind.** 220 snapshots that are
   all wrong in the same way form a clean pattern. The templates (`.tt`) are
   always read by a human for this reason.
