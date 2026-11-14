@@ -5,6 +5,9 @@ partner model, all by configuration:
     LLM_BASE_URL   e.g. https://api.vultrinference.com/v1
     LLM_API_KEY
     LLM_MODEL      no model name lives in the code: `python -m earned_trust models` lists them
+    LLM_EXTRA_BODY optional JSON merged into each request, e.g.
+                   {"chat_template_kwargs": {"enable_thinking": false}} for models that
+                   would otherwise spend the whole answer budget reasoning
 
 Every call is cached under factory/cache/<branch>/llm/<input sha>.json with
 the model, the prompt version and the hash of its input, so a run can be
@@ -81,6 +84,7 @@ def chat(system: str, user: str, *, prompt_version: str, cache_dir: Path, offlin
         "temperature": 0,
         "max_tokens": int(os.environ.get("LLM_MAX_TOKENS", "3000")),  # keeps an answer from running on
         "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}],
+        **json.loads(os.environ.get("LLM_EXTRA_BODY") or "{}"),
     }, timeout=int(os.environ.get("LLM_TIMEOUT", "300")))
     choice = resp["choices"][0]
     content = choice["message"].get("content") or ""

@@ -23,6 +23,8 @@ on:
         required: false
       LLM_MODEL:
         required: false
+      LLM_EXTRA_BODY:
+        required: false
 
 jobs:
   review:
@@ -68,6 +70,7 @@ jobs:
           LLM_BASE_URL: ${{ secrets.LLM_BASE_URL }}
           LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
           LLM_MODEL: ${{ secrets.LLM_MODEL }}
+          LLM_EXTRA_BODY: ${{ secrets.LLM_EXTRA_BODY }}
         run: python3 factory-src/factory/et.py github ${{ github.event_name == 'pull_request' && '--target target' || '' }}
 
       - name: Keep the stage outputs and the receipt

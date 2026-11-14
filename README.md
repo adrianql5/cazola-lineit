@@ -58,8 +58,9 @@ repository's `.github/workflows/`. In *Settings → Branches*, require the
 check `earned-trust/human-accountability-gate`. That's all: every new PR
 gets its brief. To add an LLM (any OpenAI-compatible endpoint, for example
 Vultr Serverless Inference), set the repository secrets `LLM_BASE_URL`,
-`LLM_API_KEY` and `LLM_MODEL`. Without them the factory runs on its
-deterministic rules and says so.
+`LLM_API_KEY` and `LLM_MODEL` (and, for models that think out loud,
+`LLM_EXTRA_BODY` = `{"chat_template_kwargs": {"enable_thinking": false}}`).
+Without them the factory runs on its deterministic rules and says so.
 
 ## The example pull requests
 
