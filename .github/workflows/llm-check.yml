@@ -21,22 +21,42 @@ jobs:
           echo "endpoint: $LLM_BASE_URL"
           [ -n "$LLM_API_KEY" ] && echo "key: set (${#LLM_API_KEY} characters)" || echo "key: NOT SET"
           python3 factory/et.py models
-      - name: Real prosecutor prompt (#2283) per model and answer budget
+      - name: Raw answers to the real prosecutor prompt (#2283)
         env:
           LLM_BASE_URL: ${{ secrets.LLM_BASE_URL || 'https://api.vultrinference.com/v1' }}
           LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
         run: |
           cd factory && python3 - <<'PY'
-          import os, time
+          import json, os, time, urllib.request
           from earned_trust import sources, classifier, prosecutor
           c = sources.load("ju26-issue-2283"); cl = classifier.run(c)
-          for model, budget in [("deepseek-v4.1-flash-1017", "16000"), ("glm-5.3-flash", "16000"),
-                                ("qwen3.8-27b", "16000"), ("glm-5.3", "16000")]:
-              os.environ["LLM_MODEL"], os.environ["LLM_MAX_TOKENS"] = model, budget
+          user = (f"Issue #{c.issue}: {c.issue_title}\n\n{c.issue_body[:3000]}\n\nCommit: {c.subject}\n\n"
+                  f"Diff (semantic files only):\n{prosecutor.numbered(c, cl)}")
+          print("prompt characters:", len(prosecutor.SYSTEM) + len(user))
+          base, key = os.environ["LLM_BASE_URL"].rstrip("/"), os.environ["LLM_API_KEY"]
+          variants = [
+              ("deepseek-v4.1-flash-1017", {}),
+              ("deepseek-v4.1-flash-1017", {"reasoning_effort": "low"}),
+              ("glm-5.3-flash", {}),
+              ("glm-5.3-flash", {"chat_template_kwargs": {"enable_thinking": False}}),
+              ("qwen3.8-27b", {"chat_template_kwargs": {"enable_thinking": False}}),
+          ]
+          for model, extra in variants:
+              body = {"model": model, "temperature": 0, "max_tokens": 8000,
+                      "messages": [{"role": "system", "content": prosecutor.SYSTEM}, {"role": "user", "content": user}], **extra}
+              req = urllib.request.Request(base + "/chat/completions", data=json.dumps(body).encode(), method="POST",
+                                           headers={"Content-Type": "application/json", "Authorization": "Bearer " + key})
               t = time.time()
-              accs, meta = prosecutor.ask_llm(c, cl, offline=False)
-              print(f"{model:26} budget={budget:>6} {time.time() - t:6.1f}s {meta.get('status')} "
-                    f"accusations={len(accs)} {str(meta.get('why', ''))[:140]}")
-              for a in accs[:3]:
-                  print("     ", a.get("file"), a.get("line_start"), repr(a.get("symbol")), "|", (a.get("claim") or "")[:90])
+              try:
+                  with urllib.request.urlopen(req, timeout=300) as r:
+                      resp = json.loads(r.read())
+                  ch = resp["choices"][0]; m = ch["message"]
+                  sizes = {k: len(v) for k, v in m.items() if isinstance(v, str)}
+                  print(f"{model:26} {json.dumps(extra):50} {time.time() - t:6.1f}s finish={ch.get('finish_reason')} "
+                        f"fields={sizes} usage={resp.get('usage')}")
+                  print("      content:", repr((m.get("content") or "")[:200]))
+              except urllib.error.HTTPError as e:
+                  print(f"{model:26} {json.dumps(extra):50} HTTP {e.code}: {e.read().decode()[:200]}")
+              except Exception as e:
+                  print(f"{model:26} {json.dumps(extra):50} ERROR {e}")
           PY

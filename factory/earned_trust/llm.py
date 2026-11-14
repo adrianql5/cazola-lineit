@@ -63,7 +63,7 @@ def chat(system: str, user: str, *, prompt_version: str, cache_dir: Path, offlin
     """The model's answer and the record of the call. Offline, only a cached
     answer to the same input counts; otherwise LLMUnavailable."""
     model = os.environ.get("LLM_MODEL", "")
-    key = hashlib.sha256(f"{prompt_version}\n{system}\n{user}".encode()).hexdigest()
+    key = hashlib.sha256(f"{prompt_version}\n{model}\n{system}\n{user}".encode()).hexdigest()
     hit = None
     if cache_dir.exists():
         for p in sorted(cache_dir.glob(f"{key[:16]}*.json")):
