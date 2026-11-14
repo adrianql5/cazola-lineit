@@ -21,3 +21,26 @@ jobs:
           echo "endpoint: $LLM_BASE_URL"
           [ -n "$LLM_API_KEY" ] && echo "key: set (${#LLM_API_KEY} characters)" || echo "key: NOT SET"
           python3 factory/et.py models
+      - name: Time a small review answer from each candidate
+        env:
+          LLM_BASE_URL: ${{ secrets.LLM_BASE_URL || 'https://api.vultrinference.com/v1' }}
+          LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
+        run: |
+          python3 - <<'PY'
+          import json, os, time, urllib.request
+          base, key = os.environ["LLM_BASE_URL"].rstrip("/"), os.environ["LLM_API_KEY"]
+          ask = ("Diff:\nL10 +if (x != null) return;\nL11 +total += x.Value;\n"
+                 'Answer ONLY a JSON array of problems: [{"file": "a.cs", "line_start": 11, "symbol": "...", "claim": "..."}]')
+          for model in ["glm-5.3-flash", "deepseek-v4.1-flash-1017", "qwen3.8-flash-next", "glm-5.3", "qwen3.8-27b", "mimo-v2.6-pro"]:
+              body = json.dumps({"model": model, "temperature": 0, "max_tokens": 600,
+                                 "messages": [{"role": "user", "content": ask}]}).encode()
+              req = urllib.request.Request(base + "/chat/completions", data=body, method="POST",
+                                           headers={"Content-Type": "application/json", "Authorization": "Bearer " + key})
+              t = time.time()
+              try:
+                  with urllib.request.urlopen(req, timeout=180) as r:
+                      out = json.loads(r.read())["choices"][0]["message"]["content"] or ""
+                  print(f"{model:28} {time.time() - t:6.1f}s  {out.strip()[:120]!r}")
+              except Exception as e:
+                  print(f"{model:28} {time.time() - t:6.1f}s  ERROR {e}")
+          PY
