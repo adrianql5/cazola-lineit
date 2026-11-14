@@ -59,9 +59,17 @@ marker comment makes earlier commands stop counting, and the findings stay the s
 ## Put it on a repository
 
 Copy [`templates/earned-trust.yml`](templates/earned-trust.yml) to the
-repository's `.github/workflows/`. In *Settings → Branches*, require the
-check `earned-trust/human-accountability-gate`. That's all: every new PR
-gets its brief. To add an LLM (any OpenAI-compatible endpoint, for example
+repository's `.github/workflows/`, then set up the merge gate once, as an
+owner:
+
+```sh
+python3 factory/et.py protect --repo owner/name   # add --branch B for other branches, --dry-run to see it first
+```
+
+It creates (or brings up to date) a branch ruleset: the default branch takes
+changes only through pull requests, merged once
+`earned-trust/human-accountability-gate` is green, with no bypass, admins
+included. That's all: every new PR gets its brief. To add an LLM (any OpenAI-compatible endpoint, for example
 Vultr Serverless Inference), set the repository secrets `LLM_BASE_URL`,
 `LLM_API_KEY` and `LLM_MODEL` (and, for models that think out loud,
 `LLM_EXTRA_BODY` = `{"chat_template_kwargs": {"enable_thinking": false}}`).

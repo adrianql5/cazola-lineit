@@ -13,6 +13,7 @@ python3 factory/et.py review --offline          # 4 briefs → runs/<branch>/bri
 python3 factory/et.py demo                      # + scripted receipts, bench, dashboard
 python3 factory/et.py github --target DIR       # what the GitHub Action runs on each PR event
 python3 factory/et.py live                      # live numbers from the repo's PRs (needs GITHUB_TOKEN)
+python3 factory/et.py protect --repo owner/name  # the merge gate as a branch ruleset (admin, once)
 ```
 
 Python 3.10+, standard library only. `--offline` uses the cached diffs and
@@ -37,6 +38,7 @@ Each stage writes `runs/<branch>/<stage>.json` and reads the stages before it.
 | – | GitHub Actions: PR diff in; brief comment, a comment on each finding's line, check run and receipt out; commands replayed from PR and line comments, each answered where it was written | `github.py` | no |
 | – | Trust ledger: upstream history, lowered for 90 days by a spot-check escape (kept in a repository issue) | `ledger.py` | no |
 | – | Live measurements from the repository's PRs for the dashboard | `live.py`, `dashboard.py` | no |
+| – | The merge gate as a branch ruleset, created or updated in place | `protect.py` | no |
 
 ## Folders
 
