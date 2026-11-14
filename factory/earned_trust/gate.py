@@ -9,7 +9,7 @@ from __future__ import annotations
 import math
 import random
 
-from . import ledger
+from . import config, ledger
 from .sources import Change
 
 # --- 5. Abstention Gate ----------------------------------------------------
@@ -143,7 +143,8 @@ def route(change: Change, cl: dict, trust: dict, abst: list[dict]) -> dict:
 
 # --- 7. Spot-check sampler -------------------------------------------------
 
-def sample(change: Change, hidden: list[str], rate: float = 0.05) -> dict:
+def sample(change: Change, hidden: list[str], rate: float | None = None) -> dict:
+    rate = config.get()["review"]["sample_rate"] if rate is None else rate
     pop = sorted(hidden)
     if not pop:
         return {"stage": "sampler", "population": 0, "sample": [], "seed": None,

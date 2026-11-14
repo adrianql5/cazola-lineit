@@ -8,7 +8,7 @@ import hashlib
 import json
 from pathlib import Path
 
-from . import auditor, brief, classifier, gate, judge, ledger, prosecutor, sources, tracer, worker
+from . import auditor, brief, classifier, config, gate, judge, ledger, prosecutor, sources, tracer, worker
 from .sources import FACTORY, Change
 
 RUNS = FACTORY.parent / "runs"
@@ -117,7 +117,8 @@ class Run:
         r = {k: self.get(k) for k in STAGES}
         r["abstentions"] = r.pop("abstention")
         pr = r["prosecutor"]
-        policy_sha = hashlib.sha256(b"".join(p.read_bytes() for p in POLICY_FILES)).hexdigest()
+        # the rules' code and the repository's settings that let this change through
+        policy_sha = hashlib.sha256(b"".join(p.read_bytes() for p in POLICY_FILES) + config.digest().encode()).hexdigest()
         r["change"] = {"branch": c.branch, "issue": c.issue, "sha": c.sha, "subject": c.subject, "author": c.author,
                        "issue_title": c.issue_title, "issue_url": c.issue_url, "files": len(c.files),
                        "added": c.added, "deleted": c.deleted, "diff_sha": c.diff_sha, "source": c.source}
@@ -126,6 +127,7 @@ class Run:
                     f"{', from replay cache' if pr['llm'].get('cached') else ''})"
                     if pr["llm"]["status"] == "RAN" else f"{pr['llm']['status']}: {pr['llm'].get('why', '')}"),
             "policy_sha": policy_sha,
+            "settings": config.source(),
             "trust": f"{trust['source']}, {trust['window']}",
         }
         r["not_checked"] = not_checked(r)

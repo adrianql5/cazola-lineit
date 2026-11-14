@@ -1,0 +1,15 @@
+# Earned-Trust settings for this repository: the factory's own code.
+# They are read from the pull request's base branch, so a PR cannot change the
+# rules it is reviewed by. Every setting and its default: factory/earned_trust/config.py
+
+[gate]
+merge_on_sign = true        # merge a PR into main as soon as an owner signs it
+merge_method = "merge"
+
+[review]
+generated = []                          # nothing here is generated
+tests = ['(^|/)tests?/']
+public_api = []                         # no published package
+source = ['^factory/earned_trust/']     # where unsafe code and wire-format changes would count
+analyzer_releases = []
+test_projects = []

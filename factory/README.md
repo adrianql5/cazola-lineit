@@ -39,6 +39,7 @@ Each stage writes `runs/<branch>/<stage>.json` and reads the stages before it.
 | – | Trust ledger: upstream history, lowered for 90 days by a spot-check escape (kept in a repository issue) | `ledger.py` | no |
 | – | Live measurements from the repository's PRs for the dashboard | `live.py`, `dashboard.py` | no |
 | – | The merge gate as a branch ruleset, created or updated in place | `protect.py` | no |
+| – | Per-repository settings (`.earned-trust.toml`, read from the base branch); merge on signature | `config.py`, `github.py` | no |
 
 ## Folders
 
@@ -46,7 +47,7 @@ Each stage writes `runs/<branch>/<stage>.json` and reads the stages before it.
 cache/          replayed diffs, commits and issues of the 4 branches; upstream history for the ledger
 requirements/   per-issue requirements, curated by people
 knowledge/      checked facts (with sources), diagnostic IDs, our draft's hallucinated findings
-bench/          seeded defects (mutate.py), the benchmark (run.py), labels, report.json
+bench/          seeded defects (mutate.py), the benchmark (run.py), labels of rule findings (labels.json) and of AI findings (ai_labels.json)
 tests/          unittest: diff parser, judge, classifier, sampler, spot-check, gate, learning, the GitHub Actions entry point, live measurements
 ```
 

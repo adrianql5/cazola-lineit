@@ -55,7 +55,8 @@ def ours(rs: dict) -> bool:
         return True
     for rule in rs.get("rules", []):
         if rule.get("type") == "required_status_checks":
-            if any(c.get("context") == github.CHECK for c in rule["parameters"].get("required_status_checks", [])):
+            checks = rule.get("parameters", {}).get("required_status_checks", [])
+            if any(c.get("context") == github.CHECK for c in checks):
                 return True
     return False
 

@@ -75,6 +75,17 @@ Vultr Serverless Inference), set the repository secrets `LLM_BASE_URL`,
 `LLM_EXTRA_BODY` = `{"chat_template_kwargs": {"enable_thinking": false}}`).
 Without them the factory runs on its deterministic rules and says so.
 
+## Settings for each repository
+
+A `.earned-trust.toml` at the root of the default branch adapts the review to
+the repository: which files are generated, where the published API lives, the
+spot-check rate, and whether a signed PR is merged at once (`merge_on_sign`).
+It is read from the PR's base branch, never from the PR itself, so a change
+cannot loosen its own rules; its hash goes into every receipt. Without it, the
+defaults written for MessagePack-CSharp apply. Every setting:
+[`factory/earned_trust/config.py`](factory/earned_trust/config.py). This
+repository's own: [`.earned-trust.toml`](.earned-trust.toml).
+
 ## The example pull requests
 
 The [issues](../../issues) and [pull requests](../../pulls) of this repository

@@ -184,6 +184,7 @@ def render(r: dict, state: dict | None = None) -> str:
           f"- Files sorted by: {cl['engine']}",
           f"- AI reviewer: {p['llm']}",
           f"- Rules: {rt['policy']}" + (f", sha256 `{p['policy_sha'][:12]}`" if p.get("policy_sha") else ""),
+          f"- Settings: {p.get('settings', 'defaults')}",
           f"- Module trust: {p['trust']}",
           "", "</details>", "",
           "<sub>Earned-Trust PR Factory · AI reviews. Humans sign. Evidence decides.</sub>"]

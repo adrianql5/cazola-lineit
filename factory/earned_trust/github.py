@@ -27,7 +27,7 @@ import time
 import urllib.request
 from pathlib import Path
 
-from . import brief, commands, ledger, llm, pipeline, sources, tracer, worker
+from . import brief, commands, config, ledger, llm, pipeline, sources, tracer, worker
 from .sources import FACTORY
 
 API = os.environ.get("GITHUB_API_URL", "https://api.github.com")
@@ -238,6 +238,43 @@ def inline_findings(repo: str, number: int, sha: str, report: dict, existing: li
             print(f"inline comments skipped: {e}")
 
 
+def load_settings(repo: str, pr: dict) -> None:
+    """The repository's .earned-trust.toml as it is on the PR's *base* branch:
+    a pull request cannot change the rules it is reviewed by."""
+    import base64
+    base = (pr.get("base") or {}).get("ref")
+    if not base:
+        config.use(None, "")
+        return
+    try:
+        f = gh("GET", f"/repos/{repo}/contents/{config.FILE}?ref={base}")
+        text = base64.b64decode(f["content"]).decode()
+    except Exception:  # no file on that branch: the defaults
+        config.use(None, "")
+        return
+    config.use(text, f"{config.FILE} on {base}")
+
+
+def merge_signed(repo: str, pr: dict, state: dict) -> str:
+    """Merge a signed PR when the settings ask for it, then start CI by hand:
+    pushes made with GitHub Actions' token start no other workflow."""
+    g = config.get()["gate"]
+    names = " and ".join(s["name"] for s in state["signatures"])
+    try:
+        gh("PUT", f"/repos/{repo}/pulls/{pr['number']}/merge",
+           {"merge_method": g["merge_method"], "sha": pr["head"]["sha"],
+            "commit_title": f"Merge #{pr['number']}: {pr['title']} (signed by {names})"})
+    except Exception as e:
+        return (f"Signed, but GitHub did not merge it ({e}). Merge it by hand, or check that this workflow "
+                "has `contents: write` permission.")
+    try:
+        default = gh("GET", f"/repos/{repo}")["default_branch"]
+        gh("POST", f"/repos/{repo}/actions/workflows/ci.yml/dispatches", {"ref": default})
+    except Exception:
+        pass  # no ci.yml here, or no `actions: write`: the merge itself stands
+    return f"Merged into `{pr['base']['ref']}` ({g['merge_method']}), as the repository's settings ask."
+
+
 def acknowledge(repo: str, comment: dict, kind: str) -> None:
     """A 👍 on the comment as soon as its commands are read, before the review runs."""
     where = "pulls" if kind == "review" else "issues"
@@ -287,6 +324,7 @@ def main(target: str | None, reset_pr: int | None = None) -> int:
         pr = event["pull_request"]
     number, sha = pr["number"], pr["head"]["sha"]
 
+    load_settings(repo, pr)
     diff = gh("GET", f"/repos/{repo}/pulls/{number}", accept="application/vnd.github.v3.diff")
     n = issue_number(pr)
     meta = {"issue": n, "sha": sha, "subject": pr["title"], "author": pr["user"]["login"]}
@@ -385,6 +423,14 @@ def main(target: str | None, reset_pr: int | None = None) -> int:
         summary_md = rc_md + "\n\n" + text
     gh("POST", f"/repos/{repo}/check-runs", {"name": CHECK, "head_sha": sha, "status": "completed",
                                             "conclusion": gate["conclusion"], "details_url": pr["html_url"], "output": out})
+    # The gate is green now: if this comment completed the signature and the
+    # settings ask for it, merge (the check run above is what the ruleset waits for).
+    if (gate["conclusion"] == "success" and trigger and config.get()["gate"]["merge_on_sign"]
+            and pr.get("state", "open") == "open" and any(l.lower().startswith("/sign") for l in
+                                                          (trigger.get("body") or "").splitlines())):
+        result = merge_signed(repo, pr, state)
+        reply_to(repo, number, trigger, trigger_kind, [result])
+        print(result)
     if os.environ.get("GITHUB_STEP_SUMMARY"):
         with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as f:
             f.write(summary_md)
