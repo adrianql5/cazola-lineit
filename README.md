@@ -25,6 +25,26 @@ Three ways, from no setup to the real Action:
    within a minute and posts its brief on your PR. Reply `/explain <id>` to any finding. `/sign`
    will refuse you, because only people with write access can sign: that refusal is the gate working.
 
+## How it works inside
+
+On every pull request the Action runs a pipeline of stages, each one written to a JSON file
+the next one reads. Only one stage asks the LLM, and nothing it says is kept without proof:
+
+1. **Classifier** sorts every changed file (generated, tests, docs, logic, public API) and groups
+   generated files by pattern; the ones that don't match go to a person.
+2. **Requirement tracer** ties each claim of the issue and the docs to code, tests and the test run.
+3. **Scope auditor** flags changes the issue never asked for and claims that contradict checked facts.
+4. **Prosecutor** collects accusations from fixed rules and from the LLM (Vultr Serverless Inference).
+5. **Judge** keeps an accusation only if its file, lines and symbol are really in the diff. No AI.
+6. **Sensitivity** finds critical code (declared areas, their helpers, patterns, AI) and its owners.
+7. **Abstention gate** lists the decisions the AI won't take, for a person, with the evidence.
+8. **Router** decides how much a person reads (T0, T1, T2) with rules written in the brief.
+9. **Sampler** picks the spot-check files, seeded by the commit, so anyone can re-pick them.
+
+Then the brief, the line comments, the check and, after `/sign`, the receipt. Every stage, its
+module and its inputs: [factory/README.md](factory/README.md). The principles, trade-offs and
+limits on one page: [docs/CONCEPT_CARD.md](docs/CONCEPT_CARD.md).
+
 ## See it work
 
 | | |
