@@ -4,6 +4,27 @@ A GitHub Action that reviews every pull request, writes a short evidence
 brief, and keeps the PR blocked until a named person answers its findings and
 signs for the change. The AI points at problems; a human decides and signs.
 
+## Try it
+
+Three ways, from no setup to the real Action:
+
+1. **Look, nothing to install (1 minute).** Open [#8](../../pull/8): the brief at the top says
+   what a person must read (42 of 1,392 lines), the findings sit on their lines in
+   *Files changed*, and the merge stays blocked by the `sancho/human-accountability-gate`
+   check until an owner signs. [#22](../../pull/22) shows critical code found through a helper.
+2. **Run it on your machine (2 minutes, Python 3 only).**
+   ```sh
+   git clone https://github.com/adrianql5/sancho && cd sancho
+   make test     # 65 tests
+   make demo     # reviews the four challenge changes offline, plus the benchmark
+   ```
+   Then open `runs/ju26-issue-2297/brief.md` (the brief of #8), `runs/ju26-issue-2297/receipt.md`
+   (a signed receipt) and `dashboard/index.html` (the benchmark).
+3. **Watch the real Action review your own change (5 minutes).** Fork this repository, change
+   any file in your fork, and open a pull request to this repository's `main`. Sancho reviews it
+   within a minute and posts its brief on your PR. Reply `/explain <id>` to any finding. `/sign`
+   will refuse you, because only people with write access can sign: that refusal is the gate working.
+
 ## See it work
 
 | | |
