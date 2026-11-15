@@ -20,10 +20,16 @@ Three ways, from no setup to the real Action:
    ```
    Then open `runs/ju26-issue-2297/brief.md` (the brief of #8), `runs/ju26-issue-2297/receipt.md`
    (a signed receipt) and `dashboard/index.html` (the benchmark).
-3. **Watch the real Action review your own change (5 minutes).** Fork this repository, change
-   any file in your fork, and open a pull request to this repository's `main`. Sancho reviews it
-   within a minute and posts its brief on your PR. Reply `/explain <id>` to any finding. `/sign`
-   will refuse you, because only people with write access can sign: that refusal is the gate working.
+3. **Open a pull request yourself and watch the real Action review it (3 minutes).** No setup:
+   1. Open [`factory/sancho/commands.py` in edit mode](https://github.com/adrianql5/sancho/edit/main/factory/sancho/commands.py)
+      (you need to be signed in to GitHub).
+   2. Change anything, even one comment line, and click *Commit changes…* → *Propose changes* →
+      *Create pull request*. GitHub makes the fork for you.
+   3. Within a minute Sancho posts its brief on your pull request. This file is in a declared
+      critical area, so you'll see the full flow: findings on their lines, the AI's citations
+      checked by the judge, *Critical: signing and merging*, and *Only @adrianql5 can sign*.
+   4. Reply `/explain <id>` to any finding, or try `/sign`: Sancho refuses, because only people
+      with write access can sign. That refusal is the gate working.
 
 ## How it works inside
 
